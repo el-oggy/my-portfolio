@@ -3,25 +3,111 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Background — deep graphite / near-black (§33). */
+  --bg-graphite: #06070a;
+  --bg-graphite-2: #0a0c10;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-strong: rgba(255, 255, 255, 0.07);
+  --line: rgba(255, 255, 255, 0.10);
+  --text: #e6edf6;
+  --text-dim: #9aa7bb;
+  --text-faint: #5f6b7e;
+
+  /* Scene accents (§33). */
+  --accent-intro: #8b9bbd;
+  --accent-rtl: #7c5cff;
+  --accent-asic: #22d3ee;
+  --accent-timing: #22d3ee;
+  --accent-fpga: #3b82f6;
+  --accent-systems: #34d399;
+  --accent-timeline: #a78bfa;
+  --accent-contact: #67e8f9;
+
+  /* Typography (§35) — premium system stacks behind the variables components
+   * reference. Self-hosted fonts can later redefine these via @font-face with
+   * no downstream changes (see layout.tsx note). */
+  --font-inter: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-jetbrains: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code",
+    Menlo, Consolas, monospace;
+  --font-fraunces: ui-serif, "Iowan Old Style", "Apple Garamond", Georgia,
+    Cambria, "Times New Roman", serif;
+
+  --font-ui: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+  --font-display: var(--font-fraunces);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  /* Lenis smooth-scroll baseline. */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-graphite);
+  color: var(--text);
+  font-family: var(--font-ui);
+  /* Subtle film-grain noise via layered gradients (very light). */
+  background-image:
+    radial-gradient(1200px 600px at 50% -10%, rgba(124, 92, 255, 0.05), transparent 60%),
+    radial-gradient(900px 500px at 80% 110%, rgba(34, 211, 238, 0.04), transparent 60%);
+  background-attachment: fixed;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Kinetic content z-order: the 3D canvas sits at -z-10 (see Experience.tsx),
+ * DOM content scrolls above it. */
+.UiLayer {
+  position: relative;
+  z-index: 10;
+}
+
+/* The DOM scroll skeleton: nine semantic sections, each tall enough to give
+ * the master ScrollTrigger a generous 0..1 range. Content lives here for
+ * crawlers + screen readers (§49/§31); the canvas is the *enhancement*. */
+.ScrollSection {
+  min-height: 100vh;
+  padding: 14vh 6vw;
+  outline: none;
+}
+
+/* --- Reveal helpers (GSAP toggles these) --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  will-change: opacity, transform;
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- Focus visibility (accessibility §31) --- */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent-asic);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* --- Reduced motion: kill long transitions, keep content readable (§32) --- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Mono technical label chip. */
+.tech-chip {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
 }
