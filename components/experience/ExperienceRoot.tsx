@@ -5,6 +5,7 @@ import { ExperienceProvider } from "./ExperienceContext";
 import Experience from "@/components/canvas/Experience";
 import SoundToggle from "@/components/ui/SoundToggle";
 import ScrollHint from "@/components/ui/ScrollHint";
+import IntroOverlay from "@/components/ui/IntroOverlay";
 import { useEffect } from "react";
 import { initScroll, teardownScroll } from "@/lib/gsap";
 
@@ -43,6 +44,9 @@ export default function ExperienceRoot({
       <div className="UiLayer">
         {children}
       </div>
+
+      {/* Intro reveal overlay — layered above content for the 3D tier only. */}
+      {show3D && <IntroOverlay />}
 
       {/* Persistent UI (non-decorative controls always reachable). */}
       <ScrollHint />

@@ -1,5 +1,4 @@
 import ExperienceRoot from "@/components/experience/ExperienceRoot";
-import IntroAutoComplete from "@/components/ui/IntroAutoComplete";
 import { SCENES } from "@/lib/sceneConfig";
 import { identity, links, experience, education, skills, projects } from "@/lib/data";
 
@@ -9,35 +8,26 @@ import { identity, links, experience, education, skills, projects } from "@/lib/
  * copy is crawlable (§49) and screen-reader readable (§31). The 3D canvas
  * (mounted by ExperienceRoot behind this DOM) is the enhancement.
  *
- * This is the Phase-2 foundation skeleton; rich DOM overlays per scene land in
- * Phase 5. For now each section carries a concise, accurate summary so the
- * experience is coherent even with the canvas turned off.
+ * The visible "Hello." intro is rendered by <IntroOverlay> (DOM, above the
+ * canvas) so glyphs stay crisp/accessible; this page keeps a tall empty #top
+ * section to preserve scroll length while the overlay reads.
  */
 export default function Page() {
   return (
     <ExperienceRoot>
-      <IntroAutoComplete />
       <main id="top">
-        {/* ─────────── Intro / First Boot ─────────── */}
-        <section className="ScrollSection" id="silicon-intro-here" aria-label="First Boot">
-          <div className="mx-auto max-w-3xl">
-            <span className="tech-chip">First Boot</span>
-            <h1
-              className="mt-6 font-[family-name:var(--font-display)] text-6xl font-light leading-[0.95] tracking-tight sm:text-7xl"
-              style={{ color: "var(--text)" }}
-            >
-              Hello.
-            </h1>
-            <p className="mt-8 text-2xl font-medium text-[var(--text)]">
-              {identity.name}
-            </p>
-            <p className="mt-2 font-[family-name:var(--font-mono)] text-sm tracking-[0.18em] text-[var(--text-dim)]">
-              {identity.titleLine1} · {identity.titleLine2}
-            </p>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-[var(--text-dim)]">
-              {identity.supportingLine}
-            </p>
-          </div>
+        {/* ─────────── Intro / First Boot ───────────
+            Visual reveal is handled by IntroOverlay; this section holds the
+            scroll real estate + an accessible sr-only identity block. */}
+        <section
+          className="ScrollSection"
+          id="silicon-intro-here"
+          aria-label="First Boot"
+        >
+          <h1 className="sr-only">{identity.name} — {identity.titleLine1} · {identity.titleLine2}</h1>
+          <p className="sr-only">
+            {identity.supportingLine}
+          </p>
         </section>
 
         {/* Render one semantic section per non-intro scene. */}

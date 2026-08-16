@@ -5,7 +5,9 @@ import { AdaptiveDpr, AdaptiveEvents, Preload } from "@react-three/drei";
 import { Suspense } from "react";
 
 import CameraController from "./CameraController";
-import PlaceholderWorld from "./PlaceholderWorld";
+import IntroScene from "./scenes/IntroScene";
+import SiliconScene from "./scenes/SiliconScene";
+import MainLights from "./lights/MainLights";
 
 /**
  * The persistent WebGL host. ONE canvas for the whole experience (§10):
@@ -27,27 +29,27 @@ export default function Experience({
         antialias: true,
         alpha: true,
         powerPreference: "high-performance",
-        // Ensure the page background (graphite) shows through where the scene
-        // is transparent — we composite DOM UI on top via z-order.
       }}
       dpr={[1, reducedParallax ? 1.5 : 2]}
       camera={{ fov: 50, near: 0.1, far: 1200, position: [0, 14, 34] }}
-      // Maintain crispness on retina without crushing low-end devices.
       performance={{
-        min: 0.35, // R3F auto-scales detail (instancing/shadow) below this fps.
+        min: 0.35,
       }}
     >
-      {/* Subtle fog so distant geometry fades into the graphite bg. */}
       <fog attach="fog" args={["#06070A", 120, 520]} />
       <color attach="background" args={["#06070A"]} />
 
       <Suspense fallback={null}>
         <CameraController parallax={reducedParallax ? 0.35 : 1} />
-        <PlaceholderWorld />
+        <MainLights />
+
+        {/* --- Scenes --- */}
+        <IntroScene />
+        <SiliconScene />
+
         <Preload all />
       </Suspense>
 
-      {/* Auto-tier degradation: drop DPR + collapse event batching on jank. */}
       <AdaptiveDpr pixelated />
       <AdaptiveEvents />
     </Canvas>
