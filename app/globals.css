@@ -13,15 +13,18 @@
   --text-dim: #9aa7bb;
   --text-faint: #5f6b7e;
 
-  /* Scene accents (§33). */
+  /* Scene accents (§33) — Electronics / Embedded / IoT theme. */
   --accent-intro: #8b9bbd;
-  --accent-rtl: #7c5cff;
-  --accent-asic: #22d3ee;
-  --accent-timing: #22d3ee;
-  --accent-fpga: #3b82f6;
-  --accent-systems: #34d399;
+  --accent-pcb: #34d399;
+  --accent-embedded: #22d3ee;
+  --accent-iot: #fbbf24;
+  --accent-drone: #3b82f6;
+  --accent-firmware: #a78bfa;
+  --accent-rtl: #f97316;
   --accent-timeline: #a78bfa;
   --accent-contact: #67e8f9;
+  /* Alias kept for UI controls that reference the systems green. */
+  --accent-systems: #34d399;
 
   /* Typography (§35) — premium system stacks behind the variables components
    * reference. Self-hosted fonts can later redefine these via @font-face with
@@ -50,7 +53,7 @@ body {
   font-family: var(--font-ui);
   /* Subtle film-grain noise via layered gradients (very light). */
   background-image:
-    radial-gradient(1200px 600px at 50% -10%, rgba(124, 92, 255, 0.05), transparent 60%),
+    radial-gradient(1200px 600px at 50% -10%, rgba(52, 211, 153, 0.05), transparent 60%),
     radial-gradient(900px 500px at 80% 110%, rgba(34, 211, 238, 0.04), transparent 60%);
   background-attachment: fixed;
 }
@@ -84,7 +87,7 @@ body {
 
 /* --- Focus visibility (accessibility §31) --- */
 :where(a, button, [tabindex]):focus-visible {
-  outline: 2px solid var(--accent-asic);
+  outline: 2px solid var(--accent-embedded);
   outline-offset: 3px;
   border-radius: 3px;
 }

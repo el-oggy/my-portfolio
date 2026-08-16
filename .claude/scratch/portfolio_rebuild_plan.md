@@ -4,6 +4,8 @@ This document outlines the complete architectural and experience plan for the fr
 
 > **STATUS: APPROVED — BUILD FROM SCRATCH.** This document is the source of truth. Section M (Verified Content Inventory) supersedes any conflicting assumption in the master directive.
 
+> **AMENDMENT (2026-08-17) — RE-THEME: ELECTRONICS / EMBEDDED / IoT.** Per owner decision, the immersive itomdev-style experience is retained (architecture: single-canvas continuous world, camera path, Lenis+GSAP scroll driver, First-Boot intro, capability tiers) but the identity/world is rebuilt around **electronics, embedded systems, IoT, and robotics** — no VLSI focus. Scene map is now: intro (First Boot) → pcb (Circuit Hub) → embedded (microcontrollers) → iot (sensors & wireless) → drone (robotics hero — STM32 hexacopter) → firmware (ZMK, FlowOS, CI) → journey (signal path timeline) → contact (beacon). Content in `lib/data.ts` follows the same no-fabrication rule; the VLSI-specific projects were dropped and the VLSI internships remain only as honest Journey nodes. See git history for the diff.
+
 ---
 
 ### A. Experience Map
@@ -208,3 +210,34 @@ accents subtle glow/glass/technical line — no giant neon fills
 - Configurable endpoint `/resume.pdf` (constant `links.resume` in lib/data.ts).
 - Current CV placeholder = Google Drive link in M.1 ("Download current CV" fallback).
 - Update path: drop Intel-targeted PDF at `public/resume.pdf`; no code change.
+
+---
+
+## N. ITom UX Audit (2026-08-17) + Phase Evolution Decisions
+
+### N.1 ITom reference audit (live fetch of itomdev.com)
+- **Journey shape:** ONE continuous 3D world — a hand-drawn / pencil-on-paper **corridor** the camera walks via **scroll + mouse + mobile gyroscope**. Not scene-per-section; a hub path with **interactive doors leading into a few deep content rooms** (Gallery=projects, Studio=blog/content, Contact; About + Awards along the corridor walls).
+- **Intro:** a "sheet of paper rips open" reveal that drops the visitor into the corridor.
+- **Aesthetic:** flat geometry, hand-drawn pencil textures, custom GLSL **paint-reveal** shaders. Projects use **real-time image distortion** (WebGL shader warps/bends photographs on mouse move) + **FLIP-technique shared-element lightbox** transitions. GSAP for transitions/micro-interactions/scroll-triggered motion.
+- **Tech stack:** React + Next.js + Three.js + R3F + GSAP + Lenis + custom GLSL + Sanity CMS + Vercel. (Identical to ours minus CMS + the sketch aesthetic.)
+- **Implication:** our foundation already matches ITom's *architecture + interaction model + stack*. The real gaps are (a) journey shape (we fly *past* 9 dioramas; they enter *rooms*), (b) aesthetic flourishes (paper-tear intro, image-distortion, FLIP lightbox), (c) CMS (they use Sanity; we use a hardcoded `lib/data.ts`, which is fine for a personal portfolio).
+
+### N.2 Reconciled Phase-5+ decisions (2026-08-17)
+- **Journey shape → HYBRID PATH + ROOMS.** Keep the scroll-driven scene path, but make 2–3 scenes "deep" enterable rooms (a **Projects gallery** room aggregating all builds; the **Journey** room), and tighten the others (pcb hub, embedded, iot, drone, firmware, rtl, contact) into corridor passage. No full corridor rebuild.
+- **Aesthetic → BORROW ITOM FLOURISHES, keep neon-technical look.** Do NOT adopt the sketch/paper aesthetic. DO port: (1) **FLIP lightbox** project deep-dive transition, (2) **real-time image-distortion** GLSL shader on project media, (3) evolve the First-Boot intro reveal toward a paper-tear-style drop-in flourish (composable onto the existing circuit-trace shader).
+- **Content → KEEP REAL verified content.** `lib/data.ts` stays Adarsh's real embedded/IoT/robotics inventory. No placeholders, no fabrication (§18/§53 still enforced).
+- **Identity subject → Adarsh, broader dev.** Identity stays Adarsh; the "broader dev" goal is satisfied by the re-theme away from a VLSI-only niche toward embedded/IoT/robotics/firmware/RTL breadth.
+
+### N.3 Build-health verification (2026-08-17)
+- `tsc --noEmit` → **0 errors** after the re-theme.
+- `next dev` → HTTP 200, page title `Adarsh Swarup Maharana — Embedded Systems · IoT · Electronics`, ready in 5.1s. All 9 scenes mount in `Experience.tsx`. No runtime import errors.
+- **State:** re-themed working tree is coherent and runnable; it is uncommitted.
+
+### N.4 Implementation sequence (evolution, not rebuild)
+1. Commit the current re-themed working tree as a checkpoint (preserves the 9 scenes before structural evolution).
+2. Repo-data: add a `portal`/`room` notion to `SceneDef` (sceneConfig.ts) so the camera + DOM know which scenes are corridor-passage vs deep-room; restructure the journey into hub → corridor → rooms.
+3. Build the **Projects gallery room** scene (aggregates all `projects` into an enterable 3D space + a DOM detail panel).
+4. Build the **FLIP lightbox** UI component for project deep-dives (Framer Motion + FLIP; shared-element transition from gallery thumbnail to detail overlay).
+5. Build the **image-distortion GLSL shader** for project media (mouse-driven warp on `<ProjectMedia>` planes).
+6. Evolve **IntroScene/IntroOverlay** toward a paper-tear-style drop-in flourish layered on the circuit-trace shader.
+7. Polish + mobile/fallback validation (per Phase 8/9 of the original sequence).

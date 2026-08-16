@@ -8,6 +8,11 @@
  * Each scene owns a slice of the [0,1] progress range and a world center.
  * The camera keyframes are derived from the scene centers so the path is
  * always consistent with the scene layout.
+ *
+ * Theme: Electronics / Embedded / IoT — the journey is a hardware build:
+ *   intro (First Boot) -> pcb (circuit hub) -> embedded (microcontrollers)
+ *   -> iot (sensors & wireless) -> drone (robotics hero) -> firmware
+ *   -> journey -> contact
  */
 
 import type { SceneKey } from "./data";
@@ -29,7 +34,7 @@ export interface SceneDef {
 /**
  * Scenes laid out along a gentle path down -Z with mild X drift so it reads
  * as a journeyed world, not a straight tube. The visitor travels:
- *   intro -> silicon (hub) -> rtl -> asic -> timing -> fpga -> systems
+ *   intro -> pcb (hub) -> embedded -> iot -> drone -> firmware
  *   -> journey -> contact
  */
 export const SCENES: SceneDef[] = [
@@ -42,67 +47,67 @@ export const SCENES: SceneDef[] = [
     accent: "--accent-intro",
   },
   {
-    key: "silicon",
-    label: "Silicon Hub",
-    anchor: "#silicon",
-    scroll: [0.08, 0.16],
+    key: "pcb",
+    label: "Circuit Hub",
+    anchor: "#pcb",
+    scroll: [0.08, 0.18],
     worldCenter: [0, 0, -50],
-    accent: "--accent-asic",
+    accent: "--accent-pcb",
+  },
+  {
+    key: "embedded",
+    label: "Embedded · Microcontrollers",
+    anchor: "#embedded",
+    scroll: [0.18, 0.33],
+    worldCenter: [-30, 0, -110],
+    accent: "--accent-embedded",
+  },
+  {
+    key: "iot",
+    label: "IoT · Sensors & Wireless",
+    anchor: "#iot",
+    scroll: [0.33, 0.47],
+    worldCenter: [30, 0, -180],
+    accent: "--accent-iot",
+  },
+  {
+    key: "drone",
+    label: "Drone · Robotics",
+    anchor: "#drone",
+    scroll: [0.47, 0.62],
+    worldCenter: [-30, 0, -250],
+    accent: "--accent-drone",
+  },
+  {
+    key: "firmware",
+    label: "Firmware & Software",
+    anchor: "#firmware",
+    scroll: [0.62, 0.74],
+    worldCenter: [30, 0, -320],
+    accent: "--accent-firmware",
   },
   {
     key: "rtl",
-    label: "RTL",
+    label: "RTL · Systolic Array",
     anchor: "#rtl",
-    scroll: [0.16, 0.31],
-    worldCenter: [-30, 0, -110],
+    scroll: [0.74, 0.86],
+    worldCenter: [-30, 0, -380],
     accent: "--accent-rtl",
-  },
-  {
-    key: "asic",
-    label: "ASIC · Physical Design",
-    anchor: "#asic",
-    scroll: [0.31, 0.46],
-    worldCenter: [30, 0, -180],
-    accent: "--accent-asic",
-  },
-  {
-    key: "timing",
-    label: "Timing · STA",
-    anchor: "#timing",
-    scroll: [0.46, 0.55],
-    worldCenter: [-30, 0, -250],
-    accent: "--accent-timing",
-  },
-  {
-    key: "fpga",
-    label: "FPGA",
-    anchor: "#fpga",
-    scroll: [0.55, 0.64],
-    worldCenter: [30, 0, -320],
-    accent: "--accent-fpga",
-  },
-  {
-    key: "systems",
-    label: "Systems · Embedded",
-    anchor: "#systems",
-    scroll: [0.64, 0.76],
-    worldCenter: [-30, 0, -400],
-    accent: "--accent-systems",
   },
   {
     key: "journey",
     label: "Journey",
     anchor: "#journey",
-    scroll: [0.76, 0.9],
-    worldCenter: [0, 0, -480],
+    scroll: [0.86, 0.94],
+    worldCenter: [0, 0, -440],
     accent: "--accent-timeline",
   },
   {
     key: "contact",
     label: "Contact",
     anchor: "#contact",
-    scroll: [0.9, 1.0],
-    worldCenter: [0, 0, -560],
+    scroll: [0.94, 1.0],
+    worldCenter: [0, 0, -500],
     accent: "--accent-contact",
   },
 ];

@@ -21,7 +21,7 @@ export default function Page() {
             scroll real estate + an accessible sr-only identity block. */}
         <section
           className="ScrollSection"
-          id="silicon-intro-here"
+          id="first-boot"
           aria-label="First Boot"
         >
           <h1 className="sr-only">{identity.name} — {identity.titleLine1} · {identity.titleLine2}</h1>
@@ -54,91 +54,104 @@ export default function Page() {
 /** Concise, accurate per-scene copy for the foundation skeleton. */
 function SectionCopy({ scene }: { scene: string }) {
   switch (scene) {
-    case "silicon":
+    case "pcb":
       return (
         <>
           <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            Silicon Hub
+            Circuit Hub
           </h2>
           <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            The portfolio opens onto a stylized silicon die. From this central hub the
-            visitor travels outward into each engineering region — RTL, ASIC physical
-            design, timing, FPGA, embedded systems — then into the journey and contact.
+            The portfolio opens onto a stylized printed circuit board. From this central
+            hub the visitor travels outward into each engineering region — embedded
+            microcontrollers, IoT and wireless, drones and robotics, firmware — then
+            into the journey and contact.
           </p>
         </>
       );
-    case "rtl":
+    case "embedded":
       return (
         <>
           <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            RTL Design
+            Embedded · Microcontrollers
           </h2>
           <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            Register-transfer-level design in Verilog. Featured work includes a fully
-            pipelined 2D systolic array for INT8 matrix multiplication and Mealy/Moore
-            sequence detectors.
+            Working at the register level with STM32, ESP32, and Arduino — peripherals,
+            interrupts, and the I2C / UART / SPI buses that connect sensors to silicon.
+            The region is staged as a breadboard: MCU, display, and peripheral blocks
+            linked by signal lines.
           </p>
           <ul className="mt-6 space-y-2 font-[family-name:var(--font-mono)] text-sm text-[var(--text-dim)]">
-            {projectsFor("rtl").map((p) => (
+            <li>
+              <span style={{ color: "var(--accent-embedded)" }}>▸</span> Embedded C/C++ ·
+              GPIO / ADC / PWM <span className="text-[var(--text-faint)]">— Proficient</span>
+            </li>
+            <li>
+              <span style={{ color: "var(--accent-embedded)" }}>▸</span> STM32 · ESP32 ·
+              Arduino <span className="text-[var(--text-faint)]">— hands-on builds</span>
+            </li>
+          </ul>
+        </>
+      );
+    case "iot":
+      return (
+        <>
+          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
+            IoT · Sensors & Wireless
+          </h2>
+          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
+            Connected devices that sense the physical world and report it — solar-powered
+            weather stations, relay-driven home automation over Blynk, and the sensor
+            fusion that makes them useful.
+          </p>
+          <ul className="mt-6 space-y-2 font-[family-name:var(--font-mono)] text-sm text-[var(--text-dim)]">
+            {projectsFor("iot").map((p) => (
               <li key={p.id}>
-                <span style={{ color: "var(--accent-rtl)" }}>▸</span> {p.title}{" "}
+                <span style={{ color: "var(--accent-iot)" }}>▸</span> {p.title}{" "}
                 <span className="text-[var(--text-faint)]">— {p.year}</span>
               </li>
             ))}
           </ul>
         </>
       );
-    case "asic":
+    case "drone":
       return (
         <>
           <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            ASIC · Physical Design
+            Drone · Robotics
           </h2>
           <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            Currently developing expertise in the RTL-to-GDSII physical design flow.
-            The visualization stages the journey: floorplanning, placement, power
-            planning, CTS, routing, timing, and GDSII.
+            {heroProject.blurb}
           </p>
           <p className="mt-4 font-[family-name:var(--font-mono)] text-sm text-[var(--text-faint)]">
-            Training / Exposure — not professional tapeout experience.
+            Hero build — {heroProject.year} · under active development.
           </p>
+          <ul className="mt-5 space-y-2 font-[family-name:var(--font-mono)] text-sm text-[var(--text-dim)]">
+            {heroProject.stack.map((s) => (
+              <li key={s}>
+                <span style={{ color: "var(--accent-drone)" }}>▸</span> {s}
+              </li>
+            ))}
+          </ul>
         </>
       );
-    case "timing":
+    case "firmware":
       return (
         <>
           <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            Timing · Static Timing Analysis
+            Firmware & Software
           </h2>
           <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            A storytelling visualization of a timing path — launch register through
-            combinational logic to the capture register — with clock, data path,
-            arrival time, required time, and slack.
+            The code side of the hardware world — ZMK keyboard firmware with a CI build
+            pipeline, and an offline-first productivity dashboard in vanilla JavaScript.
           </p>
-        </>
-      );
-    case "fpga":
-      return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            FPGA
-          </h2>
-          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            Hardware-oriented FPGA work — logic fabric, routing, clock distribution.
-            Including the Basys-3 up/down counter built during the PMEC VLSI intensive.
-          </p>
-        </>
-      );
-    case "systems":
-      return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            Embedded Systems
-          </h2>
-          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            STM32, ESP32, and IoT work — drone telemetry, weather station, home
-            automation, ZMK keyboard firmware. Visually distinct from the VLSI world.
-          </p>
+          <ul className="mt-6 space-y-2 font-[family-name:var(--font-mono)] text-sm text-[var(--text-dim)]">
+            {projectsFor("firmware").map((p) => (
+              <li key={p.id}>
+                <span style={{ color: "var(--accent-firmware)" }}>▸</span> {p.title}{" "}
+                <span className="text-[var(--text-faint)]">— {p.year}</span>
+              </li>
+            ))}
+          </ul>
         </>
       );
     case "journey":
@@ -155,8 +168,8 @@ function SectionCopy({ scene }: { scene: string }) {
                   style={{
                     background:
                       e.kind === "Training / Exposure"
-                        ? "var(--accent-timing)"
-                        : "var(--accent-rtl)",
+                        ? "var(--accent-iot)"
+                        : "var(--accent-embedded)",
                   }}
                 />
                 <div className="font-[family-name:var(--font-mono)] text-xs tracking-widest text-[var(--text-faint)]">
@@ -189,7 +202,7 @@ function SectionCopy({ scene }: { scene: string }) {
       return (
         <>
           <h2 className="mt-6 font-[family-name:var(--font-display)] text-6xl font-light tracking-tight">
-            Let&rsquo;s build something reliable.
+            Let&rsquo;s build something connected.
           </h2>
           <div className="mt-8 space-y-3 font-[family-name:var(--font-mono)] text-sm">
             <ContactRow label="Email" href={`mailto:${links.email}`} value={links.email} />
@@ -220,4 +233,6 @@ function projectsFor(scene: string) {
   return projects.filter((p) => p.scene === scene);
 }
 
-void skills; // skills render lands in Phase 5; referenced to keep import used.
+const heroProject = projects.find((p) => p.hero) ?? projects[0];
+
+void skills; // skills render lands in a later phase; referenced to keep import used.

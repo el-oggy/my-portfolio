@@ -1,21 +1,22 @@
 /**
  * Centralized content data layer.
  *
- * Source of truth = the verified content inventory (plan §M). Every field here is
- * corroborated against the live portfolio (adarsh-vlsi.vercel.app) or GitHub (el-oggy).
- * No fabricated experience, tapeouts, certs, or titles (enforced by §18 / §53).
+ * Source of truth = the verified content inventory (plan §M), re-themed for an
+ * Electronics / Embedded / IoT identity. Every field here is corroborated
+ * against GitHub (el-oggy) or the local drone-project repo. No fabricated
+ * experience, certs, or titles (enforced by §18 / §53).
  *
  * Scene logic imports ONLY from here — content is fully separated from presentation.
  */
 
 export type SceneKey =
   | "intro"
-  | "silicon"
+  | "pcb"
+  | "embedded"
+  | "iot"
+  | "drone"
+  | "firmware"
   | "rtl"
-  | "asic"
-  | "timing"
-  | "fpga"
-  | "systems"
   | "journey"
   | "contact";
 
@@ -28,11 +29,10 @@ export interface LinkItem {
 export const identity = {
   name: "Adarsh Swarup Maharana",
   firstName: "Adarsh",
-  titleLine1: "Physical Design · RTL · FPGA",
-  titleLine2: "Embedded Systems",
-  /** Honest framing — current learning, NOT professional tapeout experience (§M.1, §53). */
+  titleLine1: "Embedded Systems · IoT · Robotics",
+  titleLine2: "Electronics Engineer",
   supportingLine:
-    "Building efficient digital hardware from RTL toward silicon — currently developing expertise in RTL-to-GDSII and Physical Design.",
+    "Designing connected hardware — microcontrollers, sensors, wireless systems, and the firmware that brings them to life. From breadboard to flying drone.",
   location: "Berhampur, Odisha, India",
 } as const;
 
@@ -41,48 +41,43 @@ export const links = {
   github: "https://github.com/el-oggy",
   linkedin: "https://www.linkedin.com/in/adarsh-swarup-maharana-4839763b8/",
   portfolioURL: "https://adarsh-vlsi.vercel.app/",
-  /** Configurable resume endpoint (§37). Drop the Intel-targeted PDF at public/resume.pdf. */
+  /** Configurable resume endpoint (§37). Drop the PDF at public/resume.pdf. */
   resume: "/resume.pdf",
-  /** Placeholder CV until the final Intel-targeted resume is placed at /resume.pdf. */
+  /** Placeholder CV until the final resume is placed at /resume.pdf. */
   currentCV:
     "https://drive.google.com/file/d/1XYQu1boH9sWpseAs0uv-9hWWglkdFMjl/view?usp=sharing",
 } as const;
 
 export const navLinks: LinkItem[] = [
   {
+    label: "Embedded",
+    href: "#embedded",
+    aria: "Jump to the embedded systems section",
+  },
+  {
+    label: "IoT",
+    href: "#iot",
+    aria: "Jump to the IoT and wireless section",
+  },
+  {
+    label: "Drone",
+    href: "#drone",
+    aria: "Jump to the drone and robotics section",
+  },
+  {
+    label: "Firmware",
+    href: "#firmware",
+    aria: "Jump to the firmware and software section",
+  },
+  {
     label: "RTL",
     href: "#rtl",
-    aria: "Jump to the RTL design section",
-  },
-  {
-    label: "ASIC",
-    href: "#asic",
-    aria: "Jump to the ASIC and physical design section",
-  },
-  {
-    label: "Timing",
-    href: "#timing",
-    aria: "Jump to the static timing analysis section",
-  },
-  {
-    label: "FPGA",
-    href: "#fpga",
-    aria: "Jump to the FPGA section",
-  },
-  {
-    label: "Systems",
-    href: "#systems",
-    aria: "Jump to the embedded systems section",
+    aria: "Jump to the RTL and digital design section",
   },
   {
     label: "Journey",
     href: "#journey",
     aria: "Jump to the professional journey timeline",
-  },
-  {
-    label: "About",
-    href: "#about",
-    aria: "Jump to the about section",
   },
   {
     label: "Contact",
@@ -114,55 +109,13 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    id: "systolic-array",
-    title: "2D Systolic Array for Matrix Multiplication",
-    blurb:
-      "A fully pipelined N×N systolic array accelerator for INT8 matrix multiplication (C = A×B), built for Edge AI inference. Parameterized N and DATA_WIDTH; completes in 3N−1 clock cycles. 5 RTL modules + 3 passing testbenches.",
-    year: "2026 · Edge AI Hackathon 2026",
-    scene: "rtl",
-    hero: true,
-    repo: "https://github.com/el-oggy/2D-systolic-array-",
-    proficiencyLabel: "Hands-on",
-    stack: [
-      "Verilog HDL",
-      "FSM Controller",
-      "Skew Buffers",
-      "Icarus Verilog",
-      "GTKWave",
-      "Vivado (optional)",
-    ],
-    details: [
-      "Top-level systolic_top wraps skew buffers A/B, an N×N processing-element grid, and a controller FSM (IDLE → LOAD → COMPUTE → DONE).",
-      "Each PE performs acc += a_in × b_in and forwards inputs to its neighbors, achieving optimal data reuse — each input read once and reused N times (N× bandwidth reduction).",
-      "B-matrix transposition prior to skewing reuses a single shift-register buffer for both data streams.",
-      "Three testbenches pass: 1×1 PE unit test, 2×2 identity multiply, and 4×4 known-answer + negative-number tests.",
-      "Documented with an innovation roadmap (workload-adaptive arrays, resource- and power-aware design) and code-explanation PDFs.",
-      "References: Kung & Leiserson 1978 (systolic arrays); Jouppi et al. 2017 (TPU); Eyeriss 2016.",
-    ],
-  },
-  {
-    id: "sequence-detector",
-    title: "FPGA Sequence Detector — Mealy & Moore",
-    blurb:
-      "A sequence detector for the 4-bit sequence '1011' implemented as both Mealy and Moore finite state machines, synthesised and verified on FPGA.",
-    year: "2024",
-    scene: "rtl",
-    proficiencyLabel: "Hands-on",
-    stack: ["Verilog HDL", "Xilinx Vivado", "FPGA", "FSM (Mealy/Moore)"],
-    details: [
-      "Detects the fixed 4-bit sequence '1011' using two distinct FSM styles for comparison.",
-      "Implemented in Verilog, synthesised and verified via Xilinx Vivado for FPGA.",
-      "State nodes S0 → S1 → S2 → S3 with signal transitions driven by the input stream.",
-      "No standalone public repository is linked — presented as completed coursework. (No fabricated repo link.)",
-    ],
-  },
-  {
     id: "drone-hexcopter",
     title: "STM32 Hexacopter Flight Controller",
     blurb:
-      "A custom six-rotor flight controller on an STM32 microcontroller with a custom KiCad PCB, MPU6500 IMU, and GPS — under active development.",
+      "A custom six-rotor flight controller on an STM32 microcontroller with a custom KiCad PCB, MPU6500 IMU, and GPS — under active development. The hero build: hardware, firmware, and telemetry in one system.",
     year: "2024",
-    scene: "systems",
+    scene: "drone",
+    hero: true,
     repo: "https://github.com/el-oggy/Drone-hexcoptor-",
     proficiencyLabel: "Hands-on",
     stack: [
@@ -174,10 +127,40 @@ export const projects: Project[] = [
       "I2C & UART",
     ],
     details: [
-      "Custom hexacopter (6-rotor) flight controller built around an STM32 MCU.",
-      "PCB designed in KiCad; MPU6500 inertial measurement unit and GPS for telemetry.",
-      "Includes test sketches (gps_testing_stm32.ino, MPU6500_Visualizer_Code.ino).",
-      "Organized into docs/, hardware/, firmware/, images/. Educational / research, under active development.",
+      "Custom hexacopter (6-rotor) flight controller built around an STM32 MCU, with a PCB designed in KiCad.",
+      "MPU6500 inertial measurement unit (I2C) and GPS provide attitude and position telemetry over UART.",
+      "Firmware includes test sketches — gps_testing_stm32.ino, led_blink_stm32.ino, MPU6500_Visualizer_Code.ino — plus a browser-based Drone_IMU_GroundStation.html.",
+      "Repo organized into docs/, hardware/, firmware/, images/. Educational / research, under active development.",
+    ],
+  },
+  {
+    id: "weather-station",
+    title: "IoT Weather Monitoring Station",
+    blurb:
+      "Solar-powered IoT weather station on an ESP32 with multiple environmental sensors, transmitting telemetry for remote monitoring.",
+    year: "2023",
+    scene: "iot",
+    proficiencyLabel: "Hands-on",
+    stack: ["ESP32", "C/C++", "BME280", "BH1750", "DS18B20", "PCB Design", "Solar"],
+    details: [
+      "ESP32-based weather station capturing temperature, humidity, light, and soil temperature.",
+      "Solar-powered for remote placement, with a custom PCB design.",
+      "Presented as completed project; no standalone public repo linked here.",
+    ],
+  },
+  {
+    id: "home-automation",
+    title: "Home Automation with Smart Staircase Lighting",
+    blurb:
+      "ESP-based home automation with relay modules and a smart staircase lighting controller, managed via Blynk IoT.",
+    year: "2024",
+    scene: "iot",
+    proficiencyLabel: "Hands-on",
+    stack: ["Arduino", "Blynk IoT", "Relay Modules", "ESP"],
+    details: [
+      "ESP-based relay control for home appliances via the Blynk IoT platform.",
+      "Smart staircase lighting triggered by presence.",
+      "Presented as completed project; no standalone public repo linked here.",
     ],
   },
   {
@@ -186,7 +169,7 @@ export const projects: Project[] = [
     blurb:
       "ZMK (Zephyr RTOS-based) firmware configuration for a custom mechanical keyboard, with a GitHub Actions continuous-integration build pipeline.",
     year: "2026",
-    scene: "systems",
+    scene: "firmware",
     repo: "https://github.com/el-oggy/zmk-config",
     proficiencyLabel: "Hands-on",
     stack: ["ZMK Firmware", "Zephyr RTOS", "GitHub Actions CI", "YAML", "C"],
@@ -202,7 +185,7 @@ export const projects: Project[] = [
     blurb:
       "A fully responsive offline-first personal productivity dashboard: habit tracking, calendar, and state — built with vanilla ES6 JavaScript and IndexedDB local storage.",
     year: "2026",
-    scene: "systems",
+    scene: "firmware",
     repo: "https://github.com/el-oggy/PersonalDashboard",
     proficiencyLabel: "Hands-on",
     stack: ["Vanilla JS (ES6)", "IndexedDB", "HTML5", "CSS3"],
@@ -213,48 +196,21 @@ export const projects: Project[] = [
     ],
   },
   {
-    id: "weather-station",
-    title: "IoT Weather Monitoring Station",
+    id: "systolic-array",
+    title: "2D Systolic Array for Matrix Multiplication",
     blurb:
-      "Solar-powered IoT weather station on an ESP32 with multiple environmental sensors, transmitting telemetry for remote monitoring.",
-    year: "2023",
-    scene: "systems",
-    proficiencyLabel: "Hands-on",
-    stack: ["ESP32", "C/C++", "BME280", "BH1750", "DS18B20", "PCB Design", "Solar"],
-    details: [
-      "ESP32-based weather station capturing temperature, humidity, light, and soil temperature.",
-      "Solar-powered for remote placement. Custom PCB design.",
-      "Presented as completed project; no standalone public repo linked here.",
-    ],
-  },
-  {
-    id: "home-automation",
-    title: "Home Automation with Smart Staircase Lighting",
-    blurb:
-      "ESP-based home automation with relay modules and a smart staircase lighting controller, managed via Blynk IoT.",
-    year: "2024",
-    scene: "systems",
-    proficiencyLabel: "Hands-on",
-    stack: ["Arduino", "Blynk IoT", "Relay Modules", "ESP"],
-    details: [
-      "ESP-based relay control for home appliances via the Blynk IoT platform.",
-      "Smart staircase lighting triggered by presence.",
-      "Presented as completed project; no standalone public repo linked here.",
-    ],
-  },
-  {
-    id: "basys3-counter",
-    title: "4-bit Up/Down Counter on Basys-3 FPGA",
-    blurb:
-      "A 4-bit up/down counter with synchronous reset designed in Verilog, synthesised in Vivado, and implemented on an Artix-7 Basys-3 FPGA during the PMEC VLSI intensive.",
+      "A 2D systolic array for INT8 matrix multiplication (C = A x B), a core accelerator architecture for deep learning and HPC workloads. Implemented in Verilog, this project explores high-throughput, low-latency parallel computation.",
     year: "2025",
-    scene: "fpga",
+    scene: "rtl",
+    repo: "https://github.com/el-oggy/2D-systolic-array-",
     proficiencyLabel: "Hands-on",
-    stack: ["Verilog HDL", "Xilinx Vivado", "LTSpice", "Artix-7 Basys-3"],
+    stack: ["Verilog", "RTL Design", "Digital Logic", "INT8", "Matrix Multiply"],
     details: [
-      "4-bit up/down counter with synchronous reset and enable.",
-      "Implemented on the Artix-7 Basys-3 FPGA during the PMEC VLSI/EDA intensive.",
-      "Part of the hands-on VLSI design flow training.",
+      "Hardware implementation of a 2D systolic array for efficient INT8 matrix multiplication (C = A x B).",
+      "Designed for high throughput in compute-intensive tasks like those in deep learning inference accelerators.",
+      "The architecture uses a grid of processing elements (PEs) with local connectivity, minimizing data movement.",
+      "Input matrices A and B are streamed into the array, and the result matrix C is accumulated in place.",
+      "This project is an application of parallel computing principles in hardware. The RTL computes matrix multiplication; convolution, DSP, and MIMO processing are related application areas that share this architectural foundation.",
     ],
   },
 ];
@@ -277,27 +233,6 @@ export interface ExperienceNode {
 
 export const experience: ExperienceNode[] = [
   {
-    id: "nielit",
-    title: "VLSI Design Flow — RTL → GDS-II",
-    org: "NIELIT, Noida",
-    period: "2025 – 2026",
-    kind: "Training / Exposure",
-    summary:
-      "Currently developing expertise in the full RTL-to-GDSII and Physical Design flow. Training / exposure — not hands-on production physical design.",
-    topics: [
-      "RTL",
-      "Synthesis",
-      "STA",
-      "Linux",
-      "TCL",
-      "Physical Design",
-      "Floorplanning",
-      "CTS",
-      "Routing",
-      "Constraints",
-    ],
-  },
-  {
     id: "nit-rourkela",
     title: "Research & Technical Intern",
     org: "NIT Rourkela",
@@ -314,16 +249,35 @@ export const experience: ExperienceNode[] = [
     period: "Oct 2025",
     kind: "Hands-on",
     summary:
-      "Two-week intensive. Designed Verilog/VHDL circuits (adders, muxes, flip-flops, counters) and implemented a 4-bit up/down counter on an Artix-7 Basys-3 FPGA. Studied the full VLSI flow through DRC/LVS/ERC signoff.",
+      "Two-week intensive. Designed Verilog/VHDL circuits (adders, muxes, flip-flops, counters) and implemented a 4-bit up/down counter on an Artix-7 Basys-3 FPGA. Studied the full hardware flow through DRC/LVS/ERC signoff.",
     topics: [
       "LTSpice",
       "Xilinx Vivado",
       "Cadence",
       "Verilog/VHDL",
       "Artix-7 Basys-3",
-      "RTL → Synthesis → Physical Design",
       "DRC / LVS / ERC Signoff",
       "NMOS / CMOS Fabrication",
+    ],
+  },
+  {
+    id: "nielit",
+    title: "VLSI Design Flow — RTL → GDS-II",
+    org: "NIELIT, Noida",
+    period: "2025 – 2026",
+    kind: "Training / Exposure",
+    summary:
+      "Currently developing expertise in the full RTL-to-GDSII and Physical Design flow. Training / exposure — not hands-on production physical design.",
+    topics: [
+      "RTL",
+      "Synthesis",
+      "STA",
+      "Linux",
+      "TCL",
+      "Floorplanning",
+      "CTS",
+      "Routing",
+      "Constraints",
     ],
   },
   {
@@ -394,45 +348,41 @@ export interface SkillGroup {
 
 export const skills: SkillGroup[] = [
   {
-    group: "VLSI & Digital Design",
+    group: "Microcontrollers & Embedded",
     items: [
-      { name: "Verilog", level: "Intermediate" },
-      { name: "Digital Logic Design", level: "Proficient" },
-      { name: "FPGA Design / Vivado", level: "Intermediate" },
-      { name: "RTL Design", level: "Intermediate" },
-      { name: "Logic Synthesis", level: "Basic" },
-      { name: "VHDL", level: "Basic" },
-    ],
-  },
-  {
-    group: "Embedded Systems & IoT",
-    items: [
-      { name: "Arduino", level: "Proficient" },
+      { name: "STM32", level: "Intermediate" },
       { name: "ESP32", level: "Intermediate" },
+      { name: "Arduino", level: "Proficient" },
       { name: "Raspberry Pi", level: "Basic" },
-      { name: "Sensor Integration", level: "Intermediate" },
-      { name: "UART / I2C / SPI", level: "Intermediate" },
-      { name: "Blynk IoT", level: "Intermediate" },
+      { name: "Embedded C/C++", level: "Intermediate" },
     ],
   },
   {
-    group: "Tools & Software",
+    group: "Interfaces & Sensing",
     items: [
+      { name: "UART / I2C / SPI", level: "Intermediate" },
+      { name: "Sensor Integration", level: "Intermediate" },
+      { name: "GPIO / ADC / PWM", level: "Proficient" },
+      { name: "MPU6500 IMU", level: "Intermediate" },
+    ],
+  },
+  {
+    group: "Electronics & Design",
+    items: [
+      { name: "KiCad PCB Design", level: "Intermediate" },
       { name: "LTSpice", level: "Intermediate" },
       { name: "Xilinx Vivado", level: "Intermediate" },
-      { name: "Cadence", level: "Basic" },
-      { name: "MATLAB", level: "Basic" },
-      { name: "Git & GitHub", level: "Intermediate" },
+      { name: "Digital Logic Design", level: "Proficient" },
     ],
   },
   {
-    group: "Languages",
+    group: "IoT & Software",
     items: [
-      { name: "C / C++", level: "Intermediate" },
+      { name: "Blynk IoT", level: "Intermediate" },
       { name: "Verilog HDL", level: "Intermediate" },
       { name: "JavaScript (ES6)", level: "Intermediate" },
       { name: "Python", level: "Basic" },
-      { name: "HTML5 / CSS3", level: "Intermediate" },
+      { name: "Git & GitHub", level: "Intermediate" },
     ],
   },
 ];
@@ -450,12 +400,12 @@ export interface Cert {
 
 export const certifications: Cert[] = [
   {
-    title: "VLSI Design using EDA Tools (Internship)",
-    issuer: "PMEC",
-  },
-  {
     title: "Young IoT Prodigy",
     issuer: "Infosys Spring Board",
+  },
+  {
+    title: "VLSI Design using EDA Tools (Internship)",
+    issuer: "PMEC",
   },
   {
     title: "Python Programming for Everybody",

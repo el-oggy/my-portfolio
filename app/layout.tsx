@@ -19,19 +19,21 @@ const SITE_URL = "https://adarsh-vlsi.vercel.app/";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Adarsh Swarup Maharana — VLSI · ASIC · Physical Design · RTL · FPGA",
+    default: "Adarsh Swarup Maharana — Embedded Systems · IoT · Electronics",
     template: "%s — Adarsh Swarup Maharana",
   },
   description:
-    "Immersive portfolio of Adarsh Swarup Maharana — VLSI / ASIC / Physical Design / RTL / FPGA engineer, with embedded systems work. From RTL toward silicon, an interactive engineering world.",
+    "Immersive portfolio of Adarsh Swarup Maharana — embedded systems, IoT, and electronics engineer: microcontrollers, sensors, wireless systems, drones, and the firmware that brings them to life.",
   keywords: [
-    "VLSI",
-    "ASIC",
-    "Physical Design",
-    "RTL",
-    "FPGA",
-    "Verilog",
     "Embedded Systems",
+    "IoT",
+    "Electronics",
+    "STM32",
+    "ESP32",
+    "Arduino",
+    "Drones",
+    "Robotics",
+    "Firmware",
     "Adarsh Swarup Maharana",
   ],
   authors: [{ name: "Adarsh Swarup Maharana" }],
@@ -39,16 +41,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: SITE_URL,
-    siteName: "Adarsh Swarup Maharana — VLSI Portfolio",
-    title: "Adarsh Swarup Maharana — VLSI · ASIC · Physical Design · RTL · FPGA",
+    siteName: "Adarsh Swarup Maharana — Embedded Portfolio",
+    title: "Adarsh Swarup Maharana — Embedded Systems · IoT · Electronics",
     description:
-      "An interactive engineering world: from RTL toward silicon. VLSI / ASIC / Physical Design / RTL / FPGA, with embedded systems.",
+      "An interactive electronics world: microcontrollers, sensors, wireless systems, drones, and firmware.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Adarsh Swarup Maharana — VLSI · ASIC · Physical Design",
-    description:
-      "An interactive engineering world: from RTL toward silicon.",
+    title: "Adarsh Swarup Maharana — Embedded Systems · IoT",
+    description: "An interactive electronics world: from breadboard to flying drone.",
   },
   alternates: { canonical: SITE_URL },
   robots: { index: true, follow: true },

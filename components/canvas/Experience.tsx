@@ -6,7 +6,14 @@ import { Suspense } from "react";
 
 import CameraController from "./CameraController";
 import IntroScene from "./scenes/IntroScene";
-import SiliconScene from "./scenes/SiliconScene";
+import PCBScene from "./scenes/PCBScene";
+import EmbeddedScene from "./scenes/EmbeddedScene";
+import IoTScene from "./scenes/IoTScene";
+import DroneScene from "./scenes/DroneScene";
+import FirmwareScene from "./scenes/FirmwareScene";
+import SystolicArrayScene from "./scenes/SystolicArrayScene";
+import JourneyScene from "./scenes/JourneyScene";
+import ContactScene from "./scenes/ContactScene";
 import MainLights from "./lights/MainLights";
 
 /**
@@ -43,9 +50,16 @@ export default function Experience({
         <CameraController parallax={reducedParallax ? 0.35 : 1} />
         <MainLights />
 
-        {/* --- Scenes --- */}
+        {/* --- Scenes: the hardware build journey --- */}
         <IntroScene />
-        <SiliconScene />
+        <PCBScene />
+        <EmbeddedScene />
+        <IoTScene />
+        <DroneScene />
+        <FirmwareScene />
+        <SystolicArrayScene />
+        <JourneyScene />
+        <ContactScene />
 
         <Preload all />
       </Suspense>
