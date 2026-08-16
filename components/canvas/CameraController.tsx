@@ -4,19 +4,25 @@ import { useThree, useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-import { CAMERA_PATH, SCENES } from "@/lib/sceneConfig";
+import { FULL_CAMERA_PATH } from "@/lib/sceneConfig";
 import { getScroll } from "@/lib/scrollStore";
 
 /**
  * Central camera authority (§44). Nothing else mutates camera position.
  *
- * Each frame:
- *   1. Map scroll progress → a parametric t along CAMERA_PATH (keyframes are
- *      one-per-scene; t = progress * (N-1) maps 0..1 across the whole path).
- *   2. Catmull-Rom-ish piecewise interpolation between keyframes (smooth,
- *      cheap, no allocations beyond temp vectors).
- *   3. Damp position + lookAt toward the target for buttery motion.
- *   4. Add subtle pointer parallax (clamped) for depth — non-reactive.
+ * The camera follows FULL_CAMERA_PATH — a globally-sorted list of absolute
+ * keyframes (each carrying an absolute journey `progress` plus world-space
+ * `pos`/`lookAt`). Each frame:
+ *   1. Read scroll progress + velocity from the non-reactive scrollStore.
+ *   2. Bracket the two path keyframes whose `progress` straddle the current
+ *      scroll progress, and find the local fraction f between them.
+ *   3. Smoothstep f, then lerp pos + lookAt toward the target.
+ *   4. Damp the real camera toward that target for buttery motion.
+ *   5. Add subtle pointer parallax (clamped) for depth — non-reactive.
+ *
+ * When scrollStore.paused is set (e.g. a modal lightbox is open), the camera
+ * holds its current position/lookAt instead of chasing scroll, so the world
+ * freezes cleanly until the modal closes.
  *
  * Reduced tier: parallax scaled down. 2D tier never mounts this at all.
  */
@@ -40,7 +46,7 @@ export default function CameraController({
 
   // Initialize camera at the first keyframe so there is no pop-in.
   useEffect(() => {
-    const k = CAMERA_PATH[0];
+    const k = FULL_CAMERA_PATH[0];
     camera.position.set(...k.pos);
     _currentLook.set(...k.lookAt);
     camera.lookAt(_currentLook);
@@ -50,14 +56,31 @@ export default function CameraController({
   useFrame((_, delta) => {
     if (!inited.current) return;
     const s = getScroll();
+    const path = FULL_CAMERA_PATH;
 
-    const segs = CAMERA_PATH.length - 1;
-    const t = THREE.MathUtils.clamp(s.progress * segs, 0, segs);
-    const i = Math.min(Math.floor(t), segs - 1);
-    const f = t - i;
+    // Hold still while a modal (lightbox) has paused the scroll driver.
+    if (s.paused) {
+      return;
+    }
 
-    const a = CAMERA_PATH[i];
-    const b = CAMERA_PATH[i + 1];
+    const p = THREE.MathUtils.clamp(s.progress, 0, 1);
+
+    // Bracket-search: find the two keyframes whose progress straddles `p`.
+    // Path is sorted ascending and covers [0,1] (first keyframe progress 0,
+    // last progress 1), so this always resolves to a valid segment.
+    let i = 0;
+    for (; i < path.length - 1; i++) {
+      if (p < path[i + 1].progress) break;
+    }
+    // Clamp i into [0, len-2]; p beyond the last keyframe pinches to the end.
+    if (i > path.length - 2) i = path.length - 2;
+    if (i < 0) i = 0;
+
+    const a = path[i];
+    const b = path[i + 1];
+    const span = b.progress - a.progress;
+    const f = span > 0 ? THREE.MathUtils.clamp((p - a.progress) / span, 0, 1) : 0;
+
     _p0.set(...a.pos);
     _p1.set(...b.pos);
     _look0.set(...a.lookAt);
@@ -88,13 +111,3 @@ export default function CameraController({
 
   return null;
 }
-
-/** Convenience: world center of the active scene (for lighting tie-ins). */
-export function activeSceneWorldCenter(): THREE.Vector3 {
-  // Lazily resolved from current scrollStore scene.
-  // (kept as a util rather than reactive to avoid re-renders)
-  // Imported by lights that want to follow the journey.
-  return new THREE.Vector3();
-}
-
-export { SCENES };

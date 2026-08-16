@@ -29,6 +29,28 @@ export interface SceneDef {
   worldCenter: [number, number, number];
   /** Accent color token id (maps to CSS vars — see globals.css). */
   accent: string;
+  /**
+   * Optional explicit camera keyframes for this scene (used by "rooms" — see
+   * Step 1 of the hybrid path+rooms plan). Each `at` is a 0..1 progress value
+   * *within this scene's scroll slice*; `pos`/`lookAt` are relative to the
+   * scene's `worldCenter` and converted to absolute world coords on the path.
+   *
+   * Omitting `keyframes` falls back to the single derived keyframe that all
+   * corridor scenes use today (rise + pull taper) — so this is fully
+   * back-compatible.
+   */
+  keyframes?: CameraKeyframeDef[];
+}
+
+/**
+ * One camera keyframe, expressed in scene-local terms before flattening.
+ * `at` ∈ [0,1] is progress within the owning scene's scroll slice.
+ * `pos` / `lookAt` are offsets from that scene's `worldCenter`.
+ */
+export interface CameraKeyframeDef {
+  at: number;
+  pos: [number, number, number];
+  lookAt: [number, number, number];
 }
 
 /**
@@ -124,23 +146,90 @@ export function sceneIndex(key: SceneKey): number {
   return SCENES.findIndex((s) => s.key === key);
 }
 
-/** A point a little above and behind each scene center, looking down at it. */
+/**
+ * A flattened, globally-sorted camera keyframe. `progress` ∈ [0,1] is the
+ * ABSOLUTE journey progress at which this keyframe sits; `pos`/`lookAt` are
+ * absolute world coordinates. CameraController brackets the current scroll
+ * progress between two consecutive entries and interpolates.
+ */
 export interface CameraKeyframe {
+  progress: number;
   pos: [number, number, number];
   lookAt: [number, number, number];
 }
 
-/** Camera pulls back / rises slightly as the journey progresses for scale. */
-function keyframeFor(center: [number, number, number], rise: number, pull: number): CameraKeyframe {
+/** Rise/pull taper for the default (corridor) keyframe derivation. */
+const DEFAULT_RISE = 14;
+const DEFAULT_RISE_STEP = 0.4;
+const DEFAULT_PULL = 34;
+const DEFAULT_PULL_STEP = 0.6;
+
+/**
+ * Default single keyframe for a corridor scene, placed a little above + behind
+ * the scene center — exactly the geometry the journey used before the
+ * keyframe refactor, so corridor scenes stay visually identical.
+ */
+function defaultKeyframe(
+  center: [number, number, number],
+  rise: number,
+  pull: number,
+  progress: number,
+): CameraKeyframe {
   return {
+    progress,
     pos: [center[0], center[1] + rise, center[2] + pull],
     lookAt: center,
   };
 }
 
-export const CAMERA_PATH: CameraKeyframe[] = SCENES.map((s, i) =>
-  keyframeFor(s.worldCenter, 14 - i * 0.4, 34 - i * 0.6),
-);
+/** Add two 3-tuples. */
+function add3(a: [number, number, number], b: [number, number, number]): [number, number, number] {
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+}
+
+/**
+ * The flattened, globally-sorted camera path the controller walks.
+ *
+ * For each scene:
+ *   - if `scene.keyframes` is provided, each entry's local `at` is mapped to an
+ *     absolute progress within the scene's scroll slice, and its relative
+ *     pos/lookAt are offset by the scene's worldCenter → absolute coords.
+ *   - otherwise, a single default corridor keyframe is emitted at the scene's
+ *     scroll midpoint (matching the pre-refactor rise/pull taper), EXCEPT the
+ *     first scene emits its keyframe at progress 0 and the last at progress 1
+ *     so the path spans the full [0,1] range end-to-end.
+ *
+ * Result is sorted by ascending progress with no duplicate-collapse — the
+ * controller brackets between consecutive entries.
+ */
+export const FULL_CAMERA_PATH: CameraKeyframe[] = (() => {
+  const out: CameraKeyframe[] = [];
+  SCENES.forEach((s, i) => {
+    const [start, end] = s.scroll;
+    const span = end - start;
+    if (s.keyframes && s.keyframes.length > 0) {
+      for (const k of s.keyframes) {
+        out.push({
+          progress: start + clamp01(k.at) * span,
+          pos: add3(s.worldCenter, k.pos),
+          lookAt: add3(s.worldCenter, k.lookAt),
+        });
+      }
+    } else {
+      const rise = DEFAULT_RISE - i * DEFAULT_RISE_STEP;
+      const pull = DEFAULT_PULL - i * DEFAULT_PULL_STEP;
+      // Pin the first scene's keyframe to progress 0 and the last's to 1 so the
+      // path covers the whole journey; interior scenes sit at their midpoint
+      // (equivalent to the old index-based spacing for evenly-sized slices).
+      let p: number;
+      if (i === 0) p = 0;
+      else if (i === SCENES.length - 1) p = 1;
+      else p = start + span * 0.5;
+      out.push(defaultKeyframe(s.worldCenter, rise, pull, p));
+    }
+  });
+  return out.sort((a, b) => a.progress - b.progress);
+})();
 
 export function clamp01(v: number): number {
   return v < 0 ? 0 : v > 1 ? 1 : v;

@@ -24,6 +24,13 @@ export interface ScrollState {
   scrollTop: number;
   /** Discrete current scene; updated only when it changes (see setCurrentScene). */
   currentScene: SceneKey;
+  /**
+   * When true, the camera holds its current position instead of chasing scroll
+   * (used by modal overlays like the project lightbox to freeze the world).
+   * Set/cleared by the modal via setScrollPaused(); read every frame by the
+   * camera controller — never triggers React re-renders.
+   */
+  paused: boolean;
 }
 
 export const scrollState: ScrollState = {
@@ -33,6 +40,7 @@ export const scrollState: ScrollState = {
   pointerY: 0,
   scrollTop: 0,
   currentScene: "intro",
+  paused: false,
 };
 
 /** Read-only-ish accessor for useFrame (avoids import churn). */
@@ -66,4 +74,15 @@ export function resetScrollState(): void {
   scrollState.pointerX = 0;
   scrollState.pointerY = 0;
   scrollState.scrollTop = 0;
+  scrollState.paused = false;
+}
+
+/**
+ * Pause/resume the scroll-driven camera. While paused the camera holds its
+ * current position (the scrollStore's `progress` field is NOT touched, so the
+ * master ScrollTrigger keeps writing real scroll position — the camera simply
+ * stops reacting). Pair with Lenis `stop()`/`start()` from the modal.
+ */
+export function setScrollPaused(paused: boolean): void {
+  scrollState.paused = paused;
 }
