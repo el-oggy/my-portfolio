@@ -44,8 +44,8 @@ export default function Experience({
         min: 0.35,
       }}
     >
-      <fog attach="fog" args={["#f8f9fa", 120, 520]} />
-      <color attach="background" args={["#f8f9fa"]} />
+      <fog attach="fog" args={["#fbf9f5", 120, 520]} />
+      <color attach="background" args={["#fbf9f5"]} />
 
       <Suspense fallback={null}>
         <CameraController parallax={reducedParallax ? 0.35 : 1} />

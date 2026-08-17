@@ -1,32 +1,23 @@
 "use client";
 
 /**
- * Main light rig. A simple three-point setup:
- *  - Ambient: soft fill, prevents pure-black shadows.
- *  - Key: main directional light, casts soft shadows.
- *  - Rim/Back: separates subject from background.
- *
- * This will be expanded later with lights specific to each scene.
+ * Clean gallery lighting for the paper/sketchbook corridor.
  */
 export default function MainLights() {
   return (
     <>
-      <ambientLight intensity={0.5} color="#6f86b8" />
+      <ambientLight intensity={1.1} color="#fdfbf7" />
       <directionalLight
-        position={[10, 30, 20]}
-        intensity={1.2}
-        color="#a7c9f8"
+        position={[15, 40, 20]}
+        intensity={1.4}
+        color="#ffffff"
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-near={0.5}
-        shadow-camera-far={500}
       />
       <pointLight
-        position={[-20, 10, -50]}
-        intensity={80}
-        color="#7DD3FC"
-        distance={400}
+        position={[0, 15, -100]}
+        intensity={30}
+        color="#fffbeb"
+        distance={300}
       />
     </>
   );

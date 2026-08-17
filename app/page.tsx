@@ -3,46 +3,36 @@ import { SCENES } from "@/lib/sceneConfig";
 import { identity, links, experience, education, skills, projects } from "@/lib/data";
 import ProjectGallery from "@/components/ui/ProjectGallery";
 
-/**
- * Main page. The semantic DOM scroll skeleton lives here — tall sections for
- * the master ScrollTrigger to measure a full 0..1 journey over. Each section's
- * copy is crawlable (§49) and screen-reader readable (§31). The 3D canvas
- * (mounted by ExperienceRoot behind this DOM) is the enhancement.
- *
- * The visible "Hello." intro is rendered by <IntroOverlay> (DOM, above the
- * canvas) so glyphs stay crisp/accessible; this page keeps a tall empty #top
- * section to preserve scroll length while the overlay reads.
- */
 export default function Page() {
   return (
     <ExperienceRoot>
       <main id="top">
-        {/* ─────────── Intro / First Boot ───────────
-            Visual reveal is handled by IntroOverlay; this section holds the
-            scroll real estate + an accessible sr-only identity block. */}
+        {/* First Boot Hero Space */}
         <section
-          className="ScrollSection"
+          className="ScrollSection flex items-center justify-center"
           id="first-boot"
           aria-label="First Boot"
         >
-          <h1 className="sr-only">{identity.name} — {identity.titleLine1} · {identity.titleLine2}</h1>
-          <p className="sr-only">
-            {identity.supportingLine}
-          </p>
+          <h1 className="sr-only">
+            {identity.name} — {identity.titleLine1} · {identity.titleLine2}
+          </h1>
+          <p className="sr-only">{identity.supportingLine}</p>
         </section>
 
-        {/* Render one semantic section per non-intro scene. */}
+        {/* Semantic Handcrafted Sections */}
         {SCENES.filter((s) => s.key !== "intro").map((s) => (
           <section
             key={s.key}
             id={s.anchor.replace("#", "")}
-            className="ScrollSection"
+            className="ScrollSection flex flex-col justify-center"
             aria-label={s.label}
           >
-            <div className="mx-auto max-w-3xl">
-              <span className="tech-chip" style={{ color: `var(${s.accent})` }}>
-                {s.label}
-              </span>
+            <div className="mx-auto max-w-3xl w-full">
+              <div className="flex items-center gap-3 mb-2 font-hand text-sm text-[var(--ink-faint)]">
+                <span>✦</span>
+                <span>{s.label}</span>
+                <span className="h-px flex-1 bg-[var(--pencil-line)]/15" />
+              </div>
               <SectionCopy scene={s.key} />
             </div>
           </section>
@@ -52,197 +42,284 @@ export default function Page() {
   );
 }
 
-/** Concise, accurate per-scene copy for the foundation skeleton. */
 function SectionCopy({ scene }: { scene: string }) {
   switch (scene) {
     case "pcb":
       return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            Circuit Hub
+        <div className="sketch-card p-8 sm:p-10 relative">
+          <div className="sketch-tape" />
+          <div className="font-caveat text-2xl text-[var(--accent-pcb)] mb-1">
+            01 / Hardware Hub ↴
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[var(--ink)]">
+            Circuit & PCB Design
           </h2>
-          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            The portfolio opens onto a stylized printed circuit board. From this central
-            hub the visitor travels outward into each engineering region — embedded
-            microcontrollers, IoT and wireless, drones and robotics, firmware — then
-            into the journey and contact.
+          <p className="mt-4 text-base sm:text-lg text-[var(--ink-dim)] leading-relaxed">
+            Every build starts on the schematic. Designing custom printed circuit boards in KiCad, 
+            routing high-speed signal traces, and integrating power regulation for embedded systems.
           </p>
-        </>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <span className="sketch-tag">KiCad PCB</span>
+            <span className="sketch-tag">Schematic Capture</span>
+            <span className="sketch-tag">Power Management</span>
+            <span className="sketch-tag">Signal Integrity</span>
+          </div>
+        </div>
       );
+
     case "embedded":
       return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            Embedded · Microcontrollers
+        <div className="sketch-card p-8 sm:p-10 relative">
+          <div className="sketch-tape" />
+          <div className="font-caveat text-2xl text-[var(--accent-embedded)] mb-1">
+            02 / Silicon ↴
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[var(--ink)]">
+            Embedded & Microcontrollers
           </h2>
-          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            Working at the register level with STM32, ESP32, and Arduino — peripherals,
-            interrupts, and the I2C / UART / SPI buses that connect sensors to silicon.
-            The region is staged as a breadboard: MCU, display, and peripheral blocks
-            linked by signal lines.
+          <p className="mt-4 text-base sm:text-lg text-[var(--ink-dim)] leading-relaxed">
+            Working at the register level with STM32, ESP32, and Arduino — writing bare-metal C/C++, 
+            managing interrupts, and driving I2C, SPI, and UART communication buses.
           </p>
-          <ul className="mt-6 space-y-2 font-[family-name:var(--font-mono)] text-sm text-[var(--text-dim)]">
-            <li>
-              <span style={{ color: "var(--accent-embedded)" }}>▸</span> Embedded C/C++ ·
-              GPIO / ADC / PWM <span className="text-[var(--text-faint)]">— Proficient</span>
+          <ul className="mt-6 space-y-3 font-mono text-sm text-[var(--ink-dim)]">
+            <li className="flex items-center gap-2">
+              <span className="font-hand text-base text-[var(--accent-embedded)]">▸</span>
+              <span>STM32 & ESP32 Microcontrollers</span>
+              <span className="text-xs bg-[var(--bg-paper-warm)] px-2 py-0.5 border border-[var(--pencil-line)]/30 rounded font-hand">Hands-on</span>
             </li>
-            <li>
-              <span style={{ color: "var(--accent-embedded)" }}>▸</span> STM32 · ESP32 ·
-              Arduino <span className="text-[var(--text-faint)]">— hands-on builds</span>
+            <li className="flex items-center gap-2">
+              <span className="font-hand text-base text-[var(--accent-embedded)]">▸</span>
+              <span>Embedded C/C++ · GPIO / ADC / PWM / Timers</span>
+              <span className="text-xs bg-[var(--bg-paper-warm)] px-2 py-0.5 border border-[var(--pencil-line)]/30 rounded font-hand">Proficient</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="font-hand text-base text-[var(--accent-embedded)]">▸</span>
+              <span>Bus Protocols: UART · I2C · SPI</span>
             </li>
           </ul>
-        </>
+        </div>
       );
+
     case "iot":
       return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            IoT · Sensors & Wireless
+        <div className="sketch-card p-8 sm:p-10 relative">
+          <div className="sketch-tape" />
+          <div className="font-caveat text-2xl text-[var(--accent-iot)] mb-1">
+            03 / Wireless Telemetry ↴
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[var(--ink)]">
+            IoT & Sensor Fusion
           </h2>
-          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            Connected devices that sense the physical world and report it — solar-powered
-            weather stations, relay-driven home automation over Blynk, and the sensor
-            fusion that makes them useful.
+          <p className="mt-4 text-base sm:text-lg text-[var(--ink-dim)] leading-relaxed">
+            Building autonomous connected systems that sense environmental parameters and transmit telemetry 
+            over wireless networks. Solar-powered stations, sensor calibration, and cloud dashboards.
           </p>
-          <ul className="mt-6 space-y-2 font-[family-name:var(--font-mono)] text-sm text-[var(--text-dim)]">
-            {projectsFor("iot").map((p) => (
-              <li key={p.id}>
-                <span style={{ color: "var(--accent-iot)" }}>▸</span> {p.title}{" "}
-                <span className="text-[var(--text-faint)]">— {p.year}</span>
-              </li>
-            ))}
-          </ul>
-        </>
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+            <div className="p-3 bg-[var(--bg-paper-warm)] border border-[var(--pencil-line)] rounded">
+              <div className="font-bold text-[var(--ink)]">Solar Weather Station</div>
+              <div className="text-[var(--ink-faint)] mt-1">BME280 · BH1750 · DS18B20 · ESP32</div>
+            </div>
+            <div className="p-3 bg-[var(--bg-paper-warm)] border border-[var(--pencil-line)] rounded">
+              <div className="font-bold text-[var(--ink)]">Home Automation</div>
+              <div className="text-[var(--ink-faint)] mt-1">Blynk IoT · Relays · Smart Staircase</div>
+            </div>
+          </div>
+        </div>
       );
+
     case "drone":
       return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            Drone · Robotics
+        <div className="sketch-card p-8 sm:p-10 relative bg-[#fffdfa]">
+          <div className="sketch-tape" />
+          <div className="absolute -top-3 -right-3 sticky-note text-xs py-1 px-3 hidden sm:block">
+            ★ Hero Hardware Build
+          </div>
+          <div className="font-caveat text-2xl text-[var(--accent-drone)] mb-1">
+            04 / Robotics ↴
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[var(--ink)]">
+            STM32 Hexacopter
           </h2>
-          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            The hero build of the embedded/IoT journey: a custom STM32-based
-            hexacopter flight controller with a custom PCB, MPU6500 IMU, and
-            GPS. A full hardware, firmware, and telemetry system, under active
-            development. The full details are in the Projects gallery.
+          <p className="mt-4 text-base sm:text-lg text-[var(--ink-dim)] leading-relaxed">
+            A complete six-rotor flight controller designed from scratch around an STM32 MCU. Features a custom 
+            KiCad PCB, MPU6500 6-axis IMU, GPS telemetry, and a custom browser ground station.
           </p>
-          <p className="mt-4 font-[family-name:var(--font-mono)] text-sm text-[var(--text-faint)]">
-            Corridor diorama · full details in the Projects gallery room.
-          </p>
-        </>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <span className="sketch-tag">STM32 MCU</span>
+            <span className="sketch-tag">Custom PCB</span>
+            <span className="sketch-tag">MPU6500 IMU</span>
+            <span className="sketch-tag">GPS UART</span>
+            <span className="sketch-tag">Embedded C++</span>
+          </div>
+        </div>
       );
+
     case "firmware":
       return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
+        <div className="sketch-card p-8 sm:p-10 relative">
+          <div className="sketch-tape" />
+          <div className="font-caveat text-2xl text-[var(--accent-firmware)] mb-1">
+            05 / Code & Automation ↴
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[var(--ink)]">
             Firmware & Software
           </h2>
-          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            The code side of the hardware world — ZMK keyboard firmware with a CI build
-            pipeline, and an offline-first productivity dashboard in vanilla JavaScript.
+          <p className="mt-4 text-base sm:text-lg text-[var(--ink-dim)] leading-relaxed">
+            Writing reliable software for hardware — Zephyr RTOS-based ZMK custom keyboard firmware with 
+            continuous integration pipelines, plus modular vanilla JavaScript applications.
           </p>
-          <ul className="mt-6 space-y-2 font-[family-name:var(--font-mono)] text-sm text-[var(--text-dim)]">
-            {projectsFor("firmware").map((p) => (
-              <li key={p.id}>
-                <span style={{ color: "var(--accent-firmware)" }}>▸</span> {p.title}{" "}
-                <span className="text-[var(--text-faint)]">— {p.year}</span>
-              </li>
-            ))}
-          </ul>
-        </>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <span className="sketch-tag">ZMK Firmware</span>
+            <span className="sketch-tag">Zephyr RTOS</span>
+            <span className="sketch-tag">GitHub Actions CI</span>
+            <span className="sketch-tag">Vanilla JS (ES6)</span>
+            <span className="sketch-tag">IndexedDB</span>
+          </div>
+        </div>
       );
+
+    case "rtl":
+      return (
+        <div className="sketch-card p-8 sm:p-10 relative">
+          <div className="sketch-tape" />
+          <div className="font-caveat text-2xl text-[var(--accent-rtl)] mb-1">
+            06 / Digital Architecture ↴
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[var(--ink)]">
+            RTL · Systolic Array
+          </h2>
+          <p className="mt-4 text-base sm:text-lg text-[var(--ink-dim)] leading-relaxed">
+            Hardware acceleration: a 2D systolic array for INT8 matrix multiplication implemented in Verilog. 
+            Exploring parallel computing architectures for neural compute and high-throughput DSP.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <span className="sketch-tag">Verilog HDL</span>
+            <span className="sketch-tag">INT8 Matrix Multiply</span>
+            <span className="sketch-tag">Systolic PE Array</span>
+            <span className="sketch-tag">Digital Logic</span>
+          </div>
+        </div>
+      );
+
     case "projects":
       return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            Projects · Gallery
-          </h2>
-          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            The full body of work in one place — every build across embedded,
-            IoT, robotics, firmware, and RTL. Click any card for the full story.
-          </p>
+        <div className="w-full">
+          <div className="text-center mb-6">
+            <div className="font-caveat text-3xl text-[var(--accent-projects)]">
+              ✦ Selected Works & Hardware Builds ✦
+            </div>
+            <h2 className="text-5xl sm:text-6xl font-extrabold tracking-tight text-[var(--ink)] mt-2">
+              Projects Gallery
+            </h2>
+            <p className="mt-3 text-base sm:text-lg text-[var(--ink-dim)] max-w-xl mx-auto">
+              Hover over cards to see the interactive WebGL liquid distortion shader. Click any project to open the full technical breakdown.
+            </p>
+          </div>
           <ProjectGallery />
-        </>
+        </div>
       );
+
     case "journey":
       return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
-            Journey
+        <div className="sketch-card p-8 sm:p-12 relative">
+          <div className="sketch-tape" />
+          <div className="font-caveat text-3xl text-[var(--accent-timeline)] mb-1">
+            Timeline & Experience ↴
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[var(--ink)]">
+            Professional Journey
           </h2>
-          <ol className="mt-6 space-y-5 border-l border-black/10 pl-6">
+          
+          <div className="mt-8 space-y-6">
             {experience.map((e) => (
-              <li key={e.id} className="relative">
-                <span
-                  className="absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full"
-                  style={{
-                    background:
-                      e.kind === "Training / Exposure"
-                        ? "var(--accent-iot)"
-                        : "var(--accent-embedded)",
-                  }}
-                />
-                <div className="font-[family-name:var(--font-mono)] text-xs tracking-widest text-[var(--text-faint)]">
-                  {e.period} · {e.kind}
+              <div key={e.id} className="p-4 bg-[var(--bg-paper-warm)] border-2 border-[var(--pencil-line)] rounded-lg relative">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--pencil-line)]/20 pb-2 mb-2">
+                  <span className="font-bold text-lg text-[var(--ink)]">{e.title}</span>
+                  <span className="font-mono text-xs bg-white px-2 py-0.5 border border-[var(--pencil-line)] rounded">
+                    {e.period}
+                  </span>
                 </div>
-                <div className="mt-1 text-lg text-[var(--text)]">
-                  {e.org} — <span className="text-[var(--text-dim)]">{e.title}</span>
+                <div className="font-caveat text-xl text-[var(--accent-embedded)] font-semibold">
+                  {e.org} · <span className="font-mono text-xs text-[var(--ink-faint)] font-normal">{e.kind}</span>
                 </div>
-                <p className="mt-1 max-w-xl text-sm text-[var(--text-dim)]">
+                <p className="mt-2 text-sm text-[var(--ink-dim)] leading-relaxed">
                   {e.summary}
                 </p>
-              </li>
+              </div>
             ))}
-            {education.map((ed) => (
-              <li key={ed.id} className="relative">
-                <span className="absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full bg-black/10" />
-                <div className="font-[family-name:var(--font-mono)] text-xs tracking-widest text-[var(--text-faint)]">
-                  Education · {ed.status}
+
+            <div className="pt-4 border-t-2 border-dashed border-[var(--pencil-line)]/30">
+              <div className="font-hand text-sm text-[var(--ink-faint)] mb-4">🎓 Academic Background</div>
+              {education.map((ed) => (
+                <div key={ed.id} className="mb-3 p-3 bg-white border border-[var(--pencil-line)] rounded flex justify-between items-center">
+                  <div>
+                    <div className="font-bold text-sm text-[var(--ink)]">{ed.degree}</div>
+                    <div className="text-xs text-[var(--ink-dim)]">{ed.org}</div>
+                  </div>
+                  <span className="font-mono text-xs text-[var(--ink-faint)]">{ed.period}</span>
                 </div>
-                <div className="mt-1 text-[var(--text)]">
-                  {ed.degree}
-                </div>
-                <div className="text-sm text-[var(--text-dim)]">{ed.org} · {ed.period}</div>
-              </li>
-            ))}
-          </ol>
-        </>
+              ))}
+            </div>
+          </div>
+        </div>
       );
+
     case "contact":
       return (
-        <>
-          <h2 className="mt-6 font-[family-name:var(--font-display)] text-6xl font-light tracking-tight">
-            Let&rsquo;s build something connected.
-          </h2>
-          <div className="mt-8 space-y-3 font-[family-name:var(--font-mono)] text-sm">
-            <ContactRow label="Email" href={`mailto:${links.email}`} value={links.email} />
-            <ContactRow label="GitHub" href={links.github} value={links.github} />
-            <ContactRow label="LinkedIn" href={links.linkedin} value="adarsh-swarup-maharana" />
-            <ContactRow label="Résumé" href={links.resume} value="resume.pdf" />
+        <div className="sketch-card p-8 sm:p-12 relative text-center">
+          <div className="sketch-tape" />
+          <div className="font-caveat text-3xl text-[var(--accent-contact)] mb-2">
+            Let&apos;s build something together! ✦
           </div>
-          <p className="mt-10 text-[var(--text-faint)]">{identity.location}</p>
-        </>
+          <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-[var(--ink)]">
+            Get In Touch
+          </h2>
+          <p className="mt-4 text-base sm:text-lg text-[var(--ink-dim)] max-w-md mx-auto">
+            Open for embedded systems, IoT hardware design, and robotics engineering collaborations.
+          </p>
+
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <a
+              href={`mailto:${links.email}`}
+              className="sketch-btn bg-[var(--note-yellow)] text-sm"
+            >
+              ✉ {links.email}
+            </a>
+            <a
+              href={links.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sketch-btn text-sm"
+            >
+              GitHub ↗
+            </a>
+            <a
+              href={links.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sketch-btn text-sm"
+            >
+              LinkedIn ↗
+            </a>
+            <a
+              href={links.resume}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sketch-btn text-sm"
+            >
+              Résumé PDF ↗
+            </a>
+          </div>
+
+          <div className="mt-8 font-mono text-xs text-[var(--ink-faint)]">
+            📍 {identity.location}
+          </div>
+        </div>
       );
+
     default:
       return null;
   }
 }
 
-function ContactRow({ label, href, value }: { label: string; href: string; value: string }) {
-  return (
-    <div className="flex gap-4">
-      <span className="w-20 text-[var(--text-faint)]">{label}</span>
-      <a href={href} className="text-[var(--text)] underline-offset-4 hover:underline">
-        {value}
-      </a>
-    </div>
-  );
-}
-
-function projectsFor(scene: string) {
-  return projects.filter((p) => p.scene === scene);
-}
-
-const heroProject = projects.find((p) => p.hero) ?? projects[0];
-
-void skills; // skills render lands in a later phase; referenced to keep import used.
+void skills;

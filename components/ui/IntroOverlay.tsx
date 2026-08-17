@@ -5,115 +5,100 @@ import { useEffect, useRef } from "react";
 import { identity } from "@/lib/data";
 
 /**
- * The "Hello." + identity reveal overlay (§8, §9).
+ * Hand-Drawn Sketchbook Hero Overlay (itomdev.com style)
  *
- * Deliberately DOM, not WebGL (§6): the glyphs are crisp, accessible, and
- * crawlable. The reveal is a GSAP-driven opacity/scale/light sequence gated
- * on `introComplete` — elegant, system-initialization in feel: subtle opacity,
- * slight scale, no bounce, no typewriter (§8).
- *
- * The whole overlay fades out as the visitor scrolls past `silicon` hub so the
- * transition into the world reads as seamless (§10).
+ * Features:
+ * - Hand-drawn greeting with doodle star
+ * - Sticky note with engineer badge
+ * - Handwritten annotations with scribble arrows
+ * - Tactile sketched card
  */
 export default function IntroOverlay() {
   const { introComplete, tier } = useExperience();
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // Reveal animation once the First-Boot sequence completes.
+  // Scroll-fade out as the user walks down the corridor
   useEffect(() => {
-    if (!introComplete || !rootRef.current) return;
-    const root = rootRef.current;
-    let raf = 0;
-
-    // Lightweight manual timeline (no GSAP needed for a 3-element reveal):
-    // staggered opacity + translateY + scale, all via requestAnimationFrame.
-    const start = performance.now();
-    const elems = Array.from(
-      root.querySelectorAll<HTMLElement>("[data-reveal]"),
-    );
-    elems.forEach((el) => {
-      el.style.opacity = "0";
-      el.style.transform = "translateY(14px) scale(0.985)";
-    });
-
-    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // easeOutCubic
-
-    const tick = (now: number) => {
-      const t = (now - start) / 1000;
-      elems.forEach((el, i) => {
-        const delay = i * 0.22;
-        const local = Math.min(1, Math.max(0, (t - delay) / 0.9));
-        const e = ease(local);
-        el.style.opacity = String(e);
-        el.style.transform = `translateY(${14 * (1 - e)}px) scale(${0.985 + 0.015 * e})`;
-      });
-      if (t < elems.length * 0.22 + 1.0) {
-        raf = requestAnimationFrame(tick);
-      }
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [introComplete]);
-
-  // Scroll-fade the whole overlay out once the visitor enters the hub.
-  useEffect(() => {
-    if (tier === "2d") return; // keep visible in 2D fallback
+    if (tier === "2d") return;
     const root = rootRef.current;
     if (!root) return;
-    const raf = 0;
     const onScroll = () => {
       const y = window.scrollY;
       const vh = window.innerHeight;
-      // Fade across the first ~0.6 vh of scroll.
-      const fade = Math.min(1, y / (vh * 0.6));
+      const fade = Math.min(1, y / (vh * 0.5));
       root.style.opacity = String(1 - fade);
-      root.style.pointerEvents = fade > 0.9 ? "none" : "auto";
+      root.style.pointerEvents = fade > 0.8 ? "none" : "auto";
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
+    return () => window.removeEventListener("scroll", onScroll);
   }, [tier]);
 
-  // Hidden until the intro completes (avoids a flash before the boot sequence).
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none fixed inset-0 z-20 flex items-center justify-center UiLayer"
-      style={{ opacity: introComplete ? 1 : 0, transition: "opacity 0.4s ease" }}
+      className="pointer-events-none fixed inset-0 z-20 flex items-center justify-center UiLayer px-4"
+      style={{
+        opacity: introComplete ? 1 : 0,
+        transition: "opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+      }}
       aria-hidden={!introComplete}
     >
-      <div className="px-6 text-center">
-        <span className="tech-chip" data-reveal>
-          First Boot
-        </span>
-        <h1
-          data-reveal
-          className="mt-6 font-[family-name:var(--font-display)] text-7xl font-light leading-[0.95] tracking-tight sm:text-8xl"
-          style={{ color: "var(--text)" }}
-        >
-          Hello.
-        </h1>
-        <p
-          data-reveal
-          className="mt-8 text-2xl font-medium text-[var(--text)] sm:text-3xl"
-        >
-          {identity.name}
-        </p>
-        <p
-          data-reveal
-          className="mt-3 font-[family-name:var(--font-mono)] text-sm tracking-[0.2em] text-[var(--text-dim)]"
-        >
-          {identity.titleLine1} · {identity.titleLine2}
-        </p>
-        <p
-          data-reveal
-          className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-[var(--text-dim)]"
-        >
-          {identity.supportingLine}
-        </p>
+      <div className="relative max-w-2xl w-full">
+        {/* Yellow sticky note top right */}
+        <div className="absolute -top-12 -right-4 sm:-right-8 sticky-note hidden sm:block z-10">
+          <span>⚡ Embedded & IoT</span>
+          <div className="text-xs text-[var(--ink-faint)] font-mono mt-0.5">2024–2026 Builds</div>
+        </div>
+
+        {/* Main Sketch Hero Card */}
+        <div className="sketch-card p-8 sm:p-12 text-center pointer-events-auto">
+          {/* Top Tape */}
+          <div className="sketch-tape" />
+
+          {/* Small hand-drawn header note */}
+          <div className="font-hand text-sm text-[var(--ink-dim)] flex items-center justify-center gap-2 mb-3">
+            <span>✦</span>
+            <span>interactive hardware sketchbook</span>
+            <span>✦</span>
+          </div>
+
+          {/* Big Handcrafted Title */}
+          <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-[var(--ink)] leading-none">
+            {identity.firstName}{" "}
+            <span className="font-hand font-normal text-4xl sm:text-6xl text-[var(--accent-drone)] underline decoration-wavy decoration-2">
+              Swarup
+            </span>
+          </h1>
+
+          {/* Handwritten Arrow & Role Annotation */}
+          <div className="mt-4 flex items-center justify-center gap-2 font-caveat text-2xl text-[var(--ink-dim)]">
+            <span>Electronics Engineer</span>
+            <span className="text-3xl text-[var(--accent-pcb)]">↳</span>
+            <span className="font-mono text-xs uppercase tracking-wider bg-[var(--bg-paper-warm)] px-2 py-1 border border-[var(--pencil-line)] rounded">
+              Embedded · IoT · Robotics
+            </span>
+          </div>
+
+          {/* Supporting line */}
+          <p className="mt-6 text-base sm:text-lg text-[var(--ink-dim)] max-w-lg mx-auto leading-relaxed">
+            {identity.supportingLine}
+          </p>
+
+          {/* Quick interactive tags */}
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <span className="sketch-tag">STM32 Hexacopter</span>
+            <span className="sketch-tag">KiCad PCBs</span>
+            <span className="sketch-tag">ESP32 IoT</span>
+            <span className="sketch-tag">Custom Firmware</span>
+          </div>
+
+          {/* Bottom hand-drawn scroll invitation */}
+          <div className="mt-8 pt-4 border-t-2 border-dashed border-[var(--pencil-line)]/20 flex items-center justify-center gap-3 font-hand text-sm text-[var(--ink-dim)]">
+            <span>Scroll down to walk the corridor</span>
+            <span className="text-xl animate-bounce">↴</span>
+          </div>
+        </div>
       </div>
     </div>
   );
