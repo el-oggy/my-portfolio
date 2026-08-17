@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { AdaptiveDpr, AdaptiveEvents, Preload } from "@react-three/drei";
+import { AdaptiveDpr, AdaptiveEvents, Preload, View } from "@react-three/drei";
 import { Suspense } from "react";
 
 import CameraController from "./CameraController";
@@ -68,6 +68,7 @@ export default function Experience({
 
       <AdaptiveDpr pixelated />
       <AdaptiveEvents />
+      <View.Port />
     </Canvas>
   );
 }

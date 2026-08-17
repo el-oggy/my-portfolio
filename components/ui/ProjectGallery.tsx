@@ -48,6 +48,9 @@ export default function ProjectGallery() {
 
 /* ------------------------------------------------------------------ */
 
+import { View } from "@react-three/drei";
+import ProjectImageGL from "../canvas/ProjectImageGL";
+
 interface ProjectCardProps {
   project: Project;
   onOpen: (p: Project) => void;
@@ -55,11 +58,15 @@ interface ProjectCardProps {
 }
 
 function ProjectCard({ project, onOpen, isSelected }: ProjectCardProps) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <motion.article
       className={`ProjectCard ${isSelected ? "ProjectCard--selected" : ""}`}
       layoutId={`project-card-${project.id}`}
       onClick={() => onOpen(project)}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
       role="button"
       tabIndex={0}
       aria-label={`View details for ${project.title}`}
@@ -71,6 +78,15 @@ function ProjectCard({ project, onOpen, isSelected }: ProjectCardProps) {
       }}
       transition={{ type: "spring", stiffness: 350, damping: 32 }}
     >
+      {/* Thumbnail area (WebGL Portal) */}
+      {project.image && (
+        <div className="ProjectCard__image-container">
+          <View className="w-full h-full">
+            <ProjectImageGL url={project.image} hovered={hovered} />
+          </View>
+        </div>
+      )}
+
       {/* Top row: year + badges */}
       <div className="ProjectCard__top">
         <span className="ProjectCard__year">{project.year}</span>
