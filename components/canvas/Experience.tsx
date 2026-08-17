@@ -6,6 +6,7 @@ import { Suspense } from "react";
 
 import CameraController from "./CameraController";
 import IntroScene from "./scenes/IntroScene";
+import CorridorScene from "./scenes/CorridorScene";
 import PCBScene from "./scenes/PCBScene";
 import EmbeddedScene from "./scenes/EmbeddedScene";
 import IoTScene from "./scenes/IoTScene";
@@ -43,14 +44,15 @@ export default function Experience({
         min: 0.35,
       }}
     >
-      <fog attach="fog" args={["#06070A", 120, 520]} />
-      <color attach="background" args={["#06070A"]} />
+      <fog attach="fog" args={["#f8f9fa", 120, 520]} />
+      <color attach="background" args={["#f8f9fa"]} />
 
       <Suspense fallback={null}>
         <CameraController parallax={reducedParallax ? 0.35 : 1} />
         <MainLights />
 
         {/* --- Scenes: the hardware build journey --- */}
+        <CorridorScene />
         <IntroScene />
         <PCBScene />
         <EmbeddedScene />

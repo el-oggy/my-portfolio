@@ -1,4 +1,15 @@
-"use client";
+const fs = require('fs');
+const path = require('path');
+
+const scenes = [
+  { file: 'EmbeddedScene.tsx', name: 'EmbeddedScene', title: 'Embedded \\n Microcontrollers' },
+  { file: 'IoTScene.tsx', name: 'IoTScene', title: 'IoT & Sensors' },
+  { file: 'DroneScene.tsx', name: 'DroneScene', title: 'Robotics' },
+  { file: 'FirmwareScene.tsx', name: 'FirmwareScene', title: 'Firmware' },
+  { file: 'SystolicArrayScene.tsx', name: 'SystolicArrayScene', title: 'RTL' },
+];
+
+const template = (name, title, key) => `"use client";
 
 import { useRef } from "react";
 import * as THREE from "three";
@@ -6,8 +17,8 @@ import { Text } from "@react-three/drei";
 
 import { SCENES } from "@/lib/sceneConfig";
 
-export default function IoTScene() {
-  const hub = SCENES.find((s) => s.key === "iot");
+export default function ${name}() {
+  const hub = SCENES.find((s) => s.key === "${key}");
   const group = useRef<THREE.Group>(null);
 
   if (!hub) return null;
@@ -34,9 +45,18 @@ export default function IoTScene() {
           anchorX="center"
           anchorY="middle"
         >
-          IoT & Sensors
+          ${title}
         </Text>
       </group>
     </group>
   );
 }
+`;
+
+scenes.forEach(s => {
+  const p = path.join(__dirname, 'components/canvas/scenes', s.file);
+  const key = s.name.replace('Scene', '').toLowerCase();
+  const fileKey = key === 'systolicarray' ? 'rtl' : key;
+  fs.writeFileSync(p, template(s.name, s.title, fileKey));
+  console.log('Wrote', p);
+});

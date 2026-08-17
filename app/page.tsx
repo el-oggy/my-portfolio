@@ -170,7 +170,7 @@ function SectionCopy({ scene }: { scene: string }) {
           <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
             Journey
           </h2>
-          <ol className="mt-6 space-y-5 border-l border-white/10 pl-6">
+          <ol className="mt-6 space-y-5 border-l border-black/10 pl-6">
             {experience.map((e) => (
               <li key={e.id} className="relative">
                 <span
@@ -195,7 +195,7 @@ function SectionCopy({ scene }: { scene: string }) {
             ))}
             {education.map((ed) => (
               <li key={ed.id} className="relative">
-                <span className="absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full bg-white/40" />
+                <span className="absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full bg-black/10" />
                 <div className="font-[family-name:var(--font-mono)] text-xs tracking-widest text-[var(--text-faint)]">
                   Education · {ed.status}
                 </div>
