@@ -41,7 +41,6 @@ export default function InfiniteCorridorManager() {
           key={`segment-${segmentIndex}`}
           segmentIndex={segmentIndex}
           onDoorEnter={enterRoom}
-          hideSegmentDoors={!hasEntered && segmentIndex === -1}
         />
       ))}
     </group>

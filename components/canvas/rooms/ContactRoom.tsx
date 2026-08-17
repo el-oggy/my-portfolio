@@ -1,7 +1,8 @@
 "use client";
 
+import { useRef, useEffect } from "react";
+import { useFrame } from "@react-three/fiber";
 import { Text, useTexture } from "@react-three/drei";
-import { useEffect } from "react";
 import * as THREE from "three";
 import { identity, links } from "@/lib/data";
 
@@ -10,16 +11,42 @@ interface ContactRoomProps {
 }
 
 export default function ContactRoom({ onExit }: ContactRoomProps) {
-  const [plantTex] = useTexture([
-    "/textures/corridor/drzewkowdoniczce.webp",
+  const barrelRef = useRef<THREE.Group>(null);
+  const waveRef1 = useRef<THREE.Mesh>(null);
+  const waveRef2 = useRef<THREE.Mesh>(null);
+
+  const [
+    barrelTex,
+    waveTex1,
+    waveTex2,
+  ] = useTexture([
+    "/textures/contact/backups/beczka.webp",
+    "/textures/contact/backups/fala1.webp",
+    "/textures/contact/backups/fala2.webp",
   ]);
 
   useEffect(() => {
-    if (plantTex) {
-      plantTex.colorSpace = THREE.SRGBColorSpace;
-      plantTex.needsUpdate = true;
+    [barrelTex, waveTex1, waveTex2].forEach((t) => {
+      if (t) {
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.needsUpdate = true;
+      }
+    });
+  }, [barrelTex, waveTex1, waveTex2]);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (barrelRef.current) {
+      barrelRef.current.position.y = 0.8 + Math.sin(t * 2) * 0.1;
+      barrelRef.current.rotation.z = Math.sin(t * 1.5) * 0.05;
     }
-  }, [plantTex]);
+    if (waveRef1.current) {
+      waveRef1.current.position.x = Math.sin(t * 1.2) * 0.3;
+    }
+    if (waveRef2.current) {
+      waveRef2.current.position.x = -Math.sin(t * 1.0) * 0.4;
+    }
+  });
 
   return (
     <group position={[0, 0, -4]}>
@@ -42,19 +69,39 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
         anchorX="center"
         anchorY="middle"
       >
-        LET&apos;S BUILD HARDWARE TOGETHER
+        MESSAGE IN A BOTTLE · LET&apos;S BUILD HARDWARE TOGETHER
       </Text>
 
-      {/* Main 3D Notice Board Letter */}
-      <group position={[0, 1.2, 0]}>
+      {/* 3D Barrel in Ocean Waves on Left */}
+      <group position={[-2.8, 0.4, 0]}>
+        <group ref={barrelRef}>
+          <mesh>
+            <planeGeometry args={[2.2, 2.8]} />
+            <meshBasicMaterial map={barrelTex} transparent />
+          </mesh>
+        </group>
+
+        {/* Animated Water Waves */}
+        <mesh ref={waveRef1} position={[0, -0.6, 0.1]}>
+          <planeGeometry args={[3.2, 1.2]} />
+          <meshBasicMaterial map={waveTex1} transparent />
+        </mesh>
+        <mesh ref={waveRef2} position={[0, -0.9, 0.2]}>
+          <planeGeometry args={[3.4, 1.2]} />
+          <meshBasicMaterial map={waveTex2} transparent />
+        </mesh>
+      </group>
+
+      {/* Main 3D Torn Paper Transmission Letter on Right */}
+      <group position={[1.8, 1.1, 0]}>
         <mesh position={[0, 0, 0]}>
-          <planeGeometry args={[5.2, 3.6]} />
+          <planeGeometry args={[4.4, 3.4]} />
           <meshStandardMaterial color="#fef9c3" roughness={0.9} />
         </mesh>
 
         <Text
-          position={[0, 1.2, 0.05]}
-          fontSize={0.26}
+          position={[0, 1.1, 0.05]}
+          fontSize={0.24}
           color="#1a1917"
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
@@ -63,8 +110,8 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
           {identity.name}
         </Text>
         <Text
-          position={[0, 0.8, 0.05]}
-          fontSize={0.16}
+          position={[0, 0.75, 0.05]}
+          fontSize={0.15}
           color="#c2410c"
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
@@ -74,8 +121,8 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
         </Text>
         <Text
           position={[0, 0.2, 0.05]}
-          fontSize={0.15}
-          maxWidth={4.4}
+          fontSize={0.13}
+          maxWidth={3.8}
           textAlign="center"
           color="#44403c"
           font="/fonts/CabinSketch-Regular.ttf"
@@ -85,10 +132,10 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
           {identity.supportingLine}
         </Text>
 
-        {/* Link Buttons rendered on the board */}
+        {/* Transmission Buttons */}
         <Text
-          position={[-1.4, -0.6, 0.05]}
-          fontSize={0.18}
+          position={[-1.2, -0.5, 0.05]}
+          fontSize={0.16}
           color="#0284c7"
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
@@ -98,8 +145,8 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
           [ GITHUB ↗ ]
         </Text>
         <Text
-          position={[0, -0.6, 0.05]}
-          fontSize={0.18}
+          position={[0, -0.5, 0.05]}
+          fontSize={0.16}
           color="#059669"
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
@@ -109,8 +156,8 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
           [ LINKEDIN ↗ ]
         </Text>
         <Text
-          position={[1.4, -0.6, 0.05]}
-          fontSize={0.18}
+          position={[1.2, -0.5, 0.05]}
+          fontSize={0.16}
           color="#7c3aed"
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
@@ -121,23 +168,17 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
         </Text>
 
         <Text
-          position={[0, -1.2, 0.05]}
-          fontSize={0.18}
+          position={[0, -1.1, 0.05]}
+          fontSize={0.16}
           color="#ea580c"
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
           anchorY="middle"
-          onClick={() => window.location.href = `mailto:${links.email}`}
+          onClick={() => (window.location.href = `mailto:${links.email}`)}
         >
-          ✉ CLICK TO SEND DIRECT EMAIL ➔
+          ✉ SEND DIRECT TRANSMISSION ➔
         </Text>
       </group>
-
-      {/* Decorative Potted Tree beside Board */}
-      <mesh position={[-3.6, 0.9, 0.2]}>
-        <planeGeometry args={[1.6, 2.4]} />
-        <meshBasicMaterial map={plantTex} transparent />
-      </mesh>
     </group>
   );
 }

@@ -16,22 +16,33 @@ export default function GalleryRoom({ onExit }: GalleryRoomProps) {
   const [scrollX, setScrollX] = useState(0);
   const targetScrollX = useRef(0);
 
-  // Load authentic clothespin texture
-  const pinTex = useTexture("/textures/gallery/klamerka.webp");
-  const cardFrontTex = useTexture("/textures/gallery/monetuneprzod.webp");
-  const cardPaintedTex = useTexture("/textures/gallery/monetuneprzod_painted.webp");
-  const cardBackTex = useTexture("/textures/gallery/tylkartki.webp");
+  // Load authentic clothespin & card textures
+  const [
+    pinTex,
+    cardFrontTex,
+    cardPaintedTex,
+    cardBackTex,
+    cloudTex,
+    railingTex,
+  ] = useTexture([
+    "/textures/gallery/klamerka.webp",
+    "/textures/gallery/monetuneprzod.webp",
+    "/textures/gallery/monetuneprzod_painted.webp",
+    "/textures/gallery/tylkartki.webp",
+    "/textures/clouds/2e7b51b3-469b-449e-b9bb-228ca1e892c5.webp",
+    "/textures/gallery/railing.webp",
+  ]);
 
   useEffect(() => {
-    [pinTex, cardFrontTex, cardPaintedTex, cardBackTex].forEach((t) => {
+    [pinTex, cardFrontTex, cardPaintedTex, cardBackTex, cloudTex, railingTex].forEach((t) => {
       if (t) {
         t.colorSpace = THREE.SRGBColorSpace;
         t.needsUpdate = true;
       }
     });
-  }, [pinTex, cardFrontTex, cardPaintedTex, cardBackTex]);
+  }, [pinTex, cardFrontTex, cardPaintedTex, cardBackTex, cloudTex, railingTex]);
 
-  // Horizontal wheel scroll to browse clothesline
+  // Horizontal wheel / swipe to slide clothesline
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       targetScrollX.current = THREE.MathUtils.clamp(
@@ -51,6 +62,22 @@ export default function GalleryRoom({ onExit }: GalleryRoomProps) {
 
   return (
     <group position={[0, 0, -5]}>
+      {/* Background Floating Clouds */}
+      <mesh position={[-6, 4, -4]}>
+        <planeGeometry args={[7, 4]} />
+        <meshBasicMaterial map={cloudTex} transparent opacity={0.6} />
+      </mesh>
+      <mesh position={[6, 3.5, -4]} scale={[-1, 1, 1]}>
+        <planeGeometry args={[7, 4]} />
+        <meshBasicMaterial map={cloudTex} transparent opacity={0.6} />
+      </mesh>
+
+      {/* Background Balcony Railing */}
+      <mesh position={[0, -0.6, -2]}>
+        <planeGeometry args={[20, 2.2]} />
+        <meshBasicMaterial map={railingTex} transparent />
+      </mesh>
+
       {/* Room Header Banner */}
       <Text
         position={[0, 3.8, 0]}
@@ -60,7 +87,7 @@ export default function GalleryRoom({ onExit }: GalleryRoomProps) {
         anchorX="center"
         anchorY="middle"
       >
-        ✦ THE HARDWARE GALLERY & CERTIFICATES ✦
+        ✦ THE HARDWARE GALLERY ✦
       </Text>
       <Text
         position={[0, 3.3, 0]}
@@ -148,6 +175,8 @@ function HangingCard({
     );
   });
 
+  const categoryLabel = project.proficiencyLabel || project.scene || "Hardware";
+
   return (
     <group position={position} ref={groupRef}>
       {/* Wooden Clothespin Clamping Card to Wire */}
@@ -175,7 +204,7 @@ function HangingCard({
         <group position={[0, 0, 0.03]}>
           <Text
             position={[0, 0.9, 0]}
-            fontSize={0.24}
+            fontSize={0.22}
             color="#1a1917"
             font="/fonts/CabinSketch-Bold.ttf"
             anchorX="center"
@@ -191,11 +220,11 @@ function HangingCard({
             anchorX="center"
             anchorY="middle"
           >
-            {project.category.toUpperCase()}
+            {String(categoryLabel).toUpperCase()}
           </Text>
           <Text
             position={[0, -0.4, 0]}
-            fontSize={0.14}
+            fontSize={0.13}
             maxWidth={2.1}
             textAlign="center"
             color="#57534e"
@@ -203,11 +232,11 @@ function HangingCard({
             anchorX="center"
             anchorY="middle"
           >
-            {project.shortDesc}
+            {project.blurb || project.shortDesc || ""}
           </Text>
           <Text
             position={[0, -1.2, 0]}
-            fontSize={0.14}
+            fontSize={0.13}
             color={hovered ? "#c2410c" : "#a8a29e"}
             font="/fonts/CabinSketch-Bold.ttf"
             anchorX="center"
@@ -236,7 +265,7 @@ function HangingCard({
           </Text>
           <Text
             position={[0, 0.2, 0]}
-            fontSize={0.13}
+            fontSize={0.12}
             maxWidth={2.2}
             textAlign="center"
             color="#292524"
@@ -244,18 +273,26 @@ function HangingCard({
             anchorX="center"
             anchorY="middle"
           >
-            {project.problem}
+            {project.details?.[0] || project.problem || "Custom engineered architecture with verified hardware schematics."}
           </Text>
-          <Text
-            position={[0, -0.6, 0]}
-            fontSize={0.14}
-            color="#059669"
-            font="/fonts/CabinSketch-Bold.ttf"
-            anchorX="center"
-            anchorY="middle"
-          >
-            {project.metrics.split("·")[0]}
-          </Text>
+
+          {project.repo && (
+            <Text
+              position={[0, -0.7, 0]}
+              fontSize={0.15}
+              color="#0284c7"
+              font="/fonts/CabinSketch-Bold.ttf"
+              anchorX="center"
+              anchorY="middle"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(project.repo, "_blank");
+              }}
+            >
+              [ VIEW GITHUB REPO ↗ ]
+            </Text>
+          )}
+
           <Text
             position={[0, -1.2, 0]}
             fontSize={0.13}
