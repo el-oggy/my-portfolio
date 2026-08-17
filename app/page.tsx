@@ -120,18 +120,14 @@ function SectionCopy({ scene }: { scene: string }) {
             Drone · Robotics
           </h2>
           <p className="mt-5 max-w-xl text-[var(--text-dim)]">
-            {heroProject.blurb}
+            The hero build of the embedded/IoT journey: a custom STM32-based
+            hexacopter flight controller with a custom PCB, MPU6500 IMU, and
+            GPS. A full hardware, firmware, and telemetry system, under active
+            development. The full details are in the Projects gallery.
           </p>
           <p className="mt-4 font-[family-name:var(--font-mono)] text-sm text-[var(--text-faint)]">
-            Hero build — {heroProject.year} · under active development.
+            Corridor diorama · full details in the Projects gallery room.
           </p>
-          <ul className="mt-5 space-y-2 font-[family-name:var(--font-mono)] text-sm text-[var(--text-dim)]">
-            {heroProject.stack.map((s) => (
-              <li key={s}>
-                <span style={{ color: "var(--accent-drone)" }}>▸</span> {s}
-              </li>
-            ))}
-          </ul>
         </>
       );
     case "firmware":
@@ -152,6 +148,22 @@ function SectionCopy({ scene }: { scene: string }) {
               </li>
             ))}
           </ul>
+        </>
+      );
+    case "projects":
+      return (
+        <>
+          <h2 className="mt-6 font-[family-name:var(--font-display)] text-5xl font-light tracking-tight">
+            Projects · Gallery
+          </h2>
+          <p className="mt-5 max-w-xl text-[var(--text-dim)]">
+            The full body of work in one place — every build across embedded,
+            IoT, robotics, firmware, and RTL. Descend into the gallery and open
+            any project for the full story.
+          </p>
+          <p className="mt-4 font-[family-name:var(--font-mono)] text-sm text-[var(--text-faint)]">
+            {projects.length} projects · interactive grid loads with the room.
+          </p>
         </>
       );
     case "journey":

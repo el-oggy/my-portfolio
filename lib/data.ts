@@ -17,6 +17,7 @@ export type SceneKey =
   | "drone"
   | "firmware"
   | "rtl"
+  | "projects"
   | "journey"
   | "contact";
 
@@ -73,6 +74,11 @@ export const navLinks: LinkItem[] = [
     label: "RTL",
     href: "#rtl",
     aria: "Jump to the RTL and digital design section",
+  },
+  {
+    label: "Projects",
+    href: "#projects",
+    aria: "Jump to the projects gallery",
   },
   {
     label: "Journey",

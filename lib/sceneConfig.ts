@@ -30,6 +30,12 @@ export interface SceneDef {
   /** Accent color token id (maps to CSS vars — see globals.css). */
   accent: string;
   /**
+   * Journey-role of this scene: corridor scenes fly past at touring altitude;
+   * rooms get explicit entry/explore/exit keyframes and a larger scroll slice;
+   * the finale is the landing endpoint. Defaults to "corridor".
+   */
+  role?: SceneRole;
+  /**
    * Optional explicit camera keyframes for this scene (used by "rooms" — see
    * Step 1 of the hybrid path+rooms plan). Each `at` is a 0..1 progress value
    * *within this scene's scroll slice*; `pos`/`lookAt` are relative to the
@@ -54,83 +60,119 @@ export interface CameraKeyframeDef {
 }
 
 /**
- * Scenes laid out along a gentle path down -Z with mild X drift so it reads
- * as a journeyed world, not a straight tube. The visitor travels:
- *   intro -> pcb (hub) -> embedded -> iot -> drone -> firmware
- *   -> journey -> contact
+ * Hybrid path + rooms layout (plan Step 2).
+ *
+ * The corridor scenes (pcb, embedded, iot, drone, firmware, rtl) fly past at
+ * touring altitude along a meandering line down -Z with alternating X drift —
+ * each gets a tight ~8% scroll slice. The two ROOMS — `projects` (the
+ * aggregated gallery) and `journey` (the signal-path timeline) — sit below the
+ * main path (negative Y) at their own Z, and get generous ~16% slices so the
+ * camera can descend-in, explore, and ascend-out (the explicit entry/explore/
+ * exit `keyframes` land in Step 3). `contact` returns to the main level as the
+ * finale. Scroll ranges sum to exactly 1.0.
+ *
+ * The visitor travels:
+ *   intro (First Boot) -> pcb -> embedded -> iot -> drone -> firmware -> rtl
+ *   -> projects [room] -> journey [room] -> contact
+ *
+ * Roles are encoded on each SceneDef via the optional `role` field so the DOM
+ * layer + future UI can treat corridor/room scenes differently.
  */
+export type SceneRole = "corridor" | "room" | "finale";
+
 export const SCENES: SceneDef[] = [
   {
     key: "intro",
     label: "First Boot",
     anchor: "#top",
-    scroll: [0.0, 0.08],
+    scroll: [0.0, 0.06],
     worldCenter: [0, 0, 0],
     accent: "--accent-intro",
+    role: "corridor",
   },
   {
     key: "pcb",
     label: "Circuit Hub",
     anchor: "#pcb",
-    scroll: [0.08, 0.18],
-    worldCenter: [0, 0, -50],
+    scroll: [0.06, 0.14],
+    worldCenter: [0, 0, -60],
     accent: "--accent-pcb",
+    role: "corridor",
   },
   {
     key: "embedded",
     label: "Embedded · Microcontrollers",
     anchor: "#embedded",
-    scroll: [0.18, 0.33],
-    worldCenter: [-30, 0, -110],
+    scroll: [0.14, 0.22],
+    worldCenter: [-30, 0, -120],
     accent: "--accent-embedded",
+    role: "corridor",
   },
   {
     key: "iot",
     label: "IoT · Sensors & Wireless",
     anchor: "#iot",
-    scroll: [0.33, 0.47],
+    scroll: [0.22, 0.3],
     worldCenter: [30, 0, -180],
     accent: "--accent-iot",
+    role: "corridor",
   },
   {
     key: "drone",
     label: "Drone · Robotics",
     anchor: "#drone",
-    scroll: [0.47, 0.62],
-    worldCenter: [-30, 0, -250],
+    scroll: [0.3, 0.38],
+    worldCenter: [-30, 0, -240],
     accent: "--accent-drone",
+    role: "corridor",
   },
   {
     key: "firmware",
     label: "Firmware & Software",
     anchor: "#firmware",
-    scroll: [0.62, 0.74],
-    worldCenter: [30, 0, -320],
+    scroll: [0.38, 0.46],
+    worldCenter: [30, 0, -300],
     accent: "--accent-firmware",
+    role: "corridor",
   },
   {
     key: "rtl",
     label: "RTL · Systolic Array",
     anchor: "#rtl",
-    scroll: [0.74, 0.86],
-    worldCenter: [-30, 0, -380],
+    scroll: [0.46, 0.54],
+    worldCenter: [-30, 0, -360],
     accent: "--accent-rtl",
+    role: "corridor",
+  },
+  {
+    key: "projects",
+    label: "Projects · Gallery",
+    anchor: "#projects",
+    scroll: [0.54, 0.7],
+    // Below the corridor path so the camera descends into a distinct room.
+    worldCenter: [0, -45, -430],
+    accent: "--accent-projects",
+    role: "room",
   },
   {
     key: "journey",
-    label: "Journey",
+    label: "Journey · Signal Path",
     anchor: "#journey",
-    scroll: [0.86, 0.94],
-    worldCenter: [0, 0, -440],
+    scroll: [0.7, 0.86],
+    // A second room, also below the path, at its own Z.
+    worldCenter: [0, -45, -560],
     accent: "--accent-timeline",
+    role: "room",
   },
   {
     key: "contact",
     label: "Contact",
     anchor: "#contact",
-    scroll: [0.94, 1.0],
-    worldCenter: [0, 0, -500],
+    scroll: [0.86, 1.0],
+    // Return to the main level for the finale endpoint.
+    worldCenter: [0, 0, -660],
     accent: "--accent-contact",
+    role: "finale",
   },
 ];
 
