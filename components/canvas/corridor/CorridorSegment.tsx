@@ -5,6 +5,7 @@ import CorridorWalls from "./CorridorWalls";
 import Door from "./Door";
 import Avatar from "./Avatar";
 import SegmentDoors from "./SegmentDoors";
+import EasterEggs from "./EasterEggs";
 import { RoomId } from "@/context/SceneContext";
 import { Text } from "@react-three/drei";
 
@@ -31,6 +32,9 @@ export default function CorridorSegment({
     <group position={[0, 0, 0]}>
       {/* 80-unit Corridor Walls, Floor Planks, Baseboards & Ceiling */}
       <CorridorWalls zStart={zOffset} length={SEGMENT_LENGTH} />
+
+      {/* Hallway Interactive Easter Eggs: Hanging Mouse & Duck Pot */}
+      <EasterEggs zOffset={zOffset} />
 
       {/* Walking Doodle Avatar at the entrance of each segment */}
       <Avatar position={[0, 1.1, zOffset - 4]} />
