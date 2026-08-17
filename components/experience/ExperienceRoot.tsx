@@ -1,34 +1,31 @@
 "use client";
 
-import { useCapability } from "@/hooks/useCapability";
+import { useState } from "react";
 import { SceneProvider } from "@/context/SceneContext";
 import Experience from "@/components/canvas/Experience";
-import HUDOverlay from "@/components/ui/HUDOverlay";
-import RoomOverlay from "@/components/ui/RoomOverlay";
+import NavigationUI from "@/components/ui/NavigationUI";
+import Preloader from "@/components/dom/Preloader";
 
 export default function ExperienceRoot({
   children,
 }: {
   children?: React.ReactNode;
 }) {
-  const cap = useCapability();
-  const show3D = true;
+  const [isLoaded, setIsLoaded] = useState(false);
 
   return (
     <SceneProvider>
-      {/* 3D Immersive Universe */}
-      {show3D && <Experience reducedParallax={cap.tier === "reduced"} />}
+      {/* 3D WebGL World */}
+      <Experience />
 
-      {/* Corridor HUD (Top Bar & Interaction Prompts) */}
-      <HUDOverlay />
+      {/* Minimalistic Navigation & Audio Overlay */}
+      {isLoaded && <NavigationUI />}
 
-      {/* Room Deep-Dive Showcases (Activated on Door Enter) */}
-      <RoomOverlay />
+      {/* Authentic Hand-Drawn Sketch Preloader */}
+      <Preloader onComplete={() => setIsLoaded(true)} />
 
-      {/* Screen-reader Accessible Content */}
-      <div className="sr-only">
-        {children}
-      </div>
+      {/* Screen-reader Accessible Skeleton */}
+      <div className="sr-only">{children}</div>
     </SceneProvider>
   );
 }

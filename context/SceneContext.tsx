@@ -2,17 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
 
-export type RoomId = 
-  | "pcb"
-  | "embedded"
-  | "iot"
-  | "drone"
-  | "firmware"
-  | "rtl"
-  | "projects"
-  | "journey"
-  | "contact"
-  | null;
+export type RoomId = "gallery" | "studio" | "about" | "contact" | null;
 
 export interface SceneContextType {
   hasEntered: boolean;
@@ -41,7 +31,7 @@ export const SceneProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [hasEntered, setHasEntered] = useState(false);
   const [currentRoom, setCurrentRoom] = useState<RoomId>(null);
   const [isTeleporting, setIsTeleporting] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const markEntered = useCallback(() => {
     setHasEntered(true);

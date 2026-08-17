@@ -5,7 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { Text, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
-import { RoomId } from "@/context/SceneContext";
+import { RoomId, useScene } from "@/context/SceneContext";
 import { sfx } from "@/lib/soundEffects";
 
 export type DoorTextureType = "projekty" | "about" | "kontakt" | "social";
@@ -82,6 +82,22 @@ export default function Door({
     xPos = 0;
     baseRotationY = 0;
   }
+
+  const { currentRoom } = useScene();
+
+  // Reset door to closed position when in corridor
+  useEffect(() => {
+    if (currentRoom === null && isOpen) {
+      setIsOpen(false);
+      if (pivotRef.current) {
+        gsap.to(pivotRef.current.rotation, {
+          y: 0,
+          duration: 0.7,
+          ease: "power2.out",
+        });
+      }
+    }
+  }, [currentRoom, isOpen]);
 
   // Hover paint transition & smooth door ajar angle
   const paintAlpha = useRef(0);

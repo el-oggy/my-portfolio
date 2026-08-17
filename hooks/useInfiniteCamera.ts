@@ -4,22 +4,19 @@ import { useRef, useEffect, useCallback, useLayoutEffect } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-export interface DoorPosition {
-  z: number;
-  side: "left" | "right" | "center";
+export interface DoorRelativePosition {
+  relZ: number;
+  side: "left" | "right";
 }
 
-export const CORRIDOR_DOORS: DoorPosition[] = [
-  { z: -18, side: "left" },   // PCB Design
-  { z: -32, side: "right" },  // Embedded & MCU
-  { z: -48, side: "left" },   // IoT & Wireless
-  { z: -62, side: "right" },  // STM32 Hexacopter
-  { z: -78, side: "left" },   // Firmware & RTOS
-  { z: -92, side: "right" },  // RTL & Systolic Array
-  { z: -110, side: "center" }, // Projects Gallery
-  { z: -126, side: "center" }, // Journey Timeline
-  { z: -142, side: "center" }, // Contact
+export const SEGMENT_DOORS: DoorRelativePosition[] = [
+  { relZ: -18, side: "left" },   // Gallery (Left)
+  { relZ: -32, side: "right" },  // Studio (Right)
+  { relZ: -48, side: "left" },   // About (Left)
+  { relZ: -62, side: "right" },  // Contact (Right)
 ];
+
+const SEGMENT_LENGTH = 80;
 
 export interface UseInfiniteCameraOptions {
   segmentLength?: number;
@@ -33,8 +30,8 @@ export interface UseInfiniteCameraOptions {
 
 export default function useInfiniteCamera({
   segmentLength = 80,
-  scrollSpeed = 0.03,
-  parallaxIntensity = 0.3,
+  scrollSpeed = 0.035,
+  parallaxIntensity = 0.35,
   smoothing = 0.045,
   glanceIntensity = 0.18,
   scrollEnabled = true,
@@ -59,9 +56,13 @@ export default function useInfiniteCamera({
   const parallaxEnabledRef = useRef(parallaxEnabled);
   const cameraOverride = useRef(false);
 
-  // Calculate glance based on approaching doors
+  // Calculate glance based on approaching doors in the current repeating segment
   const calculateGlance = useCallback(
     (z: number) => {
+      const segmentIndex = Math.floor((10 - z) / SEGMENT_LENGTH);
+      const segmentStartZ = 10 - segmentIndex * SEGMENT_LENGTH;
+      const relZ = z - segmentStartZ;
+
       let bestStrength = 0;
       let bestDir = 0;
 
@@ -69,9 +70,8 @@ export default function useInfiniteCamera({
       const PEAK_DIST = 7;
       const END_DIST = -2;
 
-      for (const door of CORRIDOR_DOORS) {
-        if (door.side === "center") continue;
-        const dist = z - door.z;
+      for (const door of SEGMENT_DOORS) {
+        const dist = relZ - door.relZ;
 
         let strength = 0;
         if (dist > PEAK_DIST && dist < START_DIST) {
@@ -103,22 +103,21 @@ export default function useInfiniteCamera({
     if (scrollEnabled && !wasScrollEnabled) {
       targetZ.current = camera.position.z;
       currentZ.current = camera.position.z;
-      parallax.current = { x: camera.position.x, y: camera.position.y - 0.2 };
-      targetParallax.current = { x: camera.position.x, y: camera.position.y - 0.2 };
+      parallax.current = { x: camera.position.x, y: camera.position.y - 1.8 };
+      targetParallax.current = { x: camera.position.x, y: camera.position.y - 1.8 };
       glanceOffset.current = 0;
       targetGlance.current = 0;
     }
   }, [scrollEnabled, parallaxEnabled, camera]);
 
-  // Wheel handling
+  // Wheel handling with UNBOUNDED infinite scrolling down negative Z
   const handleWheel = useCallback(
     (e: WheelEvent) => {
       if (!scrollEnabledRef.current) return;
       e.preventDefault();
       const delta = e.deltaY * scrollSpeed;
-      // Scroll moves forward down the negative Z axis
-      // Clamp bounds so you can travel from Entrance (Z=8) to End of Corridor (Z=-160)
-      targetZ.current = THREE.MathUtils.clamp(targetZ.current - delta, -165, 12);
+      // Scroll moves continuously forward down negative Z, bounded only at start (Z=12)
+      targetZ.current = Math.min(12, targetZ.current - delta);
     },
     [scrollSpeed]
   );
@@ -135,7 +134,7 @@ export default function useInfiniteCamera({
     [parallaxIntensity]
   );
 
-  // Keyboard navigation
+  // Keyboard navigation with unbounded scrolling
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (!scrollEnabledRef.current) return;
@@ -153,7 +152,7 @@ export default function useInfiniteCamera({
       const delta = keyScrollMap[e.key];
       if (delta !== undefined) {
         e.preventDefault();
-        targetZ.current = THREE.MathUtils.clamp(targetZ.current - delta * scrollSpeed, -165, 12);
+        targetZ.current = Math.min(12, targetZ.current - delta * scrollSpeed);
       }
     },
     [scrollSpeed]
@@ -172,7 +171,7 @@ export default function useInfiniteCamera({
 
       if (scrollEnabledRef.current) {
         const deltaY = (touchStart.current.y - currentY) * scrollSpeed * 1.6;
-        targetZ.current = THREE.MathUtils.clamp(targetZ.current - deltaY, -165, 12);
+        targetZ.current = Math.min(12, targetZ.current - deltaY);
       }
 
       if (parallaxEnabledRef.current) {
@@ -251,14 +250,9 @@ export default function useInfiniteCamera({
     }
   }, [camera]);
 
-  const setTargetZ = useCallback((z: number) => {
-    targetZ.current = z;
-  }, []);
-
   return {
     getCameraZ: () => currentZ.current,
     setCameraOverride,
-    setTargetZ,
     targetZ,
   };
 }
