@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
+import { useTexture } from "@react-three/drei";
 
 interface CorridorWallsProps {
   zStart?: number;
@@ -13,100 +14,132 @@ export default function CorridorWalls({
   length = 200,
 }: CorridorWallsProps) {
   const corridorWidth = 7.0;
-  const wallHeight = 5.0;
-
+  const wallHeight = 4.8;
   const zCenter = zStart - length / 2;
 
-  // Vertical structural seams along the corridor
-  const seams = useMemo(() => {
-    const arr: number[] = [];
-    for (let z = zStart; z >= zStart - length; z -= 8) {
-      arr.push(z);
+  // Load authentic hand-drawn textures
+  const [
+    floorTex,
+    baseboardTex,
+    wallTex,
+    ceilingTex,
+    plantTex,
+    ventTex,
+  ] = useTexture([
+    "/textures/corridor/kawalekpodlogi.webp",
+    "/textures/corridor/texturadoprogow.webp",
+    "/textures/corridor/wall_texture.webp",
+    "/textures/corridor/ceiling_texture.webp",
+    "/textures/corridor/drzewkowdoniczce.webp",
+    "/textures/corridor/kratkawentylacyjna.webp",
+  ]);
+
+  // Set repeat wrapping on textures
+  useEffect(() => {
+    if (floorTex) {
+      floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
+      floorTex.repeat.set(2, length / 4);
+      floorTex.colorSpace = THREE.SRGBColorSpace;
+      floorTex.needsUpdate = true;
     }
-    return arr;
+    if (baseboardTex) {
+      baseboardTex.wrapS = baseboardTex.wrapT = THREE.RepeatWrapping;
+      baseboardTex.repeat.set(length / 3, 1);
+      baseboardTex.colorSpace = THREE.SRGBColorSpace;
+      baseboardTex.needsUpdate = true;
+    }
+    if (wallTex) {
+      wallTex.wrapS = wallTex.wrapT = THREE.RepeatWrapping;
+      wallTex.repeat.set(length / 6, 2);
+      wallTex.colorSpace = THREE.SRGBColorSpace;
+      wallTex.needsUpdate = true;
+    }
+    if (ceilingTex) {
+      ceilingTex.wrapS = ceilingTex.wrapT = THREE.RepeatWrapping;
+      ceilingTex.repeat.set(2, length / 6);
+      ceilingTex.colorSpace = THREE.SRGBColorSpace;
+      ceilingTex.needsUpdate = true;
+    }
+  }, [floorTex, baseboardTex, wallTex, ceilingTex, length]);
+
+  // Plant and vent positions along corridor
+  const decorations = useMemo(() => {
+    const plants: number[] = [];
+    const vents: number[] = [];
+    for (let z = zStart - 10; z >= zStart - length + 10; z -= 24) {
+      plants.push(z);
+      vents.push(z - 12);
+    }
+    return { plants, vents };
   }, [zStart, length]);
 
   return (
     <group position={[0, 0, 0]}>
-      {/* Floor */}
+      {/* Floor with authentic wood plank texture */}
       <mesh position={[0, 0, zCenter]} rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[corridorWidth, length]} />
-        <meshStandardMaterial color="#f6f3ea" roughness={0.9} metalness={0.05} />
+        <meshStandardMaterial map={floorTex} roughness={0.85} metalness={0.05} />
       </mesh>
 
-      {/* Floor Grid Hatch Lines */}
-      <gridHelper
-        args={[corridorWidth, corridorWidth * 2, "#1a1917", "#d8d3c5"]}
-        position={[0, 0.01, zCenter]}
-        scale={[1, 1, length / corridorWidth]}
-      />
-
-      {/* Left Wall */}
+      {/* Left Wall with authentic sketch paper texture */}
       <mesh
         position={[-corridorWidth / 2, wallHeight / 2, zCenter]}
         rotation-y={Math.PI / 2}
         receiveShadow
       >
         <planeGeometry args={[length, wallHeight]} />
-        <meshStandardMaterial color="#fdfbf7" roughness={0.9} metalness={0.05} />
+        <meshStandardMaterial map={wallTex} roughness={0.9} />
       </mesh>
 
-      {/* Right Wall */}
+      {/* Right Wall with authentic sketch paper texture */}
       <mesh
         position={[corridorWidth / 2, wallHeight / 2, zCenter]}
         rotation-y={-Math.PI / 2}
         receiveShadow
       >
         <planeGeometry args={[length, wallHeight]} />
-        <meshStandardMaterial color="#fdfbf7" roughness={0.9} metalness={0.05} />
+        <meshStandardMaterial map={wallTex} roughness={0.9} />
       </mesh>
 
-      {/* Ceiling */}
+      {/* Ceiling with authentic texture */}
       <mesh position={[0, wallHeight, zCenter]} rotation-x={Math.PI / 2}>
         <planeGeometry args={[corridorWidth, length]} />
-        <meshStandardMaterial color="#f4f1e6" roughness={0.95} />
+        <meshStandardMaterial map={ceilingTex} roughness={0.95} />
       </mesh>
 
-      {/* --- Pencil Baseboards & Crown Trims --- */}
-      {/* Left Baseboard Line */}
-      <mesh position={[-corridorWidth / 2 + 0.05, 0.05, zCenter]}>
-        <boxGeometry args={[0.08, 0.1, length]} />
-        <meshBasicMaterial color="#1a1917" />
+      {/* --- Authentic Hand-Drawn Baseboards --- */}
+      <mesh position={[-corridorWidth / 2 + 0.02, 0.2, zCenter]} rotation-y={Math.PI / 2}>
+        <planeGeometry args={[length, 0.4]} />
+        <meshBasicMaterial map={baseboardTex} transparent />
       </mesh>
-      {/* Right Baseboard Line */}
-      <mesh position={[corridorWidth / 2 - 0.05, 0.05, zCenter]}>
-        <boxGeometry args={[0.08, 0.1, length]} />
-        <meshBasicMaterial color="#1a1917" />
+      <mesh position={[corridorWidth / 2 - 0.02, 0.2, zCenter]} rotation-y={-Math.PI / 2}>
+        <planeGeometry args={[length, 0.4]} />
+        <meshBasicMaterial map={baseboardTex} transparent />
       </mesh>
 
-      {/* Left Crown Line */}
-      <mesh position={[-corridorWidth / 2 + 0.05, wallHeight - 0.05, zCenter]}>
-        <boxGeometry args={[0.08, 0.1, length]} />
-        <meshBasicMaterial color="#1a1917" />
-      </mesh>
-      {/* Right Crown Line */}
-      <mesh position={[corridorWidth / 2 - 0.05, wallHeight - 0.05, zCenter]}>
-        <boxGeometry args={[0.08, 0.1, length]} />
-        <meshBasicMaterial color="#1a1917" />
-      </mesh>
-
-      {/* Structural Vertical Seams & Ceiling Beams */}
-      {seams.map((z, idx) => (
-        <group key={`beam-${idx}`} position={[0, 0, z]}>
-          {/* Left Vertical Seam */}
-          <mesh position={[-corridorWidth / 2 + 0.04, wallHeight / 2, 0]}>
-            <boxGeometry args={[0.06, wallHeight, 0.06]} />
-            <meshBasicMaterial color="#2d2b27" />
+      {/* --- Hand-drawn Corridor Decorations --- */}
+      {decorations.plants.map((z, i) => (
+        <group key={`decor-plant-${i}`}>
+          {/* Potted Plant on left or right */}
+          <mesh
+            position={[i % 2 === 0 ? -corridorWidth / 2 + 0.6 : corridorWidth / 2 - 0.6, 0.9, z]}
+            rotation-y={i % 2 === 0 ? Math.PI / 6 : -Math.PI / 6}
+          >
+            <planeGeometry args={[1.2, 1.8]} />
+            <meshBasicMaterial map={plantTex} transparent />
           </mesh>
-          {/* Right Vertical Seam */}
-          <mesh position={[corridorWidth / 2 - 0.04, wallHeight / 2, 0]}>
-            <boxGeometry args={[0.06, wallHeight, 0.06]} />
-            <meshBasicMaterial color="#2d2b27" />
-          </mesh>
-          {/* Ceiling Cross Beam */}
-          <mesh position={[0, wallHeight - 0.05, 0]}>
-            <boxGeometry args={[corridorWidth, 0.08, 0.08]} />
-            <meshBasicMaterial color="#38342f" />
+        </group>
+      ))}
+
+      {decorations.vents.map((z, i) => (
+        <group key={`decor-vent-${i}`}>
+          {/* Ventilation Grill High on Wall */}
+          <mesh
+            position={[-corridorWidth / 2 + 0.05, wallHeight - 0.8, z]}
+            rotation-y={Math.PI / 2}
+          >
+            <planeGeometry args={[1.6, 0.8]} />
+            <meshBasicMaterial map={ventTex} transparent />
           </mesh>
         </group>
       ))}

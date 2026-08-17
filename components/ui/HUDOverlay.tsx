@@ -2,6 +2,7 @@
 
 import { useScene, RoomId } from "@/context/SceneContext";
 import { identity } from "@/lib/data";
+import { sfx } from "@/lib/soundEffects";
 
 const QUICK_ROOMS: { id: RoomId; label: string; num: string }[] = [
   { id: "pcb", label: "PCB Hub", num: "01" },
@@ -54,7 +55,10 @@ export default function HUDOverlay() {
         {/* Controls */}
         <div className="flex items-center gap-2">
           <button
-            onClick={toggleSound}
+            onClick={() => {
+              toggleSound();
+              sfx.setEnabled(!soundEnabled);
+            }}
             className="font-mono text-xs px-2.5 py-1 border border-[var(--pencil-line)] rounded bg-white hover:bg-[var(--note-yellow)] text-[var(--ink)] transition-colors"
           >
             {soundEnabled ? "🔊 SOUND ON" : "🔇 SOUND OFF"}

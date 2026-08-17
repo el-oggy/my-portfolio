@@ -3,11 +3,17 @@
 import { useScene, RoomId } from "@/context/SceneContext";
 import { identity, links, experience, education, projects } from "@/lib/data";
 import ProjectGallery from "./ProjectGallery";
+import { sfx } from "@/lib/soundEffects";
 
 export default function RoomOverlay() {
   const { currentRoom, exitRoom } = useScene();
 
   if (!currentRoom) return null;
+
+  const handleBack = () => {
+    sfx.play("closeDoor");
+    exitRoom();
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[var(--bg-paper)]/95 backdrop-blur-md transition-all duration-500 animate-in fade-in zoom-in-95">
@@ -15,7 +21,7 @@ export default function RoomOverlay() {
       <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b-2 border-[var(--pencil-line)] bg-[var(--bg-paper-warm)]/90 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <button
-            onClick={exitRoom}
+            onClick={handleBack}
             className="sketch-btn py-1.5 px-4 text-sm font-bold flex items-center gap-2 hover:bg-[var(--note-yellow)]"
           >
             <span>←</span>

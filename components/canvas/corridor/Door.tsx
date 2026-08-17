@@ -1,11 +1,14 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Text } from "@react-three/drei";
+import { Text, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
 import { RoomId } from "@/context/SceneContext";
+import { sfx } from "@/lib/soundEffects";
+
+export type DoorTextureType = "projekty" | "about" | "kontakt" | "social";
 
 interface DoorProps {
   z: number;
@@ -13,6 +16,7 @@ interface DoorProps {
   label: string;
   sublabel: string;
   number: string;
+  doorType?: DoorTextureType;
   accentColor?: string;
   roomId: RoomId;
   onEnter: (roomId: RoomId) => void;
@@ -24,48 +28,72 @@ export default function Door({
   label,
   sublabel,
   number,
+  doorType = "projekty",
   accentColor = "#c2410c",
   roomId,
   onEnter,
 }: DoorProps) {
   const { camera } = useThree();
   const pivotRef = useRef<THREE.Group>(null);
-  const fillMatRef = useRef<THREE.MeshStandardMaterial>(null);
-  const glowMatRef = useRef<THREE.MeshBasicMaterial>(null);
+  const paintedMatRef = useRef<THREE.MeshBasicMaterial>(null);
 
   const [hovered, setHovered] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const isAnimating = useRef(false);
 
-  const doorWidth = 2.4;
-  const doorHeight = 4.0;
+  // Load authentic hand-drawn door textures
+  const [
+    doorSketchTex,
+    doorPaintedTex,
+    frameTex,
+    handleTex,
+    handlePaintedTex,
+  ] = useTexture([
+    `/textures/corridor/doors/drzwi${doorType}.webp`,
+    `/textures/corridor/doors/drzwi${doorType}_painted.webp`,
+    `/textures/corridor/doors/ramkasingledoors.webp`,
+    `/textures/corridor/doors/klamkadodrzwi.webp`,
+    `/textures/corridor/doors/klamkadodrzwi_painted.webp`,
+  ]);
+
+  useEffect(() => {
+    [doorSketchTex, doorPaintedTex, frameTex, handleTex, handlePaintedTex].forEach((t) => {
+      if (t) {
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.needsUpdate = true;
+      }
+    });
+  }, [doorSketchTex, doorPaintedTex, frameTex, handleTex, handlePaintedTex]);
+
+  const doorWidth = 2.2;
+  const doorHeight = 3.8;
   const corridorWidth = 7.0;
 
   let xPos = 0;
   let baseRotationY = 0;
 
   if (side === "left") {
-    xPos = -corridorWidth / 2 + 0.1;
+    xPos = -corridorWidth / 2 + 0.15;
     baseRotationY = Math.PI / 2;
   } else if (side === "right") {
-    xPos = corridorWidth / 2 - 0.1;
+    xPos = corridorWidth / 2 - 0.15;
     baseRotationY = -Math.PI / 2;
   } else {
     xPos = 0;
     baseRotationY = 0;
   }
 
-  // Hover & Proximity updates
-  const fillAlpha = useRef(0);
+  // Hover paint transition & smooth door ajar angle
+  const paintAlpha = useRef(0);
   useFrame((_, delta) => {
     if (isAnimating.current) return;
 
     const d = THREE.MathUtils.clamp(delta, 0, 1 / 30);
     const targetAlpha = hovered ? 1 : 0;
-    fillAlpha.current = THREE.MathUtils.damp(fillAlpha.current, targetAlpha, 8, d);
+    paintAlpha.current = THREE.MathUtils.damp(paintAlpha.current, targetAlpha, 8, d);
 
-    if (fillMatRef.current) {
-      fillMatRef.current.opacity = fillAlpha.current;
+    if (paintedMatRef.current) {
+      paintedMatRef.current.opacity = paintAlpha.current;
     }
 
     if (pivotRef.current && !isOpen) {
@@ -80,100 +108,122 @@ export default function Door({
     }
   });
 
-  const handleClick = useCallback(() => {
-    if (isAnimating.current || isOpen) return;
-    isAnimating.current = true;
+  const handlePointerOver = useCallback(
+    (e: any) => {
+      e.stopPropagation();
+      if (!hovered && !isAnimating.current) {
+        setHovered(true);
+        sfx.play("hoverDoor");
+      }
+    },
+    [hovered]
+  );
 
-    // Open swing angle
-    const openAngle = side === "left" ? -Math.PI * 0.55 : Math.PI * 0.55;
+  const handleClick = useCallback(
+    (e: any) => {
+      e.stopPropagation();
+      if (isAnimating.current || isOpen) return;
+      isAnimating.current = true;
+      sfx.play("openDoor");
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        setIsOpen(true);
-        isAnimating.current = false;
-        onEnter(roomId);
-      },
-    });
+      const openAngle = side === "left" ? -Math.PI * 0.55 : Math.PI * 0.55;
 
-    // 1. Swing door open
-    if (pivotRef.current) {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setIsOpen(true);
+          isAnimating.current = false;
+          onEnter(roomId);
+        },
+      });
+
+      // 1. Swing authentic door open
+      if (pivotRef.current) {
+        tl.to(
+          pivotRef.current.rotation,
+          {
+            y: openAngle,
+            duration: 0.9,
+            ease: "power2.out",
+          },
+          0
+        );
+      }
+
+      // 2. Dolly camera into doorway
+      const targetCamX = side === "left" ? -1.4 : side === "right" ? 1.4 : 0;
       tl.to(
-        pivotRef.current.rotation,
+        camera.position,
         {
-          y: openAngle,
-          duration: 0.9,
-          ease: "power2.out",
+          x: targetCamX,
+          y: 1.8,
+          z: z + 2.0,
+          duration: 1.1,
+          ease: "power2.inOut",
         },
         0
       );
-    }
-
-    // 2. Camera approach dolly
-    const targetCamX = side === "left" ? -1.2 : side === "right" ? 1.2 : 0;
-    tl.to(
-      camera.position,
-      {
-        x: targetCamX,
-        z: z + 2.0,
-        duration: 1.1,
-        ease: "power2.inOut",
-      },
-      0
-    );
-  }, [camera, side, z, isOpen, roomId, onEnter]);
+    },
+    [camera, side, z, isOpen, roomId, onEnter]
+  );
 
   return (
     <group position={[xPos, 0, z]} rotation-y={baseRotationY}>
-      {/* Wall Door Frame / Alcove */}
+      {/* Authentic Hand-Drawn Door Frame */}
       <mesh position={[0, doorHeight / 2, -0.05]}>
-        <boxGeometry args={[doorWidth + 0.3, doorHeight + 0.3, 0.1]} />
-        <meshBasicMaterial color="#1a1917" />
+        <planeGeometry args={[doorWidth + 0.6, doorHeight + 0.6]} />
+        <meshBasicMaterial map={frameTex} transparent />
       </mesh>
 
-      {/* Door Leaf (Pivot around side edge) */}
+      {/* Door Leaf (Pivot around side hinge) */}
       <group
         ref={pivotRef}
         position={[side === "left" ? -doorWidth / 2 : doorWidth / 2, 0, 0]}
         onClick={handleClick}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-        }}
+        onPointerOver={handlePointerOver}
         onPointerOut={(e) => {
           e.stopPropagation();
           setHovered(false);
         }}
       >
-        {/* Door Plane */}
+        {/* Base Sketch Door Texture */}
         <mesh position={[side === "left" ? doorWidth / 2 : -doorWidth / 2, doorHeight / 2, 0]}>
           <planeGeometry args={[doorWidth, doorHeight]} />
-          <meshStandardMaterial color="#fcfaf6" roughness={0.9} />
+          <meshBasicMaterial map={doorSketchTex} transparent />
         </mesh>
 
-        {/* Painted Accent Fill (Revealed on Hover) */}
+        {/* Painted Accent Door Texture (Reveals on Hover) */}
         <mesh position={[side === "left" ? doorWidth / 2 : -doorWidth / 2, doorHeight / 2, 0.02]}>
-          <planeGeometry args={[doorWidth - 0.1, doorHeight - 0.1]} />
-          <meshStandardMaterial
-            ref={fillMatRef}
-            color={accentColor}
+          <planeGeometry args={[doorWidth, doorHeight]} />
+          <meshBasicMaterial
+            ref={paintedMatRef}
+            map={doorPaintedTex}
             transparent
             opacity={0}
-            roughness={0.6}
           />
         </mesh>
 
-        {/* Outer Wireframe Border */}
-        <mesh position={[side === "left" ? doorWidth / 2 : -doorWidth / 2, doorHeight / 2, 0.04]}>
-          <planeGeometry args={[doorWidth - 0.15, doorHeight - 0.15]} />
-          <meshBasicMaterial color={hovered ? "#ffffff" : "#1a1917"} wireframe />
+        {/* Door Handle */}
+        <mesh
+          position={[
+            side === "left" ? doorWidth - 0.35 : -doorWidth + 0.35,
+            doorHeight / 2 - 0.2,
+            0.04,
+          ]}
+        >
+          <planeGeometry args={[0.4, 0.6]} />
+          <meshBasicMaterial
+            map={hovered ? handlePaintedTex : handleTex}
+            transparent
+          />
         </mesh>
 
-        {/* Door Content Typography */}
-        <group position={[side === "left" ? doorWidth / 2 : -doorWidth / 2, doorHeight / 2, 0.06]}>
-          {/* Number Stamp */}
+        {/* Custom Handwritten Typography Overlay */}
+        <group position={[side === "left" ? doorWidth / 2 : -doorWidth / 2, doorHeight / 2, 0.05]}>
+          {/* Number */}
           <Text
             position={[0, 1.2, 0]}
-            fontSize={0.24}
+            fontSize={0.28}
+            font="/fonts/CabinSketch-Bold.ttf"
             color={hovered ? "#ffffff" : accentColor}
             anchorX="center"
             anchorY="middle"
@@ -181,55 +231,46 @@ export default function Door({
             {number}
           </Text>
 
-          {/* Door Title */}
+          {/* Title */}
           <Text
-            position={[0, 0.4, 0]}
-            fontSize={0.28}
+            position={[0, 0.35, 0]}
+            fontSize={0.26}
             maxWidth={doorWidth - 0.4}
             textAlign="center"
-            color={hovered ? "#ffffff" : "#1a1917"}
+            font="/fonts/CabinSketch-Bold.ttf"
+            color={hovered ? "#ffffff" : "#1c1917"}
             anchorX="center"
             anchorY="middle"
           >
             {label}
           </Text>
 
-          {/* Subtitle / Tech Tags */}
+          {/* Subtitle */}
           <Text
-            position={[0, -0.4, 0]}
+            position={[0, -0.45, 0]}
             fontSize={0.16}
             maxWidth={doorWidth - 0.4}
             textAlign="center"
-            color={hovered ? "#fef08a" : "#6b655b"}
+            font="/fonts/CabinSketch-Regular.ttf"
+            color={hovered ? "#fef08a" : "#44403c"}
             anchorX="center"
             anchorY="middle"
           >
             {sublabel}
           </Text>
 
-          {/* Prompt Indicator */}
+          {/* Hint */}
           <Text
             position={[0, -1.2, 0]}
-            fontSize={0.14}
-            color={hovered ? "#ffffff" : "#9c9487"}
+            fontSize={0.16}
+            font="/fonts/CabinSketch-Bold.ttf"
+            color={hovered ? "#ffffff" : "#78716c"}
             anchorX="center"
             anchorY="middle"
           >
-            {hovered ? "CLICK TO ENTER ➔" : "✦ TOUCH DOOR ✦"}
+            {hovered ? "✦ CLICK TO ENTER ➔" : "[ TOUCH DOOR ]"}
           </Text>
         </group>
-
-        {/* Door Handle */}
-        <mesh
-          position={[
-            side === "left" ? doorWidth - 0.25 : -doorWidth + 0.25,
-            doorHeight / 2 - 0.2,
-            0.12,
-          ]}
-        >
-          <sphereGeometry args={[0.07, 16, 16]} />
-          <meshStandardMaterial color="#c28c46" metalness={0.9} roughness={0.1} />
-        </mesh>
       </group>
     </group>
   );
