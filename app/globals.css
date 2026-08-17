@@ -41,23 +41,32 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
-html {
+@font-face {
+  font-family: 'CabinSketch';
+  src: url('/fonts/CabinSketch-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CabinSketch';
+  src: url('/fonts/CabinSketch-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   background-color: var(--bg-paper);
-}
-
-body {
-  background-color: var(--bg-paper);
   color: var(--ink);
   font-family: var(--font-sans);
-  /* Hand-drawn sketchbook grid paper pattern */
-  background-image: 
-    linear-gradient(rgba(28, 27, 24, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(28, 27, 24, 0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
-  background-attachment: fixed;
-  overflow-x: hidden;
 }
 
 /* Kinetic content z-order */

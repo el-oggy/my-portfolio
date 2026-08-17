@@ -34,6 +34,7 @@ export default function EntranceDoors({
     treeTex,
     catBodyTex,
     catBlinkTex,
+    floorTex,
   ] = useTexture([
     "/textures/corridor/doors/doorrleft.webp",
     "/textures/corridor/doors/dorright.webp",
@@ -42,11 +43,11 @@ export default function EntranceDoors({
     "/textures/entrance/tree_sketch.webp",
     "/textures/entrance/cat_front_body.webp",
     "/textures/entrance/cat_blink.webp",
+    "/textures/corridor/kawalekpodlogi.webp",
   ]);
 
-  // Set texture settings
   useEffect(() => {
-    [doorLeftTex, doorRightTex, brickTex, signTex, treeTex, catBodyTex, catBlinkTex].forEach(
+    [doorLeftTex, doorRightTex, brickTex, signTex, treeTex, catBodyTex, catBlinkTex, floorTex].forEach(
       (t) => {
         if (t) {
           t.colorSpace = THREE.SRGBColorSpace;
@@ -54,7 +55,15 @@ export default function EntranceDoors({
         }
       }
     );
-  }, [doorLeftTex, doorRightTex, brickTex, signTex, treeTex, catBodyTex, catBlinkTex]);
+    if (brickTex) {
+      brickTex.wrapS = brickTex.wrapT = THREE.RepeatWrapping;
+      brickTex.repeat.set(4, 2);
+    }
+    if (floorTex) {
+      floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
+      floorTex.repeat.set(4, 4);
+    }
+  }, [doorLeftTex, doorRightTex, brickTex, signTex, treeTex, catBodyTex, catBlinkTex, floorTex]);
 
   const doorWidth = 2.2;
   const doorHeight = 4.2;
@@ -137,7 +146,7 @@ export default function EntranceDoors({
       signRef.current.position.y = 3.6 + Math.sin(t * 2.2) * 0.08;
     }
 
-    // Random cat blink every ~3 seconds
+    // Random cat blink
     blinkTimer.current += delta;
     if (blinkTimer.current > 3.0) {
       setCatBlinking(true);
@@ -150,28 +159,38 @@ export default function EntranceDoors({
 
   return (
     <group position={position}>
-      {/* Surrounding Brick Wall Facade */}
-      <mesh position={[-4.5, 2.5, -0.2]}>
-        <planeGeometry args={[5, 6]} />
+      {/* Full-width Entrance Ground Pavement */}
+      <mesh position={[0, 0, 4]} rotation-x={-Math.PI / 2} receiveShadow>
+        <planeGeometry args={[45, 15]} />
+        <meshStandardMaterial map={floorTex} roughness={0.9} />
+      </mesh>
+
+      {/* Massive Full-Screen Brick Building Facade */}
+      <mesh position={[-15, 3.5, -0.2]}>
+        <planeGeometry args={[25, 10]} />
         <meshBasicMaterial map={brickTex} transparent />
       </mesh>
-      <mesh position={[4.5, 2.5, -0.2]}>
-        <planeGeometry args={[5, 6]} />
+      <mesh position={[15, 3.5, -0.2]}>
+        <planeGeometry args={[25, 10]} />
         <meshBasicMaterial map={brickTex} transparent />
       </mesh>
-      <mesh position={[0, 5.2, -0.2]}>
-        <planeGeometry args={[5, 2]} />
+      <mesh position={[0, 6.5, -0.2]}>
+        <planeGeometry args={[8, 4]} />
         <meshBasicMaterial map={brickTex} transparent />
       </mesh>
 
-      {/* Hand-Drawn Tree on Left */}
-      <mesh position={[-4.2, 2.8, 0.1]}>
-        <planeGeometry args={[3.2, 5.5]} />
+      {/* Hand-Drawn Trees on Left & Right */}
+      <mesh position={[-7.5, 3.2, 0.1]}>
+        <planeGeometry args={[4.5, 7.0]} />
+        <meshBasicMaterial map={treeTex} transparent />
+      </mesh>
+      <mesh position={[7.5, 3.2, 0.1]} scale={[-1, 1, 1]}>
+        <planeGeometry args={[4.5, 7.0]} />
         <meshBasicMaterial map={treeTex} transparent />
       </mesh>
 
       {/* Cute Hand-Drawn Cat on Right */}
-      <mesh ref={catRef} position={[3.2, 0.9, 0.1]}>
+      <mesh ref={catRef} position={[3.4, 0.9, 0.1]}>
         <planeGeometry args={[1.5, 1.8]} />
         <meshBasicMaterial
           map={catBlinking ? catBlinkTex : catBodyTex}

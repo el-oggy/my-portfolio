@@ -12,7 +12,7 @@ export default function ExperienceRoot({
   children?: React.ReactNode;
 }) {
   const cap = useCapability();
-  const show3D = cap.ready ? cap.tier !== "2d" : true;
+  const show3D = true;
 
   return (
     <SceneProvider>

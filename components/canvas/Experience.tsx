@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
-import { AdaptiveDpr, AdaptiveEvents, Preload } from "@react-three/drei";
+import { AdaptiveEvents, Preload } from "@react-three/drei";
 
 import { useScene } from "@/context/SceneContext";
 import useInfiniteCamera from "@/hooks/useInfiniteCamera";
@@ -33,12 +33,21 @@ export default function Experience({
   return (
     <Canvas
       className="fixed inset-0 z-0"
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        zIndex: 0,
+        pointerEvents: "auto",
+      }}
       gl={{
         antialias: true,
         alpha: true,
         powerPreference: "high-performance",
       }}
-      dpr={[1, reducedParallax ? 1.5 : 2]}
+      dpr={[1, 2]}
       camera={{ fov: 50, near: 0.1, far: 500, position: [0, 1.8, 28] }}
     >
       <fog attach="fog" args={["#fbf9f5", 40, 180]} />
@@ -71,7 +80,6 @@ export default function Experience({
         <Preload all />
       </Suspense>
 
-      <AdaptiveDpr pixelated />
       <AdaptiveEvents />
     </Canvas>
   );
