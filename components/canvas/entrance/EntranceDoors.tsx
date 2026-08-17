@@ -76,7 +76,7 @@ export default function EntranceDoors({
       camera.position,
       {
         x: 0,
-        y: 0.2,
+        y: 1.8,
         z: 8,
         duration: 1.8,
         ease: "power3.inOut",

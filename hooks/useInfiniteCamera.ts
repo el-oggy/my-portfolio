@@ -231,15 +231,15 @@ export default function useInfiniteCamera({
 
       camera.position.z = currentZ.current;
       camera.position.x = parallax.current.x;
-      camera.position.y = 0.2 + parallax.current.y;
+      camera.position.y = 1.8 + parallax.current.y;
 
       const lookX = parallax.current.x * 0.3 + glanceOffset.current * 3 + swipeGlance.current * 4;
-      camera.lookAt(lookX, 0.15 + parallax.current.y, currentZ.current - 10);
+      camera.lookAt(lookX, 1.8 + parallax.current.y, currentZ.current - 10);
     } else if (parallaxActive) {
       camera.position.x = parallax.current.x;
-      camera.position.y = 0.2 + parallax.current.y;
+      camera.position.y = 1.8 + parallax.current.y;
       const lookX = parallax.current.x * 0.3 + swipeGlance.current * 4;
-      camera.lookAt(lookX, 0.15 + parallax.current.y, camera.position.z - 10);
+      camera.lookAt(lookX, 1.8 + parallax.current.y, camera.position.z - 10);
     }
   });
 

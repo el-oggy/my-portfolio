@@ -32,14 +32,14 @@ export default function Experience({
 
   return (
     <Canvas
-      className="fixed inset-0 -z-10"
+      className="fixed inset-0 z-0"
       gl={{
         antialias: true,
         alpha: true,
         powerPreference: "high-performance",
       }}
       dpr={[1, reducedParallax ? 1.5 : 2]}
-      camera={{ fov: 50, near: 0.1, far: 500, position: [0, 0.2, 28] }}
+      camera={{ fov: 50, near: 0.1, far: 500, position: [0, 1.8, 28] }}
     >
       <fog attach="fog" args={["#fbf9f5", 40, 180]} />
       <color attach="background" args={["#fbf9f5"]} />
