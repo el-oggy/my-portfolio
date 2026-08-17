@@ -153,6 +153,35 @@ export const SCENES: SceneDef[] = [
     worldCenter: [0, -45, -430],
     accent: "--accent-projects",
     role: "room",
+    /**
+     * Room camera choreography — Projects Gallery.
+     *
+     * The camera starts at corridor altitude (~45 units above worldCenter, since
+     * worldCenter.y is already -45 and corridor is at y≈0), descends into the
+     * room, performs a wide gentle orbit to showcase the project gallery, then
+     * ascends back toward the corridor for the next scene.
+     *
+     * pos/lookAt are offsets from worldCenter [0, -45, -430]:
+     *   y +45 = corridor altitude (world y ≈ 0)
+     *   y  0  = room floor (world y = -45)
+     */
+    keyframes: [
+      // 0 — Approach: still at corridor altitude, peering down toward the room
+      { at: 0.0,  pos: [0, 48, 35],    lookAt: [0, 10, -5] },
+      // 1 — Descend: diving toward the room entrance
+      { at: 0.15, pos: [0, 28, 20],    lookAt: [0, 2, -10] },
+      // 2 — Enter: arriving at room level, centered
+      { at: 0.30, pos: [0, 12, 14],    lookAt: [0, 0, -8] },
+      // 3 — Explore left: gentle orbit left across gallery
+      { at: 0.45, pos: [-18, 8, 4],    lookAt: [5, -2, -12] },
+      // 4 — Explore right: orbit to the right side
+      { at: 0.65, pos: [18, 8, -4],    lookAt: [-5, -2, -12] },
+      // 5 — Center: return to center, begin to look upward
+      { at: 0.82, pos: [0, 14, 8],     lookAt: [0, 5, -15] },
+      // 6 — Ascend: rising back toward corridor altitude
+      //     at=0.98 (not 1.0) so this doesn't collide with the next scene's at=0.0
+      { at: 0.98, pos: [0, 48, 30],    lookAt: [0, 20, -20] },
+    ],
   },
   {
     key: "journey",
@@ -163,6 +192,35 @@ export const SCENES: SceneDef[] = [
     worldCenter: [0, -45, -560],
     accent: "--accent-timeline",
     role: "room",
+    /**
+     * Room camera choreography — Journey / Signal Path Timeline.
+     *
+     * A more linear, forward-moving path that follows the timeline "signal
+     * path" from past → present. The camera descends, travels along the
+     * timeline with a slight lateral sway for visual interest, then ascends.
+     *
+     * pos/lookAt offsets from worldCenter [0, -45, -560].
+     */
+    keyframes: [
+      // 0 — Approach: corridor altitude, looking down into the room
+      //     at=0.02 (not 0.0) so this doesn't collide with the prev scene's at=1.0
+      { at: 0.02, pos: [0, 48, 35],     lookAt: [0, 10, 0] },
+      // 1 — Descend: angled dive toward the timeline entrance
+      { at: 0.12, pos: [8, 30, 22],     lookAt: [-3, 4, -8] },
+      // 2 — Enter: at room level, facing the start of the timeline
+      { at: 0.25, pos: [10, 10, 16],    lookAt: [0, 0, -15] },
+      // 3 — Pan along: travelling forward along the timeline, slight left sway
+      { at: 0.45, pos: [-8, 8, 0],      lookAt: [4, -2, -20] },
+      // 4 — Mid-timeline: centered, looking ahead
+      { at: 0.60, pos: [0, 6, -10],     lookAt: [0, -2, -28] },
+      // 5 — Far end: reaching the present, slight right drift
+      { at: 0.75, pos: [8, 8, -18],     lookAt: [-4, 0, -8] },
+      // 6 — Center + rise: pulling back, looking at the full path
+      { at: 0.88, pos: [0, 20, -6],     lookAt: [0, 6, -14] },
+      // 7 — Ascend: back to corridor altitude for the finale
+      //     at=0.98 (not 1.0) so this doesn't collide with the contact scene's keyframe
+      { at: 0.98, pos: [0, 48, 30],     lookAt: [0, 20, -20] },
+    ],
   },
   {
     key: "contact",
