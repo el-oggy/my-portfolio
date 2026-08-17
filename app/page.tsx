@@ -1,6 +1,7 @@
 import ExperienceRoot from "@/components/experience/ExperienceRoot";
 import { SCENES } from "@/lib/sceneConfig";
 import { identity, links, experience, education, skills, projects } from "@/lib/data";
+import ProjectGallery from "@/components/ui/ProjectGallery";
 
 /**
  * Main page. The semantic DOM scroll skeleton lives here — tall sections for
@@ -158,12 +159,9 @@ function SectionCopy({ scene }: { scene: string }) {
           </h2>
           <p className="mt-5 max-w-xl text-[var(--text-dim)]">
             The full body of work in one place — every build across embedded,
-            IoT, robotics, firmware, and RTL. Descend into the gallery and open
-            any project for the full story.
+            IoT, robotics, firmware, and RTL. Click any card for the full story.
           </p>
-          <p className="mt-4 font-[family-name:var(--font-mono)] text-sm text-[var(--text-faint)]">
-            {projects.length} projects · interactive grid loads with the room.
-          </p>
+          <ProjectGallery />
         </>
       );
     case "journey":
