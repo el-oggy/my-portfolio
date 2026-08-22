@@ -1,76 +1,66 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
-import { Text, useTexture } from "@react-three/drei";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { ThreeEvent, useFrame } from "@react-three/fiber";
+import { Text } from "@react-three/drei";
 import * as THREE from "three";
 import { sfx } from "@/lib/soundEffects";
 import { projects } from "@/lib/data";
+import { createSwatchTexture } from "@/lib/proceduralTextures";
+import { useProgress } from "@/context/ProgressContext";
 
-interface StudioRoomProps {
-  onExit: () => void;
-}
-
-export default function StudioRoom({ onExit }: StudioRoomProps) {
+export default function StudioRoom() {
   const towerRef = useRef<THREE.Group>(null);
   const [selectedMonitor, setSelectedMonitor] = useState<number | null>(null);
 
-  const [
-    monitorFrontTex,
-    monitorFrontPaintedTex,
-    tvFrontTex,
-    tvFrontPaintedTex,
-    deskTex,
-    phoneTex,
-  ] = useTexture([
-    "/textures/studio/monitor_front.webp",
-    "/textures/studio/monitor_front_painted.webp",
-    "/textures/studio/tv_front.webp",
-    "/textures/studio/tv_front_painted.webp",
-    "/textures/corridor/gorastolika.webp",
-    "/textures/studio/phonefront_followmeontiktok.webp",
-  ]);
+  const monitorFrontTex = useMemo(() => createSwatchTexture("#0284c7"), []);
+  const paintedMonitorTex = useMemo(() => createSwatchTexture("#0ea5e9", true), []);
+  const tvFrontTex = useMemo(() => createSwatchTexture("#334155"), []);
 
-  useEffect(() => {
-    [monitorFrontTex, monitorFrontPaintedTex, tvFrontTex, tvFrontPaintedTex, deskTex, phoneTex].forEach(
-      (t) => {
-        if (t) {
-          t.colorSpace = THREE.SRGBColorSpace;
-          t.needsUpdate = true;
-        }
-      }
-    );
-  }, [monitorFrontTex, monitorFrontPaintedTex, tvFrontTex, tvFrontPaintedTex, deskTex, phoneTex]);
+  useEffect(
+    () => () => [monitorFrontTex, paintedMonitorTex, tvFrontTex].forEach((texture) => texture.dispose()),
+    [monitorFrontTex, paintedMonitorTex, tvFrontTex],
+  );
 
   // Drag physics state
   const isDragging = useRef(false);
   const previousX = useRef(0);
+  const dragDistance = useRef(0);
   const rotationVelocity = useRef(0.005);
   const currentRotation = useRef(0);
+  const { unlock } = useProgress();
 
   useEffect(() => {
-    const handlePointerDown = (e: MouseEvent) => {
+    const handlePointerDown = (e: PointerEvent) => {
+      if (!(e.target instanceof HTMLCanvasElement)) return;
+
       isDragging.current = true;
       previousX.current = e.clientX;
+      dragDistance.current = 0;
     };
-    const handlePointerMove = (e: MouseEvent) => {
+
+    const handlePointerMove = (e: PointerEvent) => {
       if (!isDragging.current) return;
       const deltaX = e.clientX - previousX.current;
       previousX.current = e.clientX;
+      dragDistance.current += Math.abs(deltaX);
       rotationVelocity.current = deltaX * 0.004;
     };
+
     const handlePointerUp = () => {
       isDragging.current = false;
     };
 
-    window.addEventListener("mousedown", handlePointerDown);
-    window.addEventListener("mousemove", handlePointerMove);
-    window.addEventListener("mouseup", handlePointerUp);
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerUp);
 
     return () => {
-      window.removeEventListener("mousedown", handlePointerDown);
-      window.removeEventListener("mousemove", handlePointerMove);
-      window.removeEventListener("mouseup", handlePointerUp);
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
     };
   }, []);
 
@@ -91,7 +81,13 @@ export default function StudioRoom({ onExit }: StudioRoomProps) {
     towerRef.current.rotation.y = currentRotation.current;
   });
 
-  const studioProjects = projects.slice(0, 6);
+  const studioProjects = useMemo(
+    () =>
+      projects
+        .filter((project) => STUDIO_SCENE_KEYS.has(project.scene))
+        .slice(0, 6),
+    []
+  );
 
   return (
     <group position={[0, 0, -4]}>
@@ -132,9 +128,12 @@ export default function StudioRoom({ onExit }: StudioRoomProps) {
               key={item.id}
               position={[x, y, z]}
               rotation-y={angle}
-              onClick={(e) => {
+              onClick={(e: ThreeEvent<MouseEvent>) => {
+                if (dragDistance.current > 8) return;
+
                 e.stopPropagation();
                 sfx.play("paper");
+                unlock("inspect");
                 setSelectedMonitor(isSelected ? null : idx);
               }}
             >
@@ -144,7 +143,7 @@ export default function StudioRoom({ onExit }: StudioRoomProps) {
                 <meshBasicMaterial
                   map={
                     isSelected
-                      ? tvFrontPaintedTex
+                      ? paintedMonitorTex
                       : idx % 2 === 0
                       ? monitorFrontTex
                       : tvFrontTex
@@ -226,7 +225,13 @@ export default function StudioRoom({ onExit }: StudioRoomProps) {
               font="/fonts/CabinSketch-Bold.ttf"
               anchorX="center"
               anchorY="middle"
-              onClick={() => window.open(studioProjects[selectedMonitor]?.repo, "_blank")}
+              onClick={() =>
+                window.open(
+                  studioProjects[selectedMonitor]?.repo,
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
             >
               [ OPEN REPOSITORY ↗ ]
             </Text>
@@ -236,3 +241,11 @@ export default function StudioRoom({ onExit }: StudioRoomProps) {
     </group>
   );
 }
+
+const STUDIO_SCENE_KEYS = new Set([
+  "pcb",
+  "embedded",
+  "firmware",
+  "rtl",
+  "drone",
+]);

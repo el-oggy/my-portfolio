@@ -1,92 +1,55 @@
 "use client";
 
+import { useMemo } from "react";
+import { Text } from "@react-three/drei";
+import { RoomId } from "@/context/SceneContext";
 import CorridorWalls from "./CorridorWalls";
 import Door from "./Door";
 import Avatar from "./Avatar";
+import Doodles from "./Doodles";
 import EasterEggs from "./EasterEggs";
-import { RoomId } from "@/context/SceneContext";
-
-export const SEGMENT_LENGTH = 80;
+import HeroText from "./HeroText";
+import { SEGMENT_LENGTH, createCorridorDoors } from "./corridorConfig";
 
 interface CorridorSegmentProps {
   segmentIndex: number;
   onDoorEnter: (roomId: RoomId) => void;
 }
 
-export default function CorridorSegment({
-  segmentIndex = 0,
-  onDoorEnter,
-}: CorridorSegmentProps) {
-  // Calculate Z offset for this segment
-  // Segment 0: Z=10 to Z=-70
-  // Segment 1: Z=-70 to Z=-150
-  // Segment 2: Z=-150 to Z=-230...
+export default function CorridorSegment({ segmentIndex, onDoorEnter }: CorridorSegmentProps) {
   const zOffset = 10 - segmentIndex * SEGMENT_LENGTH;
+  const doors = useMemo(() => createCorridorDoors(segmentIndex), [segmentIndex]);
 
   return (
-    <group position={[0, 0, 0]}>
-      {/* 80-unit Continuous Hand-Drawn Corridor Walls, Floor Planks, Baseboards & Ceiling */}
-      <CorridorWalls zStart={zOffset} length={SEGMENT_LENGTH} />
+    <group>
+      <CorridorWalls zStart={zOffset} length={SEGMENT_LENGTH} doorPositions={doors} />
 
-      {/* Hallway Interactive Easter Eggs: Hanging Mouse & Duck Pot */}
+      <group position={[0, 0, zOffset - 2]}>
+        <HeroText position={[0, -0.1, -0.5]} />
+        <Avatar position={[0, -0.61, -0.3]} />
+        <Doodles />
+      </group>
+
       <EasterEggs zOffset={zOffset} />
 
-      {/* Walking Doodle Avatar at the entrance of the first segment */}
-      {segmentIndex === 0 && <Avatar position={[0, 1.1, zOffset - 4]} />}
+      {doors.map((door) => (
+        <Door
+          key={door.id}
+          z={zOffset + door.relativeZ}
+          side={door.side}
+          label={door.label}
+          sublabel={door.roomId === "gallery" ? "Projects & schematics" : door.roomId === "studio" ? "RTL & firmware work" : door.roomId === "about" ? "Journey & milestones" : "Direct transmission"}
+          number={String(doors.indexOf(door) + 1).padStart(2, "0")}
+          icon={door.icon}
+          accentColor={door.color}
+          roomId={door.roomId}
+          onEnter={onDoorEnter}
+        />
+      ))}
 
-      {/* --- The 4 Dedicated Section Doors in this Segment --- */}
-
-      {/* Door 1: The Gallery Room (Left) */}
-      <Door
-        z={zOffset - 18}
-        side="left"
-        number="01"
-        doorType="projekty"
-        label="THE GALLERY"
-        sublabel="Hanging Hardware Projects & Schematics"
-        accentColor="#059669"
-        roomId="gallery"
-        onEnter={onDoorEnter}
-      />
-
-      {/* Door 2: The Studio / Hardware Lab (Right) */}
-      <Door
-        z={zOffset - 32}
-        side="right"
-        number="02"
-        doorType="about"
-        label="THE STUDIO"
-        sublabel="3D Monitor Tower · RTL & Firmware"
-        accentColor="#0284c7"
-        roomId="studio"
-        onEnter={onDoorEnter}
-      />
-
-      {/* Door 3: The About & Journey Room (Left) */}
-      <Door
-        z={zOffset - 48}
-        side="left"
-        number="03"
-        doorType="social"
-        label="ABOUT & JOURNEY"
-        sublabel="Hot Air Balloons · Floating Island"
-        accentColor="#7c3aed"
-        roomId="about"
-        onEnter={onDoorEnter}
-      />
-
-      {/* Door 4: The Contact Hub (Right) */}
-      <Door
-        z={zOffset - 62}
-        side="right"
-        number="04"
-        doorType="kontakt"
-        label="LET'S CONNECT"
-        sublabel="Message In A Bottle · Direct Transmission"
-        accentColor="#ea580c"
-        roomId="contact"
-        onEnter={onDoorEnter}
-      />
+      <Text position={[2.5, 1.35, zOffset - 1]} fontSize={0.1} color="#a8a29e" anchorX="center">
+        {`SEG ${segmentIndex}`}
+      </Text>
     </group>
   );
 }

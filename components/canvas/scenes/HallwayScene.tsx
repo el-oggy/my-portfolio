@@ -14,8 +14,6 @@ function Door({ scene }: { scene: SceneDef }) {
   // Position logic
   const isLeft = scene.side === "left";
   const isRight = scene.side === "right";
-  const isCenter = scene.side === "center";
-
   // Hallway dimensions
   const width = 40;
   

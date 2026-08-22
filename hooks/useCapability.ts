@@ -17,6 +17,8 @@ export interface Capability {
   webglAvailable: boolean;
   isMobile: boolean;
   isTouch: boolean;
+  deviceMemoryGB?: number;
+  hardwareCores?: number;
   reducedMotion: boolean;
   /** "3d" | "reduced" | "2d" — the experience tier actually mounted. */
   tier: ExperienceTier;
@@ -35,6 +37,10 @@ function detectWebGL(): boolean {
   } catch {
     return false;
   }
+}
+
+interface PerformanceNavigator extends Navigator {
+  deviceMemory?: number;
 }
 
 const MOBILE_RE =
@@ -61,14 +67,17 @@ export function useCapability(): Capability {
       "ontouchstart" in window || (navigator.maxTouchPoints ?? 0) > 0;
 
     // Coarse hardware heuristic: few logical cores → reduced tier.
-    const cores = (navigator as Navigator & { hardwareConcurrency?: number })
-      .hardwareConcurrency;
+    const performanceNavigator = navigator as PerformanceNavigator;
+    const cores = performanceNavigator.hardwareConcurrency;
+    const deviceMemoryGB = performanceNavigator.deviceMemory;
     const lowCores = typeof cores === "number" && cores <= 4;
+    const lowMemory =
+      typeof deviceMemoryGB === "number" && deviceMemoryGB > 0 && deviceMemoryGB <= 4;
 
     let tier: ExperienceTier = "3d";
     if (reducedMotion || !webglAvailable) {
       tier = "2d";
-    } else if (isMobile || lowCores) {
+    } else if (isMobile || lowCores || lowMemory) {
       tier = "reduced";
     }
 
@@ -77,6 +86,8 @@ export function useCapability(): Capability {
       webglAvailable,
       isMobile,
       isTouch,
+      deviceMemoryGB,
+      hardwareCores: cores,
       reducedMotion,
       tier,
     });

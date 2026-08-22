@@ -2,36 +2,42 @@
 
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
+import { useProgress } from "@react-three/drei";
 import { sfx } from "@/lib/soundEffects";
 
 interface PreloaderProps {
   onComplete: () => void;
-  ready?: boolean;
 }
 
-export default function Preloader({ onComplete, ready = true }: PreloaderProps) {
+export default function Preloader({ onComplete }: PreloaderProps) {
   const [progress, setProgress] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [minimumTimeElapsed, setMinimumTimeElapsed] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasStartedRef = useRef(false);
+  const { active, progress: assetProgress, errors } = useProgress();
 
   useEffect(() => {
-    // Interpolate progress smoothly to 100%
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          return 100;
-        }
-        const increment = Math.floor(Math.random() * 8) + 4;
-        return Math.min(100, prev + increment);
-      });
-    }, 60);
+    const minimumTimer = window.setTimeout(() => setMinimumTimeElapsed(true), 500);
+    const failSafeTimer = window.setTimeout(() => setTimedOut(true), 7000);
 
-    return () => clearInterval(timer);
+    return () => {
+      window.clearTimeout(minimumTimer);
+      window.clearTimeout(failSafeTimer);
+    };
   }, []);
 
   useEffect(() => {
-    if (progress === 100 && ready) {
+    setProgress((previous) => Math.max(previous, Math.round(assetProgress)));
+  }, [assetProgress]);
+
+  const assetsReady = timedOut || errors.length > 0 || (!active && assetProgress > 0);
+
+  useEffect(() => {
+    if (assetsReady && minimumTimeElapsed && !hasStartedRef.current) {
+      hasStartedRef.current = true;
+      setProgress(100);
       const tl = gsap.timeline({
         onComplete: () => {
           setIsFinished(true);
@@ -52,7 +58,7 @@ export default function Preloader({ onComplete, ready = true }: PreloaderProps) 
         });
       }
     }
-  }, [progress, ready, onComplete]);
+  }, [assetsReady, minimumTimeElapsed, onComplete]);
 
   if (isFinished) return null;
 

@@ -25,7 +25,7 @@ export default function IntroScene() {
     [],
   );
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (isComplete) return;
     
     const mat = matRef.current;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useScene, RoomId } from "@/context/SceneContext";
+import { useProgress } from "@/context/ProgressContext";
 import { sfx } from "@/lib/soundEffects";
 
 interface MapOverlayProps {
@@ -13,34 +14,35 @@ const MAP_ROOMS: { id: RoomId; title: string; num: string; desc: string; color: 
     id: "gallery",
     title: "THE GALLERY",
     num: "01",
-    desc: "Hanging Hardware Builds & Certificates",
+    desc: "Project cards and selected schematics",
     color: "#059669",
   },
   {
     id: "studio",
-    title: "HARDWARE STUDIO",
+    title: "THE STUDIO",
     num: "02",
-    desc: "3D Monitors & Live RTL Oscilloscope",
+    desc: "A rotating tower of engineering work",
     color: "#0284c7",
   },
   {
     id: "about",
     title: "ABOUT & JOURNEY",
     num: "03",
-    desc: "3D Paper Airplane & Milestone Cloud Sky",
+    desc: "Floating milestones and a journey timeline",
     color: "#7c3aed",
   },
   {
     id: "contact",
     title: "TRANSMISSION & CONTACT",
     num: "04",
-    desc: "3D Notice Board & Direct Email",
+    desc: "Direct links, email, and résumé",
     color: "#ea580c",
   },
 ];
 
 export default function MapOverlay({ isOpen, onClose }: MapOverlayProps) {
   const { teleportTo } = useScene();
+  const { unlock } = useProgress();
 
   if (!isOpen) return null;
 
@@ -82,6 +84,7 @@ export default function MapOverlay({ isOpen, onClose }: MapOverlayProps) {
               onClick={() => {
                 sfx.play("openDoor");
                 teleportTo(room.id);
+                unlock("map");
                 onClose();
               }}
               className="group text-left p-4 rounded-xl border-2 border-[#1a1917] bg-white hover:bg-[#fef9c3] hover:shadow-md transition-all duration-200 active:scale-95"
@@ -116,6 +119,7 @@ export default function MapOverlay({ isOpen, onClose }: MapOverlayProps) {
             onClick={() => {
               sfx.play("paper");
               teleportTo(null);
+              unlock("map");
               onClose();
             }}
             className="sketch-btn py-2 px-6 text-xs font-bold font-mono hover:bg-[#fef9c3]"

@@ -1,72 +1,34 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Text, useTexture } from "@react-three/drei";
+import { Text } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
 import { sfx } from "@/lib/soundEffects";
+import { createDoorTexture, createWoodTexture } from "@/lib/proceduralTextures";
 
 interface EntranceDoorsProps {
   position?: [number, number, number];
   onComplete: () => void;
 }
 
-export default function EntranceDoors({
-  position = [0, 0, 22],
-  onComplete,
-}: EntranceDoorsProps) {
+export default function EntranceDoors({ position = [0, 0, 22], onComplete }: EntranceDoorsProps) {
   const { camera } = useThree();
   const leftDoorRef = useRef<THREE.Group>(null);
   const rightDoorRef = useRef<THREE.Group>(null);
   const signRef = useRef<THREE.Group>(null);
-  const catRef = useRef<THREE.Mesh>(null);
-
   const [hovered, setHovered] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
 
-  // Load authentic hand-drawn textures
-  const [
-    doorLeftTex,
-    doorRightTex,
-    brickTex,
-    signTex,
-    treeTex,
-    catBodyTex,
-    catBlinkTex,
-    floorTex,
-  ] = useTexture([
-    "/textures/corridor/doors/doorrleft.webp",
-    "/textures/corridor/doors/dorright.webp",
-    "/textures/entrance/bricks.webp",
-    "/textures/entrance/sign.webp",
-    "/textures/entrance/tree_sketch.webp",
-    "/textures/entrance/cat_front_body.webp",
-    "/textures/entrance/cat_blink.webp",
-    "/textures/corridor/kawalekpodlogi.webp",
-  ]);
+  const leftTexture = useMemo(() => createDoorTexture("#c2410c", "A", false), []);
+  const rightTexture = useMemo(() => createDoorTexture("#0284c7", "B", false), []);
+  const floorTexture = useMemo(() => createWoodTexture(8, 3), []);
 
-  useEffect(() => {
-    [doorLeftTex, doorRightTex, brickTex, signTex, treeTex, catBodyTex, catBlinkTex, floorTex].forEach(
-      (t) => {
-        if (t) {
-          t.colorSpace = THREE.SRGBColorSpace;
-          t.needsUpdate = true;
-        }
-      }
-    );
-    if (brickTex) {
-      brickTex.wrapS = brickTex.wrapT = THREE.RepeatWrapping;
-      brickTex.repeat.set(4, 2);
-    }
-    if (floorTex) {
-      floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
-      floorTex.repeat.set(4, 4);
-    }
-  }, [doorLeftTex, doorRightTex, brickTex, signTex, treeTex, catBodyTex, catBlinkTex, floorTex]);
-
-  const doorWidth = 2.2;
-  const doorHeight = 4.2;
+  useEffect(
+    () => () => [leftTexture, rightTexture, floorTexture].forEach((texture) => texture.dispose()),
+    [leftTexture, rightTexture, floorTexture],
+  );
 
   const handlePointerOver = useCallback(() => {
     if (!hovered && !isOpening) {
@@ -80,210 +42,101 @@ export default function EntranceDoors({
     setIsOpening(true);
     sfx.play("openDoor");
 
-    const timeline = gsap.timeline({
-      onComplete: () => {
-        onComplete();
-      },
-    });
-
-    // 1. Swing authentic hand-drawn doors open
+    const timeline = gsap.timeline({ onComplete });
     if (leftDoorRef.current && rightDoorRef.current) {
-      timeline.to(
-        leftDoorRef.current.rotation,
-        {
-          y: -Math.PI * 0.55,
-          duration: 1.2,
-          ease: "power2.inOut",
-        },
-        0
-      );
-      timeline.to(
-        rightDoorRef.current.rotation,
-        {
-          y: Math.PI * 0.55,
-          duration: 1.2,
-          ease: "power2.inOut",
-        },
-        0
-      );
+      timeline.to(leftDoorRef.current.rotation, { y: -Math.PI * 0.55, duration: 1.1, ease: "power2.inOut" }, 0);
+      timeline.to(rightDoorRef.current.rotation, { y: Math.PI * 0.55, duration: 1.1, ease: "power2.inOut" }, 0);
     }
+    if (signRef.current) timeline.to(signRef.current.position, { y: 7, duration: 0.8, ease: "power2.in" }, 0);
+    timeline.to(camera.position, { x: 0, y: 1.8, z: 8, duration: 1.7, ease: "power3.inOut" }, 0.15);
+  }, [camera, isOpening, onComplete]);
 
-    // 2. Animate sign upwards
-    if (signRef.current) {
-      timeline.to(
-        signRef.current.position,
-        {
-          y: 7,
-          opacity: 0,
-          duration: 0.8,
-          ease: "power2.in",
-        },
-        0
-      );
-    }
-
-    // 3. Fly camera straight through doorway into the corridor
-    timeline.to(
-      camera.position,
-      {
-        x: 0,
-        y: 1.8,
-        z: 8,
-        duration: 1.8,
-        ease: "power3.inOut",
-      },
-      0.2
-    );
-  }, [isOpening, camera, onComplete]);
-
-  // Cat blinking & sign floating animation
-  const blinkTimer = useRef(0);
-  const [catBlinking, setCatBlinking] = useState(false);
-
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (!isOpening && signRef.current) {
-      const t = state.clock.elapsedTime;
-      signRef.current.position.y = 3.6 + Math.sin(t * 2.2) * 0.08;
-    }
-
-    // Random cat blink
-    blinkTimer.current += delta;
-    if (blinkTimer.current > 3.0) {
-      setCatBlinking(true);
-      if (blinkTimer.current > 3.2) {
-        setCatBlinking(false);
-        blinkTimer.current = 0;
-      }
+      signRef.current.position.y = 3.6 + Math.sin(state.clock.elapsedTime * 2.2) * 0.08;
     }
   });
 
+  const doorWidth = 2.2;
+  const doorHeight = 4.1;
+
   return (
     <group position={position}>
-      {/* Full-width Entrance Ground Pavement */}
-      <mesh position={[0, 0, 4]} rotation-x={-Math.PI / 2} receiveShadow>
-        <planeGeometry args={[45, 15]} />
-        <meshStandardMaterial map={floorTex} roughness={0.9} />
+      <mesh position={[0, 0, 4]} rotation-x={-Math.PI / 2}>
+        <planeGeometry args={[45, 16]} />
+        <meshStandardMaterial map={floorTexture} roughness={0.9} />
       </mesh>
 
-      {/* Massive Full-Screen Brick Building Facade */}
-      <mesh position={[-15, 3.5, -0.2]}>
-        <planeGeometry args={[25, 10]} />
-        <meshBasicMaterial map={brickTex} transparent />
-      </mesh>
-      <mesh position={[15, 3.5, -0.2]}>
-        <planeGeometry args={[25, 10]} />
-        <meshBasicMaterial map={brickTex} transparent />
-      </mesh>
-      <mesh position={[0, 6.5, -0.2]}>
-        <planeGeometry args={[8, 4]} />
-        <meshBasicMaterial map={brickTex} transparent />
+      <mesh position={[0, 5, -0.25]}>
+        <planeGeometry args={[48, 14]} />
+        <meshStandardMaterial color="#f3ead9" roughness={0.9} />
       </mesh>
 
-      {/* Hand-Drawn Trees on Left & Right */}
-      <mesh position={[-7.5, 3.2, 0.1]}>
-        <planeGeometry args={[4.5, 7.0]} />
-        <meshBasicMaterial map={treeTex} transparent />
-      </mesh>
-      <mesh position={[7.5, 3.2, 0.1]} scale={[-1, 1, 1]}>
-        <planeGeometry args={[4.5, 7.0]} />
-        <meshBasicMaterial map={treeTex} transparent />
-      </mesh>
+      {[-7.5, 7.5].map((x) => (
+        <group key={x} position={[x, 2.6, 0]} scale={[-Math.sign(x), 1, 1]}>
+          <mesh position={[0, 1.4, 0]}>
+            <cylinderGeometry args={[0.18, 0.24, 2.8, 10]} />
+            <meshStandardMaterial color="#78350f" roughness={0.85} />
+          </mesh>
+          <mesh position={[0, 3.4, 0]}>
+            <icosahedronGeometry args={[1.35, 1]} />
+            <meshStandardMaterial color="#4d7c0f" flatShading roughness={0.75} />
+          </mesh>
+        </group>
+      ))}
 
-      {/* Cute Hand-Drawn Cat on Right */}
-      <mesh ref={catRef} position={[3.4, 0.9, 0.1]}>
-        <planeGeometry args={[1.5, 1.8]} />
-        <meshBasicMaterial
-          map={catBlinking ? catBlinkTex : catBodyTex}
-          transparent
-        />
-      </mesh>
+      <group position={[3.5, 0.85, 0.1]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <capsuleGeometry args={[0.32, 0.42, 4, 12]} />
+          <meshStandardMaterial color="#fbbf24" roughness={0.65} />
+        </mesh>
+        <mesh position={[0, 0.38, 0.22]}>
+          <sphereGeometry args={[0.24, 14, 14]} />
+          <meshStandardMaterial color="#f59e0b" />
+        </mesh>
+        <mesh position={[-0.13, 0.62, 0.26]} rotation={[0, 0, -0.4]}>
+          <coneGeometry args={[0.08, 0.22, 8]} />
+          <meshStandardMaterial color="#f97316" />
+        </mesh>
+      </group>
 
-      {/* Outer Door Wooden Frame */}
-      <mesh position={[0, 2.1, -0.05]}>
-        <planeGeometry args={[doorWidth * 2 + 0.3, doorHeight + 0.3]} />
+      <mesh position={[0, (doorHeight + 0.4) / 2, -0.05]}>
+        <planeGeometry args={[doorWidth * 2 + 0.45, doorHeight + 0.4]} />
         <meshBasicMaterial color="#1a1917" />
       </mesh>
 
-      {/* Left Door (Authentic Hand-Drawn Texture) */}
-      <group
-        ref={leftDoorRef}
-        position={[-doorWidth, 0, 0]}
-        onClick={handleEnter}
-        onPointerOver={handlePointerOver}
-        onPointerOut={() => setHovered(false)}
-      >
-        <mesh position={[doorWidth / 2, 2.1, 0]}>
-          <planeGeometry args={[doorWidth, doorHeight]} />
-          <meshStandardMaterial
-            map={doorLeftTex}
-            transparent
-            roughness={0.8}
-            metalness={0.05}
-          />
-        </mesh>
-      </group>
-
-      {/* Right Door (Authentic Hand-Drawn Texture) */}
-      <group
-        ref={rightDoorRef}
-        position={[doorWidth, 0, 0]}
-        onClick={handleEnter}
-        onPointerOver={handlePointerOver}
-        onPointerOut={() => setHovered(false)}
-      >
-        <mesh position={[-doorWidth / 2, 2.1, 0]}>
-          <planeGeometry args={[doorWidth, doorHeight]} />
-          <meshStandardMaterial
-            map={doorRightTex}
-            transparent
-            roughness={0.8}
-            metalness={0.05}
-          />
-        </mesh>
-      </group>
-
-      {/* Hanging Hand-Drawn Wooden Sign */}
-      <group
-        ref={signRef}
-        position={[0, 3.6, 0.4]}
-        onClick={handleEnter}
-        onPointerOver={handlePointerOver}
-        onPointerOut={() => setHovered(false)}
-      >
-        <mesh>
-          <planeGeometry args={[3.8, 1.6]} />
-          <meshBasicMaterial map={signTex} transparent />
-        </mesh>
-
-        <Text
-          position={[0, 0.25, 0.05]}
-          fontSize={0.24}
-          color="#1a1917"
-          font="/fonts/CabinSketch-Bold.ttf"
-          anchorX="center"
-          anchorY="middle"
+      {[
+        { ref: leftDoorRef, x: -doorWidth, texture: leftTexture },
+        { ref: rightDoorRef, x: doorWidth, texture: rightTexture },
+      ].map(({ ref, x, texture }, index) => (
+        <group
+          key={index}
+          ref={ref}
+          position={[x, 0, 0]}
+          onClick={handleEnter}
+          onPointerOver={handlePointerOver}
+          onPointerOut={() => setHovered(false)}
         >
+          <mesh position={[index === 0 ? doorWidth / 2 : -doorWidth / 2, doorHeight / 2, 0]}>
+            <planeGeometry args={[doorWidth, doorHeight]} />
+            <meshBasicMaterial map={texture} transparent />
+          </mesh>
+        </group>
+      ))}
+
+      <group ref={signRef} position={[0, 3.6, 0.45]} onClick={handleEnter} onPointerOver={handlePointerOver} onPointerOut={() => setHovered(false)}>
+        <mesh>
+          <boxGeometry args={[4, 1.7, 0.06]} />
+          <meshStandardMaterial color="#fffdf7" roughness={0.85} />
+        </mesh>
+        <Text position={[0, 0.28, 0.05]} fontSize={0.26} color={hovered ? "#c2410c" : "#1a1917"} anchorX="center" anchorY="middle">
           ADARSH MAHARANA
         </Text>
-        <Text
-          position={[0, -0.05, 0.05]}
-          fontSize={0.15}
-          color="#57534e"
-          font="/fonts/CabinSketch-Regular.ttf"
-          anchorX="center"
-          anchorY="middle"
-        >
-          VLSI · EMBEDDED · HARDWARE
+        <Text position={[0, -0.12, 0.05]} fontSize={0.15} color="#44403c" anchorX="center" anchorY="middle">
+          EMBEDDED · IoT · HARDWARE
         </Text>
-        <Text
-          position={[0, -0.38, 0.05]}
-          fontSize={0.2}
-          color={hovered ? "#c2410c" : "#1c1917"}
-          font="/fonts/CabinSketch-Bold.ttf"
-          anchorX="center"
-          anchorY="middle"
-        >
-          {hovered ? "✦ CLICK TO ENTER! ✦" : "CLICK DOORS TO OPEN ➔"}
+        <Text position={[0, -0.52, 0.05]} fontSize={0.17} color={hovered ? "#059669" : "#57534e"} anchorX="center" anchorY="middle">
+          {hovered ? "✦ CLICK TO ENTER ✦" : "CLICK DOORS TO OPEN"}
         </Text>
       </group>
     </group>

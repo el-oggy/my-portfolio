@@ -1,44 +1,41 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useScene } from "@/context/SceneContext";
-import CorridorSegment, { SEGMENT_LENGTH } from "./CorridorSegment";
+import CorridorSegment from "./CorridorSegment";
+import { SEGMENT_LENGTH } from "./corridorConfig";
 
 export default function InfiniteCorridorManager() {
-  const { enterRoom, hasEntered } = useScene();
+  const { enterRoom } = useScene();
   const { camera } = useThree();
-
-  // Active segments dynamically streamed around the camera
-  const [activeSegments, setActiveSegments] = useState<number[]>([0, 1]);
 
   const getSegmentFromZ = useCallback((z: number) => {
     return Math.floor((10 - z) / SEGMENT_LENGTH);
   }, []);
 
-  // Update active segments in real-time as camera glides through the infinite corridor
+  const initialSegment = getSegmentFromZ(camera.position.z);
+  const activeBoundaryRef = useRef(initialSegment);
+  const [activeSegments, setActiveSegments] = useState(() => [
+    initialSegment,
+    initialSegment + 1,
+  ]);
+
+  // Reuse two persistent scene slots instead of mounting and destroying segments.
   useFrame(() => {
     const currentSegment = getSegmentFromZ(camera.position.z);
-    const shouldBeActive = [
-      currentSegment - 1,
-      currentSegment,
-      currentSegment + 1,
-    ];
 
-    const needsUpdate =
-      shouldBeActive.some((seg) => !activeSegments.includes(seg)) ||
-      activeSegments.some((seg) => !shouldBeActive.includes(seg));
-
-    if (needsUpdate) {
-      setActiveSegments(shouldBeActive);
+    if (currentSegment !== activeBoundaryRef.current) {
+      activeBoundaryRef.current = currentSegment;
+      setActiveSegments([currentSegment, currentSegment + 1]);
     }
   });
 
   return (
     <group>
-      {activeSegments.map((segmentIndex) => (
+      {activeSegments.map((segmentIndex, slotIndex) => (
         <CorridorSegment
-          key={`segment-${segmentIndex}`}
+          key={`corridor-slot-${slotIndex}`}
           segmentIndex={segmentIndex}
           onDoorEnter={enterRoom}
         />

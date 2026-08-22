@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { motion, LayoutGroup } from "framer-motion";
+import Image from "next/image";
 
 import { projects, type Project } from "@/lib/data";
 import ProjectLightbox from "./ProjectLightbox";
@@ -48,9 +49,6 @@ export default function ProjectGallery() {
 
 /* ------------------------------------------------------------------ */
 
-import { View } from "@react-three/drei";
-import ProjectImageGL from "../canvas/ProjectImageGL";
-
 interface ProjectCardProps {
   project: Project;
   onOpen: (p: Project) => void;
@@ -58,15 +56,11 @@ interface ProjectCardProps {
 }
 
 function ProjectCard({ project, onOpen, isSelected }: ProjectCardProps) {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <motion.article
       className={`ProjectCard ${isSelected ? "ProjectCard--selected" : ""}`}
       layoutId={`project-card-${project.id}`}
       onClick={() => onOpen(project)}
-      onPointerEnter={() => setHovered(true)}
-      onPointerLeave={() => setHovered(false)}
       role="button"
       tabIndex={0}
       aria-label={`View details for ${project.title}`}
@@ -78,12 +72,18 @@ function ProjectCard({ project, onOpen, isSelected }: ProjectCardProps) {
       }}
       transition={{ type: "spring", stiffness: 350, damping: 32 }}
     >
-      {/* Thumbnail area (WebGL Portal) */}
+      {/* Thumbnail area */}
       {project.image && (
         <div className="ProjectCard__image-container">
-          <View className="w-full h-full">
-            <ProjectImageGL url={project.image} hovered={hovered} />
-          </View>
+          <Image
+            src={project.image}
+            alt=""
+            width={800}
+            height={450}
+            className="ProjectCard__image"
+            sizes="(max-width: 768px) 92vw, 340px"
+            priority={project.hero}
+          />
         </div>
       )}
 

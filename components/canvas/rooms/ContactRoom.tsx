@@ -1,38 +1,15 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Text, useTexture } from "@react-three/drei";
+import { Text } from "@react-three/drei";
 import * as THREE from "three";
 import { identity, links } from "@/lib/data";
 
-interface ContactRoomProps {
-  onExit: () => void;
-}
-
-export default function ContactRoom({ onExit }: ContactRoomProps) {
+export default function ContactRoom() {
   const barrelRef = useRef<THREE.Group>(null);
-  const waveRef1 = useRef<THREE.Mesh>(null);
-  const waveRef2 = useRef<THREE.Mesh>(null);
-
-  const [
-    barrelTex,
-    waveTex1,
-    waveTex2,
-  ] = useTexture([
-    "/textures/contact/backups/beczka.webp",
-    "/textures/contact/backups/fala1.webp",
-    "/textures/contact/backups/fala2.webp",
-  ]);
-
-  useEffect(() => {
-    [barrelTex, waveTex1, waveTex2].forEach((t) => {
-      if (t) {
-        t.colorSpace = THREE.SRGBColorSpace;
-        t.needsUpdate = true;
-      }
-    });
-  }, [barrelTex, waveTex1, waveTex2]);
+  const waveRef1 = useRef<THREE.Group>(null);
+  const waveRef2 = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -76,20 +53,30 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
       <group position={[-2.8, 0.4, 0]}>
         <group ref={barrelRef}>
           <mesh>
-            <planeGeometry args={[2.2, 2.8]} />
-            <meshBasicMaterial map={barrelTex} transparent />
+            <cylinderGeometry args={[0.62, 0.62, 1.5, 20]} />
+            <meshStandardMaterial color="#7f1d1d" roughness={0.72} />
           </mesh>
+          {[-0.38, 0, 0.38].map((y) => (
+            <mesh key={y} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.63, 0.04, 8, 28]} />
+              <meshStandardMaterial color="#57534e" metalness={0.3} roughness={0.6} />
+            </mesh>
+          ))}
         </group>
 
         {/* Animated Water Waves */}
-        <mesh ref={waveRef1} position={[0, -0.6, 0.1]}>
-          <planeGeometry args={[3.2, 1.2]} />
-          <meshBasicMaterial map={waveTex1} transparent />
-        </mesh>
-        <mesh ref={waveRef2} position={[0, -0.9, 0.2]}>
-          <planeGeometry args={[3.4, 1.2]} />
-          <meshBasicMaterial map={waveTex2} transparent />
-        </mesh>
+        <group ref={waveRef1} position={[0, -0.55, 0.1]}>
+          <mesh>
+            <torusGeometry args={[1.35, 0.12, 8, 48]} />
+            <meshStandardMaterial color="#0ea5e9" transparent opacity={0.82} />
+          </mesh>
+        </group>
+        <group ref={waveRef2} position={[0, -0.85, 0.2]}>
+          <mesh rotation-x={Math.PI / 2}>
+            <torusGeometry args={[1.45, 0.09, 8, 48]} />
+            <meshStandardMaterial color="#38bdf8" transparent opacity={0.65} />
+          </mesh>
+        </group>
       </group>
 
       {/* Main 3D Torn Paper Transmission Letter on Right */}
@@ -140,7 +127,7 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
           anchorY="middle"
-          onClick={() => window.open(links.github, "_blank")}
+          onClick={() => window.open(links.github, "_blank", "noopener,noreferrer")}
         >
           [ GITHUB ↗ ]
         </Text>
@@ -151,7 +138,7 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
           anchorY="middle"
-          onClick={() => window.open(links.linkedin, "_blank")}
+          onClick={() => window.open(links.linkedin, "_blank", "noopener,noreferrer")}
         >
           [ LINKEDIN ↗ ]
         </Text>
@@ -162,7 +149,7 @@ export default function ContactRoom({ onExit }: ContactRoomProps) {
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
           anchorY="middle"
-          onClick={() => window.open(links.resume, "_blank")}
+          onClick={() => window.open(links.resume, "_blank", "noopener,noreferrer")}
         >
           [ RÉSUMÉ PDF ↗ ]
         </Text>

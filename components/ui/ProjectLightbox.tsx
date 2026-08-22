@@ -27,6 +27,7 @@ interface ProjectLightboxProps {
 export default function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
+  const previousOverflow = useRef({ html: "", body: "" });
 
   // Freeze/unfreeze scroll + camera when lightbox opens/closes.
   useEffect(() => {
@@ -34,6 +35,14 @@ export default function ProjectLightbox({ project, onClose }: ProjectLightboxPro
 
     // Save the element that had focus before opening.
     previousFocus.current = document.activeElement as HTMLElement | null;
+
+    // Preserve the page's own scroll policy when locking the background.
+    previousOverflow.current = {
+      html: document.documentElement.style.overflow,
+      body: document.body.style.overflow,
+    };
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
 
     // Freeze scroll + camera.
     setScrollPaused(true);
@@ -46,6 +55,8 @@ export default function ProjectLightbox({ project, onClose }: ProjectLightboxPro
 
     return () => {
       // Unfreeze.
+      document.documentElement.style.overflow = previousOverflow.current.html;
+      document.body.style.overflow = previousOverflow.current.body;
       setScrollPaused(false);
       getLenis()?.start();
 
@@ -103,7 +114,7 @@ export default function ProjectLightbox({ project, onClose }: ProjectLightboxPro
 
           {/* Panel — shared layoutId drives the FLIP animation. */}
           <motion.div
-            className="ProjectLightbox__panel"
+            className="ProjectLightbox__modal"
             layoutId={`project-card-${project.id}`}
             ref={panelRef}
             tabIndex={-1}

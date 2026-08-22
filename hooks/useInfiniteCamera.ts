@@ -3,6 +3,7 @@
 import { useRef, useEffect, useCallback, useLayoutEffect } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { isCameraOverridden, setCameraOverride as setSharedCameraOverride } from "@/lib/cameraOverride";
 
 export interface DoorRelativePosition {
   relZ: number;
@@ -15,8 +16,6 @@ export const SEGMENT_DOORS: DoorRelativePosition[] = [
   { relZ: -48, side: "left" },   // About (Left)
   { relZ: -62, side: "right" },  // Contact (Right)
 ];
-
-const SEGMENT_LENGTH = 80;
 
 export interface UseInfiniteCameraOptions {
   segmentLength?: number;
@@ -55,12 +54,13 @@ export default function useInfiniteCamera({
   const scrollEnabledRef = useRef(scrollEnabled);
   const parallaxEnabledRef = useRef(parallaxEnabled);
   const cameraOverride = useRef(false);
+  const wrapBoundaryZ = 10 - segmentLength + 0.01;
 
   // Calculate glance based on approaching doors in the current repeating segment
   const calculateGlance = useCallback(
     (z: number) => {
-      const segmentIndex = Math.floor((10 - z) / SEGMENT_LENGTH);
-      const segmentStartZ = 10 - segmentIndex * SEGMENT_LENGTH;
+      const segmentIndex = Math.floor((10 - z) / segmentLength);
+      const segmentStartZ = 10 - segmentIndex * segmentLength;
       const relZ = z - segmentStartZ;
 
       let bestStrength = 0;
@@ -92,7 +92,7 @@ export default function useInfiniteCamera({
 
       return bestDir * bestStrength * glanceIntensity * 3.5;
     },
-    [glanceIntensity]
+    [glanceIntensity, segmentLength]
   );
 
   useLayoutEffect(() => {
@@ -204,7 +204,7 @@ export default function useInfiniteCamera({
 
   // Main camera update frame
   useFrame((_, delta) => {
-    if (cameraOverride.current) return;
+    if (cameraOverride.current || isCameraOverridden()) return;
 
     const scrollActive = scrollEnabledRef.current;
     const parallaxActive = parallaxEnabledRef.current;
@@ -222,6 +222,11 @@ export default function useInfiniteCamera({
 
     if (scrollActive) {
       currentZ.current = THREE.MathUtils.damp(currentZ.current, targetZ.current, 7, d);
+
+      if (currentZ.current <= wrapBoundaryZ) {
+        currentZ.current += segmentLength;
+        targetZ.current += segmentLength;
+      }
 
       targetGlance.current = calculateGlance(currentZ.current);
       const isReleasing = Math.abs(targetGlance.current) < Math.abs(glanceOffset.current);
@@ -244,6 +249,7 @@ export default function useInfiniteCamera({
 
   const setCameraOverride = useCallback((active: boolean) => {
     cameraOverride.current = active;
+    setSharedCameraOverride(active);
     if (!active) {
       targetZ.current = camera.position.z;
       currentZ.current = camera.position.z;

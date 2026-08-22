@@ -8,11 +8,15 @@ export interface SceneContextType {
   hasEntered: boolean;
   currentRoom: RoomId;
   isInRoom: boolean;
-  isTeleporting: boolean;
+  isTransitioning: boolean;
+  transitionPhase: "closed" | "opening" | null;
+  pendingRoom: RoomId;
   markEntered: () => void;
   enterRoom: (roomId: RoomId) => void;
   exitRoom: () => void;
   teleportTo: (roomId: RoomId) => void;
+  commitTransition: () => void;
+  completeTransition: () => void;
   soundEnabled: boolean;
   toggleSound: () => void;
 }
@@ -30,7 +34,8 @@ export const useScene = () => {
 export const SceneProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [hasEntered, setHasEntered] = useState(false);
   const [currentRoom, setCurrentRoom] = useState<RoomId>(null);
-  const [isTeleporting, setIsTeleporting] = useState(false);
+  const [pendingRoom, setPendingRoom] = useState<RoomId>(null);
+  const [transitionPhase, setTransitionPhase] = useState<"closed" | "opening" | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   const markEntered = useCallback(() => {
@@ -39,22 +44,31 @@ export const SceneProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const enterRoom = useCallback((roomId: RoomId) => {
     setCurrentRoom(roomId);
-    setIsTeleporting(false);
+    setPendingRoom(null);
+    setTransitionPhase(null);
   }, []);
 
   const exitRoom = useCallback(() => {
-    setCurrentRoom(null);
-    setIsTeleporting(false);
+    setPendingRoom(null);
+    setTransitionPhase("closed");
   }, []);
 
   const teleportTo = useCallback((roomId: RoomId) => {
-    if (!roomId) {
-      exitRoom();
-      return;
-    }
+    if (roomId === currentRoom) return;
     setHasEntered(true);
-    setCurrentRoom(roomId);
-  }, [exitRoom]);
+    setPendingRoom(roomId);
+    setTransitionPhase("closed");
+  }, [currentRoom]);
+
+  const commitTransition = useCallback(() => {
+    setCurrentRoom(pendingRoom);
+    setPendingRoom(null);
+    setTransitionPhase("opening");
+  }, [pendingRoom]);
+
+  const completeTransition = useCallback(() => {
+    setTransitionPhase(null);
+  }, []);
 
   const toggleSound = useCallback(() => {
     setSoundEnabled((prev) => !prev);
@@ -65,15 +79,19 @@ export const SceneProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       hasEntered,
       currentRoom,
       isInRoom: currentRoom !== null,
-      isTeleporting,
+      isTransitioning: transitionPhase !== null,
+      transitionPhase,
+      pendingRoom,
       markEntered,
       enterRoom,
       exitRoom,
       teleportTo,
+      commitTransition,
+      completeTransition,
       soundEnabled,
       toggleSound,
     }),
-    [hasEntered, currentRoom, isTeleporting, soundEnabled, markEntered, enterRoom, exitRoom, teleportTo, toggleSound]
+    [hasEntered, currentRoom, transitionPhase, pendingRoom, soundEnabled, markEntered, enterRoom, exitRoom, teleportTo, commitTransition, completeTransition, toggleSound]
   );
 
   return <SceneContext.Provider value={value}>{children}</SceneContext.Provider>;

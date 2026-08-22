@@ -42,10 +42,10 @@ export const links = {
   github: "https://github.com/el-oggy",
   linkedin: "https://www.linkedin.com/in/adarsh-swarup-maharana-4839763b8/",
   portfolioURL: "https://adarsh-vlsi.vercel.app/",
-  /** Configurable resume endpoint (§37). Drop the PDF at public/resume.pdf. */
-  resume: "/resume.pdf",
   /** Placeholder CV until the final resume is placed at /resume.pdf. */
   currentCV:
+    "https://drive.google.com/file/d/1XYQu1boH9sWpseAs0uv-9hWWglkdFMjl/view?usp=sharing",
+  resume:
     "https://drive.google.com/file/d/1XYQu1boH9sWpseAs0uv-9hWWglkdFMjl/view?usp=sharing",
 } as const;
 
