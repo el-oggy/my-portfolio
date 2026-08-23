@@ -66,10 +66,10 @@ const HeroText = ({ position = [0, 0.3, 0] }) => {
 
     // Tagline words for split effect
     const taglineWords = useMemo(() => [
-        { text: 'hardware', baseX: -0.75, splitDir: -1.4, delay: 0 },
-        { text: 'firmware', baseX: -0.25, splitDir: -0.5, delay: 0 },
-        { text: 'connected', baseX: 0.25, splitDir: 0.5, delay: 0 },
-        { text: 'systems', baseX: 0.75, splitDir: 1.4, delay: 0 },
+        { text: 'Embedded', baseX: -0.9, splitDir: -1.4, delay: 0 },
+        { text: 'Systems', baseX: -0.3, splitDir: -0.5, delay: 0 },
+        { text: '& VLSI', baseX: 0.3, splitDir: 0.5, delay: 0 },
+        { text: 'Engineer', baseX: 0.9, splitDir: 1.4, delay: 0 },
     ], []);
 
     // Animation loop

@@ -50,17 +50,22 @@ export const usePerformance = () => {
 };
 
 export const PerformanceProvider = ({ children }) => {
-  const [tier, setTier] = useState(TIERS.HIGH); // Default to HIGH, degrade if needed
+  const [tier, setTier] = useState(TIERS.MEDIUM); // Default to MEDIUM for safer baseline, upgrade on desktop
   const [isDetecting, setIsDetecting] = useState(true);
 
   useEffect(() => {
     const detectTier = () => {
-      let detectedTier = TIERS.HIGH;
+      let detectedTier = TIERS.MEDIUM;
 
-      // 1. Mobile Check
+      // Desktop with good specs gets HIGH
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (!isMobile && (navigator.hardwareConcurrency || 0) >= 8) {
+        detectedTier = TIERS.HIGH;
+      }
+
       if (isMobile) {
-        detectedTier = TIERS.MEDIUM;
+        // Mobile always starts at LOW for smooth experience
+        detectedTier = TIERS.LOW;
       }
 
       // 2. Hardware Concurrency (CPU Cores)

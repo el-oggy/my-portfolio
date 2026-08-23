@@ -1,15 +1,19 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
 import * as THREE from "three";
 import { identity, links } from "@/lib/data";
+import MailFormModal from "@/components/dom/MailFormModal";
 
 export default function ContactRoom() {
   const barrelRef = useRef<THREE.Group>(null);
   const waveRef1 = useRef<THREE.Group>(null);
   const waveRef2 = useRef<THREE.Group>(null);
+  const [mailOpen, setMailOpen] = useState(false);
+  const openMail = useCallback(() => setMailOpen(true), []);
+  const closeMail = useCallback(() => setMailOpen(false), []);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -79,9 +83,9 @@ export default function ContactRoom() {
         </group>
       </group>
 
-      {/* Main 3D Torn Paper Transmission Letter on Right */}
+      {/* Main 3D Torn Paper Transmission Letter on Right — click to open mail form */}
       <group position={[1.8, 1.1, 0]}>
-        <mesh position={[0, 0, 0]}>
+        <mesh position={[0, 0, 0]} onClick={openMail}>
           <planeGeometry args={[4.4, 3.4]} />
           <meshStandardMaterial color="#fef9c3" roughness={0.9} />
         </mesh>
@@ -161,11 +165,13 @@ export default function ContactRoom() {
           font="/fonts/CabinSketch-Bold.ttf"
           anchorX="center"
           anchorY="middle"
-          onClick={() => (window.location.href = `mailto:${links.email}`)}
+          onClick={openMail}
         >
-          ✉ SEND DIRECT TRANSMISSION ➔
+          ✉ OPEN MAIL FORM ➔
         </Text>
       </group>
+
+      <MailFormModal open={mailOpen} onClose={closeMail} />
     </group>
   );
 }

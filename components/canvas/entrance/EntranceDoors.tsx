@@ -6,7 +6,7 @@ import { Text } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
 import { sfx } from "@/lib/soundEffects";
-import { createDoorTexture, createWoodTexture } from "@/lib/proceduralTextures";
+import { createTransistorDoorTexture, createResCapDoorTexture, createWoodTexture } from "@/lib/proceduralTextures";
 
 interface EntranceDoorsProps {
   position?: [number, number, number];
@@ -21,8 +21,8 @@ export default function EntranceDoors({ position = [0, 0, 22], onComplete }: Ent
   const [hovered, setHovered] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
 
-  const leftTexture = useMemo(() => createDoorTexture("#c2410c", "A", false), []);
-  const rightTexture = useMemo(() => createDoorTexture("#0284c7", "B", false), []);
+  const leftTexture = useMemo(() => createTransistorDoorTexture("#c2410c"), []);
+  const rightTexture = useMemo(() => createResCapDoorTexture("#0284c7"), []);
   const floorTexture = useMemo(() => createWoodTexture(8, 3), []);
 
   useEffect(
@@ -84,6 +84,56 @@ export default function EntranceDoors({ position = [0, 0, 22], onComplete }: Ent
           </mesh>
         </group>
       ))}
+
+      {/* Decorative 3D electronics components near doorway */}
+      <group position={[-5.2, 1.2, 1.2]} rotation={[0, 0.3, Math.PI / 2]}>
+        <mesh>
+          <cylinderGeometry args={[0.12, 0.12, 0.7, 10]} />
+          <meshStandardMaterial color="#d4a574" roughness={0.8} />
+        </mesh>
+        {[-0.42, 0.42].map((y) => (
+          <mesh key={y} position={[0, y, 0]}>
+            <cylinderGeometry args={[0.03, 0.03, 0.28, 6]} />
+            <meshStandardMaterial color="#9ca3af" metalness={0.6} roughness={0.4} />
+          </mesh>
+        ))}
+        {[0.14, -0.14].map((y) => (
+          <mesh key={y} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.125, 0.02, 6, 18]} />
+            <meshStandardMaterial color="#b45309" />
+          </mesh>
+        ))}
+      </group>
+
+      <group position={[5.2, 1.4, 1.2]}>
+        <mesh>
+          <cylinderGeometry args={[0.16, 0.16, 0.35, 12]} />
+          <meshStandardMaterial color="#2563eb" roughness={0.65} />
+        </mesh>
+        <mesh position={[0, 0.22, 0]}>
+          <cylinderGeometry args={[0.05, 0.05, 0.12, 8]} />
+          <meshStandardMaterial color="#9ca3af" metalness={0.5} roughness={0.4} />
+        </mesh>
+        {[-0.09, 0.09].map((x) => (
+          <mesh key={x} position={[x, -0.24, 0]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.2, 6]} />
+            <meshStandardMaterial color="#9ca3af" metalness={0.6} roughness={0.4} />
+          </mesh>
+        ))}
+      </group>
+
+      <group position={[0, 4.8, 0.8]}>
+        <mesh rotation={[0, 0, Math.PI / 4]}>
+          <cylinderGeometry args={[0.11, 0.11, 0.28, 3]} />
+          <meshStandardMaterial color="#1a1917" roughness={0.85} flatShading />
+        </mesh>
+        {[-0.08, 0, 0.08].map((x, i) => (
+          <mesh key={i} position={[x * 1.2, -0.2, x > 0 ? 0.06 : x < 0 ? -0.06 : 0]} rotation={[x !== 0 ? (x > 0 ? 0.15 : -0.15) : 0, 0, 0]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.25, 6]} />
+            <meshStandardMaterial color="#9ca3af" metalness={0.5} roughness={0.4} />
+          </mesh>
+        ))}
+      </group>
 
       <group position={[3.5, 0.85, 0.1]}>
         <mesh rotation={[Math.PI / 2, 0, 0]}>

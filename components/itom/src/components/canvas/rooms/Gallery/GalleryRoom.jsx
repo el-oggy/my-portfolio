@@ -36,40 +36,40 @@ export const GALLERY_INTERACTION_AUDIO_SETTINGS = {
 // Define the unique projects and their textures
 const FALLBACK_PROJECTS = [
     {
-        id: 'monetune',
-        title: 'MONETUNE',
+        id: 'drone-hexcopter',
+        title: 'STM32 HEXACOPTER',
         front: '/textures/gallery/monetuneprzod.webp',
         painted: '/textures/gallery/monetuneprzod_painted.webp',
-        url: 'https://monetune.pl',
-        description: 'MoneTune is a step-by-step blueprint that teaches beginners how to generate passive income using AI-created music. Without any musical skills, you will learn how to easily produce professional tracks, publish them on platforms like Spotify, and monetize your digital assets.',
-        techStack: ['/textures/gallery/wordpresslogo.webp', '/textures/gallery/elementorlogo.webp', '/textures/gallery/phplogo.webp', '/textures/gallery/csslogo.webp']
+        url: 'https://github.com/el-oggy/Drone-hexcoptor-',
+        description: 'Custom six-rotor flight controller on an STM32 microcontroller with a custom KiCad PCB, MPU6500 IMU, and GPS — hardware, firmware, and telemetry in one system.',
+        techStackLabels: ['STM32', 'KiCad PCB', 'MPU6500', 'Embedded C++']
     },
     {
-        id: 'timber',
-        title: 'TIMBERKITTY',
+        id: 'weather-station',
+        title: 'IoT WEATHER STATION',
         front: '/textures/gallery/timberkittyprzod.webp',
         painted: '/textures/gallery/timberkittyprzod_painted.webp',
-        url: 'https://timberkitty.netlify.app',
-        description: 'TimberKitty is an addictive, free-to-play browser arcade game built in pure JavaScript. Players control a lumberjack cat to chop wood, save birds, complete daily missions, and compete on global leaderboards.',
-        techStack: ['/textures/gallery/jslogo.webp', '/textures/gallery/htmllogo.webp', '/textures/gallery/csslogo.webp', '/textures/gallery/firebaselogo.webp']
+        url: '#iot',
+        description: 'Solar-powered IoT weather station on an ESP32 with multiple environmental sensors, transmitting telemetry for remote monitoring.',
+        techStackLabels: ['ESP32', 'BME280', 'Solar', 'C/C++']
     },
     {
-        id: 'young',
-        title: 'YOUNG MULTI',
+        id: 'systolic-array',
+        title: 'SYSTOLIC ARRAY RTL',
         front: '/textures/gallery/youngmultiprzod.webp',
         painted: '/textures/gallery/youngmultiprzod_painted.webp',
-        url: 'https://young-multi-strona.netlify.app',
-        description: 'A sleek, modern concept website dedicated to the Polish rapper and creator Young Multi. It serves as a promotional landing page designed to highlight his personal brand, music, and online presence.',
-        techStack: ['/textures/gallery/reactlogo.webp', '/textures/gallery/tailwindlogo.webp', '/textures/gallery/htmllogo.webp', '/textures/gallery/netlifylogo.webp']
+        url: '#rtl',
+        description: 'A 2D systolic array for INT8 matrix multiplication — a core accelerator architecture for deep learning. Implemented in Verilog for high-throughput parallel computation.',
+        techStackLabels: ['Verilog', 'VLSI', 'RTL Design', 'FPGA']
     },
     {
-        id: 'bio',
-        title: 'BIO',
+        id: 'zmk-keyboard',
+        title: 'ZMK FIRMWARE',
         front: '/textures/gallery/bioprzod.webp',
         painted: '/textures/gallery/bioprzod_painted.webp',
-        url: 'https://tomkingbio.netlify.app',
-        description: 'A fast, modern personal bio page serving as a central hub for my digital footprint. It showcases my latest coding projects, web development services, YouTube videos, and recommended music artists.',
-        techStack: ['/textures/gallery/htmllogo.webp', '/textures/gallery/csslogo.webp', '/textures/gallery/jslogo.webp', '/textures/gallery/netlifylogo.webp']
+        url: 'https://github.com/el-oggy/zmk-config',
+        description: 'ZMK (Zephyr RTOS-based) firmware configuration for a custom mechanical keyboard, with GitHub Actions continuous-integration build pipeline.',
+        techStackLabels: ['ZMK', 'Zephyr RTOS', 'CI/CD', 'Embedded C']
     },
 ];
 
@@ -231,23 +231,6 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     const backTextureRaw = useTexture(canHover ? '/textures/gallery/tylkartki_painted.webp' : '/textures/gallery/tylkartki.webp');
     const overlayTextureRaw = useTexture(canHover ? '/textures/gallery/przyciskdotylukartki_painted.webp' : '/textures/gallery/przyciskdotylukartki.webp');
 
-    // Preload tech stack logos to prevent stuttering on first flip
-    // We use the same conditional logic: painted on desktop, regular on touch
-    const allLogos = useMemo(() => {
-        const names = [
-            'csslogo', 'elementorlogo', 'firebaselogo', 'htmllogo',
-            'jslogo', 'netlifylogo', 'phplogo', 'reactlogo',
-            'tailwindlogo', 'wordpresslogo'
-        ];
-        return names.map(name => {
-            if (!canHover) return `/textures/gallery/${name}.webp`;
-            if (name === 'csslogo') return `/textures/gallery/css3logo_painted.webp`;
-            return `/textures/gallery/${name}_painted.webp`;
-        });
-    }, [canHover]);
-    
-    useTexture(allLogos);
-
     // Construct the full list of projects (repeated) with textures attached
     const projects = useMemo(() => {
         return Array.from({ length: PROJECT_COUNT }).map((_, i) => {
@@ -273,14 +256,6 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                 overlayTextureRaw.colorSpace = THREE.SRGBColorSpace;
             }
 
-            // Map tech stack logos to the correct version (painted or regular)
-            const techStack = projectData.techStack.map(path => {
-                if (!canHover) return path; // Keep regular
-                const name = path.split('/').pop().replace('.webp', '');
-                if (name === 'csslogo') return '/textures/gallery/css3logo_painted.webp';
-                return `/textures/gallery/${name}_painted.webp`;
-            });
-
             return {
                 ...projectData,
                 index: i,
@@ -288,7 +263,7 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                 paintedTexture: (paintedTex !== frontTex && canHover) ? paintedTex : null,
                 backTexture: backTextureRaw,
                 buttonTexture: overlayTextureRaw,
-                techStack: techStack
+                techStackLabels: projectData.techStackLabels || []
             };
         });
     }, [projectTextures, backTextureRaw, overlayTextureRaw]);
@@ -1256,14 +1231,14 @@ const ProjectCard = memo(forwardRef(({ index, project, clothespinTexture, curren
 
                     {/* Kontener na loga układane poziomo */}
                     <group position={[0, -0.05, 0.01]}>
-                        {project.techStack && project.techStack.map((logoPath, idx) => {
+                        {project.techStackLabels && project.techStackLabels.map((label, idx) => {
                             // Rozstawienie kwadracików (4 sztuki wyśrodkowane)
                             const spacing = 0.30;
-                            const startX = -((project.techStack.length - 1) * spacing) / 2;
+                            const startX = -((project.techStackLabels.length - 1) * spacing) / 2;
                             const xPos = startX + (idx * spacing);
 
                             return (
-                                <TechStackLogo key={idx} path={logoPath} position={[xPos, 0, 0]} />
+                                <TechBadge key={idx} label={label} position={[xPos, 0, 0]} />
                             );
                         })}
                     </group>
@@ -1348,18 +1323,25 @@ const RightSideHouses = ({ texture, baseWidth, baseHeight, cropAmount }) => {
     );
 };
 
-// Sub-component for individual tech stack logos
-const TechStackLogo = ({ path, position }) => {
-    const texture = useTexture(path);
-
+// Lightweight tech badge — no texture loading needed
+const TechBadge = ({ label, position }) => {
     return (
-        <mesh position={position}>
-            <planeGeometry args={[0.17, 0.17]} />
-            <meshBasicMaterial color="#ffffff"
-                map={texture}
-                transparent={true}
-            />
-        </mesh>
+        <group position={position}>
+            <mesh>
+                <planeGeometry args={[0.24, 0.1]} />
+                <meshBasicMaterial color="#f5f5f4" side={THREE.DoubleSide} />
+            </mesh>
+            <Text
+                position={[0, 0, 0.01]}
+                fontSize={0.042}
+                color="#c2410c"
+                font="/fonts/CabinSketch-Bold.ttf"
+                anchorX="center"
+                anchorY="middle"
+            >
+                {label}
+            </Text>
+        </group>
     );
 };
 

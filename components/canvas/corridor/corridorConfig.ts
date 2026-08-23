@@ -26,7 +26,7 @@ export function createCorridorDoors(segmentIndex: number): CorridorDoorDefinitio
       relativeZ: -18,
       side: "left",
       label: "THE GALLERY",
-      icon: "◈",
+      icon: "▣",
       color: "#059669",
     },
     {
@@ -35,7 +35,7 @@ export function createCorridorDoors(segmentIndex: number): CorridorDoorDefinitio
       relativeZ: -32,
       side: "right",
       label: "THE STUDIO",
-      icon: "▶",
+      icon: "⚙",
       color: "#0284c7",
     },
     {
@@ -44,7 +44,7 @@ export function createCorridorDoors(segmentIndex: number): CorridorDoorDefinitio
       relativeZ: -48,
       side: "left",
       label: "ABOUT & JOURNEY",
-      icon: "★",
+      icon: "➤",
       color: "#7c3aed",
     },
     {

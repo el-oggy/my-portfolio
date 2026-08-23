@@ -1,4 +1,4 @@
-import { useMemo, memo } from 'react';
+import { useMemo, useEffect, useState, memo } from 'react';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -28,6 +28,70 @@ const DOOR_Z_SPAN = 4;
 // Angle of the wall relative to the corridor axis
 const WALL_ANGLE = Math.atan2(WALL_X_OUTER - WALL_X_INNER, DOOR_Z_SPAN);
 
+const QUOTES = [
+  { title: "Daily Thought", body: "The best way to predict the future is to invent it." },
+  { title: "Engineering", body: "Simplicity is the ultimate sophistication." },
+  { title: "Innovation", body: "Any sufficiently advanced technology is indistinguishable from magic." },
+  { title: "Perseverance", body: "It's not that I'm so smart, it's just that I stay with problems longer." },
+  { title: "Design", body: "Good design is obvious. Great design is transparent." },
+  { title: "Learning", body: "The important thing is not to stop questioning." },
+  { title: "Craftsmanship", body: "First solve the problem. Then write the code. Then tape out the silicon." },
+  { title: "Vision", body: "The chip does not care about your deadline. It cares about your timing closure." },
+  { title: "Discipline", body: "Premature optimization is the root of all evil — but premature tapeout is worse." },
+  { title: "Passion", body: "Engineers like to solve problems. If there are no problems available they will create their own." },
+];
+
+function getDayOfYear() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  return Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+const PhotoFrame = ({ side, z, index }) => {
+  const dayOfYear = getDayOfYear();
+  const quoteIndex = (dayOfYear + index) % QUOTES.length;
+  const quote = QUOTES[quoteIndex];
+  const wallX = WALL_X_OUTER + 0.02;
+  const x = side === 'left' ? -wallX : wallX;
+  const rotY = side === 'left' ? Math.PI / 2 : -Math.PI / 2;
+
+  return (
+    <group position={[x, 1.4, z]} rotation-y={rotY}>
+      <mesh position={[0, 0, -0.04]}>
+        <planeGeometry args={[1.2, 0.9]} />
+        <meshStandardMaterial color="#292524" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 0, -0.02]}>
+        <planeGeometry args={[1.1, 0.8]} />
+        <meshStandardMaterial color="#b45309" roughness={0.7} />
+      </mesh>
+      <Text
+        position={[0, 0.28, 0.01]}
+        fontSize={0.07}
+        color="#c2410c"
+        font="/fonts/CabinSketch-Bold.ttf"
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={0.95}
+      >
+        {quote.title.toUpperCase()}
+      </Text>
+      <Text
+        position={[0, 0, 0.01]}
+        fontSize={0.055}
+        color="#44403c"
+        font="/fonts/CabinSketch-Regular.ttf"
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={0.9}
+        textAlign="center"
+      >
+        {quote.body}
+      </Text>
+    </group>
+  );
+};
+
 
 const CorridorSegment = ({
     segmentIndex = 0,
@@ -50,7 +114,7 @@ const CorridorSegment = ({
                 relativeZ: -18,
                 side: 'left',
                 label: 'THE GALLERY',
-                icon: '◈',
+                icon: '▣',
                 color: '#f5efe6'
             },
             {
@@ -59,7 +123,7 @@ const CorridorSegment = ({
                 relativeZ: -32,
                 side: 'right',
                 label: 'THE STUDIO',
-                icon: '▶',
+                icon: '⚙',
                 color: '#e6f5ef'
             },
             {
@@ -68,7 +132,7 @@ const CorridorSegment = ({
                 relativeZ: -48,
                 side: 'left',
                 label: 'THE ABOUT',
-                icon: '★',
+                icon: '➤',
                 color: '#efe6f5',
                 enterDistance: 25 // Enter deep into the room (clouds are far back)
             },
@@ -115,6 +179,16 @@ const CorridorSegment = ({
                 doorPositions={doors}
                 zClip={zClip}
             />
+
+            {/* === PHOTO FRAMES (alternating walls) === */}
+            {[0, 1, 2, 3].map((i) => (
+                <PhotoFrame
+                    key={`frame-${segmentIndex}-${i}`}
+                    side={i % 2 === 0 ? 'left' : 'right'}
+                    z={zOffset - 8 - i * 16}
+                    index={segmentIndex * 4 + i}
+                />
+            ))}
 
             {/* === WELCOME AREA (Start of segment) - MOVED CLOSER === */}
             <group position={[0, 0, zOffset - 2]}>
