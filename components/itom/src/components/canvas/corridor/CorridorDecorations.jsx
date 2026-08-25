@@ -410,8 +410,8 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.25,
             id: 'frame-3',
-            // Electronics humor poster
-            image: '/textures/corridor/decorations/ad_joke_breadboard.webp',
+            // Personal motto poster — "Jack of all trades..."
+            image: '/textures/corridor/decorations/ad_quote_jack.webp',
             imageWidth: 1.7,
             imageHeight: 1.7 * (640 / 1024),
             offsetFromWall: 0.1,
@@ -423,8 +423,8 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.35,
             id: 'frame-4',
-            // Electronics humor poster
-            image: '/textures/corridor/decorations/ad_joke_smoke.webp',
+            // Personal motto poster — "Designing the micro-world..."
+            image: '/textures/corridor/decorations/ad_quote_micro.webp',
             imageWidth: 1.7,
             imageHeight: 1.7 * (640 / 1024),
             offsetFromWall: 0.1,

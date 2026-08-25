@@ -40,6 +40,11 @@ const QUOTES = [
   { title: "Debugging", body: "Being the detective in a crime story where you are also the murderer." },
   { title: "Soldering", body: "My iron and I are very close — we've bonded over so many hot topics." },
   { title: "Timing Closure", body: "Like dieting: easy to promise at tape-out, impossible to achieve before the deadline." },
+  // Famous words worth walking past
+  { title: "Arthur C. Clarke", body: "Any sufficiently advanced technology is indistinguishable from magic." },
+  { title: "Alan Kay", body: "The best way to predict the future is to invent it." },
+  { title: "Richard Feynman", body: "What I cannot create, I do not understand." },
+  { title: "Edsger Dijkstra", body: "Simplicity is prerequisite for reliability." },
 ];
 
 function getDayOfYear() {

@@ -636,61 +636,116 @@ async function entranceSign() {
   await writeWebp(dir, "ad_sign_painted.webp", svgDoc(W, H, body + paint));
 }
 
+/** Render an array of text lines centered horizontally, stacked vertically. */
+function txtLines(font, lines, cx, startBaseline, lineH, size, fill = INK) {
+  return lines
+    .map((line, i) => txt(font, line, cx, startBaseline + i * lineH, size, fill, "center"))
+    .join("");
+}
+
+/** Render one glyph as a path whose visual center lands exactly at (cx, cy). */
+function centeredGlyph(font, ch, cx, cy, size, fill = INK) {
+  const p = font.getPath(ch, 0, 0, size);
+  const b = p.getBoundingBox();
+  const tx = cx - (b.x2 - b.x1) / 2 - b.x1;
+  const ty = cy - (b.y1 + b.y2) / 2;
+  return `<path transform="translate(${tx.toFixed(2)} ${ty.toFixed(2)})" d="${p.toPathData(3)}" fill="${fill}"/>`;
+}
+
 // ============================================================
-// 6. HALLWAY JOKE POSTERS — 1024×640 landscape (wall frames)
+// 6. HALLWAY QUOTE POSTERS — 1024×640 landscape (wall frames)
 // ============================================================
 const JW = 1024, JH = 640;
 
-async function jokePosters() {
-  console.log("Joke posters:");
+async function quotePosters() {
+  console.log("Quote posters:");
   const dir = path.join(ROOT, "public", "textures", "corridor", "decorations");
 
-  // --- Poster A: breadboard excuse ---
+  // --- Poster A: Jack of all trades ---
   {
     const body = `
-      ${txt(cabinBold, "IT WORKS ON MY", 512, 120, 64, INK, "center")}
-      ${txt(cabinBold, "BREADBOARD", 512, 196, 88, INK, "center")}
+      ${txt(cabinBold, "\u201C", 130, 210, 220, FAINT)}
+      ${txtLines(
+        cabinBold,
+        ["JACK OF ALL TRADES,", "MASTER OF NONE \u2014"],
+        512, 170, 92, 66
+      )}
+      ${txtLines(
+        cabinBold,
+        ["YET OFTENTIMES BETTER", "THAN THE MASTER OF ONE."],
+        512, 330, 88, 60, "#44403a"
+      )}
+      <path d="M392 492 H632" stroke="${FAINT}" stroke-width="3" stroke-dasharray="12 9"/>
+      ${txt(cabinReg, "the code I live by", 512, 548, 36, "#6b6257", "center")}
+      <!-- tiny multi-tool doodles -->
       <g stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round">
-        <rect x="312" y="280" width="400" height="180" rx="10"/>
-        <path d="M332 310 h360 M332 340 h360 M332 430 h360 M332 400 h360" stroke-dasharray="7 7" stroke-width="2"/>
-        ${Array.from({ length: 12 }, (_, i) => `<circle cx="${356 + i * 28}" cy="385" r="4"/>`).join("")}
-        <path d="M370 320 q 30 60 -20 60 M420 330 q -20 50 30 60" stroke-width="3"/>
-        <rect x="520" y="300" width="90" height="46" rx="6"/>
-        <circle cx="430" cy="300" r="12"/><path d="M442 300 h60" stroke-width="3"/>
-      </g>
-      ${txt(cabinReg, "the production version is a mystery", 512, 545, 34, FAINT, "center")}`;
+        <path d="M120 520 l40 -40 M132 532 l14 -14 M148 546 l14 -14"/>
+        <circle cx="900" cy="500" r="26"/><path d="M900 474 v-20 M926 500 h20 M874 500 h-20 M900 526 v20"/>
+      </g>`;
     const paint = `
-      <rect x="520" y="300" width="90" height="46" rx="6" fill="${ACC.green}" opacity="0.25"/>
-      <circle cx="430" cy="300" r="12" fill="${ACC.amber}"/>`;
+      <path d="M392 492 H632" stroke="${ACC.green}" stroke-width="4" stroke-dasharray="12 9"/>
+      ${txt(cabinBold, "\u201C", 130, 210, 220, ACC.green)}
+      ${txtLines(cabinReg, ["the code I live by"], 512, 548, 36, 36, ACC.green)}`;
     const common = paper(JW, JH) + sketch(body);
-    await writeWebp(dir, "ad_joke_breadboard.webp", svgDoc(JW, JH, common));
-    await writeWebp(dir, "ad_joke_breadboard_painted.webp", svgDoc(JW, JH, common + paint));
+    await writeWebp(dir, "ad_quote_jack.webp", svgDoc(JW, JH, common));
+    await writeWebp(dir, "ad_quote_jack_painted.webp", svgDoc(JW, JH, common + paint));
   }
 
-  // --- Poster B: magic smoke ---
+  // --- Poster B: micro-world / macro-world ---
   {
-    const smoke = `
-      <path d="M470 250 q -26 -40 8 -70 q 30 -26 6 -58" stroke-width="3.4"/>
-      <path d="M540 244 q 30 -36 -2 -66 q -28 -28 -2 -56" stroke-width="3.4"/>
-      <path d="M506 236 q -4 -30 22 -48" stroke-width="3"/>`;
     const body = `
-      ${txt(cabinBold, "MAGIC SMOKE", 512, 110, 84, INK, "center")}
-      <g stroke="${INK}" stroke-width="4.4" fill="none" stroke-linecap="round">
-        <rect x="392" y="270" width="240" height="170" rx="10"/>
-        <circle cx="432" cy="300" r="9"/><circle cx="592" cy="300" r="9"/>
-        <circle cx="432" cy="410" r="9"/><circle cx="592" cy="410" r="9"/>
-        <circle cx="512" cy="355" r="42" stroke-dasharray="10 8" stroke-width="3.4"/>
-        ${smoke}
-        <line x1="352" y1="300" x2="392" y2="300"/><line x1="352" y1="380" x2="392" y2="380"/>
-        <line x1="632" y1="300" x2="672" y2="300"/><line x1="632" y1="380" x2="672" y2="380"/>
-      </g>
-      ${txt(cabinReg, "every chip runs on it.", 512, 500, 36, INK, "center")}
-      ${txt(cabinReg, "let it out — and it never works again.", 512, 552, 32, FAINT, "center")}`;
-    const paint = `${smoke.replace(/stroke-width/g, `stroke="${ACC.orange}" stroke-width`)}`;
+      ${txtLines(
+        cabinBold,
+        ["DESIGNING THE", "MICRO-WORLD"],
+        512, 200, 96, 78
+      )}
+      ${txt(cabinReg, "that powers", 512, 320, 42, "#6b6257", "center")}
+      ${txtLines(
+        cabinBold,
+        ["THE MACRO-WORLD."],
+        512, 430, 96, 78
+      )}
+      <path d="M352 492 H672" stroke="${FAINT}" stroke-width="3" stroke-dasharray="12 9"/>
+      ${txt(cabinReg, "Adarsh Swarup Maharana", 512, 548, 34, "#6b6257", "center")}
+      <!-- chip doodle -->
+      <g stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round">
+        <rect x="118" y="470" width="84" height="64" rx="6"/>
+        ${[-30, -10, 10, 30].map((o) => `<line x1="${118 + o + 42}" y1="470" x2="${118 + o + 42}" y2="452"/><line x1="${118 + o + 42}" y1="534" x2="${118 + o + 42}" y2="552"/>`).join("")}
+        <circle cx="892" cy="502" r="22" stroke-dasharray="8 7"/>
+        <path d="M892 480 v-16 M914 502 h16 M870 502 h-16 M892 524 v16" stroke-width="3"/>
+      </g>`;
+    const paint = `
+      <rect x="118" y="470" width="84" height="64" rx="6" fill="${ACC.blue}" opacity="0.2"/>
+      <path d="M352 492 H672" stroke="${ACC.blue}" stroke-width="4" stroke-dasharray="12 9"/>`;
     const common = paper(JW, JH) + sketch(body);
-    await writeWebp(dir, "ad_joke_smoke.webp", svgDoc(JW, JH, common));
-    await writeWebp(dir, "ad_joke_smoke_painted.webp", svgDoc(JW, JH, common + `<g fill="none" stroke-linecap="round">${paint}</g>`));
+    await writeWebp(dir, "ad_quote_micro.webp", svgDoc(JW, JH, common));
+    await writeWebp(dir, "ad_quote_micro_painted.webp", svgDoc(JW, JH, common + paint));
   }
+}
+
+// ============================================================
+// 6b. WELCOME PLANK — 1024×256 (hung above entrance doors)
+// ============================================================
+async function welcomePlank() {
+  console.log("Welcome plank:");
+  const dir = path.join(ROOT, "public", "textures", "doors");
+  const PW = 1024, PH = 256;
+
+  const body = `
+    <rect x="14" y="14" width="${PW - 28}" height="${PH - 28}" rx="22"
+      fill="${CARD}" stroke="${INK}" stroke-width="9"/>
+    ${txt(cabinBold, "WELCOME", PW / 2, 172, 138, INK, "center")}
+    <g stroke="${FAINT}" stroke-width="4" fill="none" stroke-linecap="round">
+      <path d="M120 128 H300" stroke-dasharray="14 11"/>
+      <path d="M724 128 H904" stroke-dasharray="14 11"/>
+      <circle cx="86" cy="128" r="14"/>
+      <circle cx="938" cy="128" r="14"/>
+    </g>`;
+  const paint = `
+    ${txt(cabinBold, "WELCOME", PW / 2, 172, 138, ACC.green, "center")}`;
+
+  await writeWebp(dir, "ad_welcome.webp", svgDoc(PW, PH, body), 92);
+  await writeWebp(dir, "ad_welcome_painted.webp", svgDoc(PW, PH, body + paint), 92);
 }
 
 // ============================================================
@@ -702,16 +757,30 @@ async function entranceDoors() {
   const DW2 = 664, DH2 = 1696;
 
   function leaf(letters) {
-    const n = letters.length;
-    const size = 210;
-    const startY = 330;
-    const gap = 200;
-    const letterPaths = letters
-      .split("")
-      .map((ch, i) =>
-        txt(cabinBold, ch, DW2 / 2, startY + i * gap, size, INK, "center")
-      )
+    // Vertically stack glyphs with measured heights — no overlaps,
+    // centered in the free zone between the inset panels.
+    const size = 190;
+    const zoneTop = 430;
+    const zoneBottom = DH2 - 430;
+    const gap = 34;
+
+    const glyphs = letters.split("").map((ch) => {
+      const p = cabinBold.getPath(ch, 0, 0, size);
+      const b = p.getBoundingBox();
+      return { ch, p, h: b.y2 - b.y1 };
+    });
+    const totalH =
+      glyphs.reduce((s, g) => s + g.h, 0) + gap * (glyphs.length - 1);
+    let cursor = zoneTop + (zoneBottom - zoneTop - totalH) / 2;
+
+    const letterPaths = glyphs
+      .map((g) => {
+        const cy = cursor + g.h / 2;
+        cursor += g.h + gap;
+        return centeredGlyph(cabinBold, g.ch, DW2 / 2, cy, size, INK);
+      })
       .join("");
+
     return `
       <rect x="16" y="16" width="${DW2 - 32}" height="${DH2 - 32}" rx="14"
         fill="${CARD}" stroke="${INK}" stroke-width="9"/>
@@ -746,16 +815,28 @@ async function entranceDoors() {
   async function paintedLeaf(file, letters, accent) {
     const src = svgDoc(DW2, DH2, leaf(letters));
     // overlay: re-render letters in accent on top of the base art
-    const n = letters.length;
-    const size = 210;
-    const startY = 330;
-    const gap = 200;
-    const accentLetters = letters
-      .split("")
-      .map((ch, i) =>
-        txt(cabinBold, ch, DW2 / 2, startY + i * gap, size, accent, "center")
-      )
+    const size = 190;
+    const zoneTop = 430;
+    const zoneBottom = DH2 - 430;
+    const gap = 34;
+
+    const glyphs = letters.split("").map((ch) => {
+      const p = cabinBold.getPath(ch, 0, 0, size);
+      const b = p.getBoundingBox();
+      return { ch, p, h: b.y2 - b.y1 };
+    });
+    const totalH =
+      glyphs.reduce((s, g) => s + g.h, 0) + gap * (glyphs.length - 1);
+    let cursor = zoneTop + (zoneBottom - zoneTop - totalH) / 2;
+
+    const accentLetters = glyphs
+      .map((g) => {
+        const cy = cursor + g.h / 2;
+        cursor += g.h + gap;
+        return centeredGlyph(cabinBold, g.ch, DW2 / 2, cy, size, accent);
+      })
       .join("");
+
     const overlay = `
       <rect x="72" y="80" width="${DW2 - 144}" height="260" rx="10" fill="${accent}" opacity="0.08"/>
       <rect x="72" y="${DH2 - 340}" width="${DW2 - 144}" height="260" rx="10" fill="${accent}" opacity="0.08"/>
@@ -772,6 +853,7 @@ await portrait();
 await diagrams();
 await balloons();
 await entranceSign();
-await jokePosters();
+await quotePosters();
+await welcomePlank();
 await entranceDoors();
 console.log("\nAll artwork generated.");
