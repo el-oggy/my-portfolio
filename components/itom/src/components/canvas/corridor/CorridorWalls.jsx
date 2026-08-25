@@ -1,7 +1,8 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useTexture } from '@react-three/drei';
+import { useDispose } from '../../../utils/useDispose';
 
 // Import constants to match CorridorSegment logic
 // Note: In a real project these might be in a shared config file.
@@ -58,12 +59,91 @@ const DoorWallSegment = ({ position, baseRotationY, width, corridorHeight, wallT
         tex.repeat.set(width / 2, corridorHeight / 2);
         return tex;
     }, [wallTexture, width, corridorHeight]);
+    // Free the cloned GPU texture when this segment unmounts
+    useDispose(segTexture);
 
     return (
         <mesh ref={meshRef} position={position}>
             <planeGeometry args={[width, corridorHeight]} />
             <meshBasicMaterial color="#e0e0e0" map={segTexture} roughness={1} metalness={0} />
         </mesh>
+    );
+};
+
+// O ile (w unitach 3D) skrócić listwę z każdej strony przy ramce drzwi (module-level
+// so FillerWallSegment can share it).
+const BASEBOARD_DOOR_MARGIN = 0.5;
+// Texture: 1582x94 px. Natural tile = (1582/94)*0.15 = 2.524 units wide
+const NATURAL_TILE_W = (1582 / 94) * 0.15;
+
+/**
+ * FillerWallSegment - straight wall piece between door recesses.
+ *
+ * Textures are cloned once per mount (useMemo on stable primitives) and
+ * disposed on unmount, instead of being re-cloned inside a render-time
+ * .map() callback on every parent re-render.
+ */
+const FillerWallSegment = ({ seg, wallTexture, baseboardTexture, corridorHeight }) => {
+    const segTexture = useMemo(() => {
+        const tex = wallTexture.clone();
+        tex.needsUpdate = true;
+        tex.repeat.set(seg.width / 2, corridorHeight / 2);
+        return tex;
+    }, [wallTexture, seg.width, corridorHeight]);
+    useDispose(segTexture);
+
+    const bbTexture = useMemo(() => {
+        const tex = baseboardTexture.clone();
+        tex.needsUpdate = true;
+        tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+        tex.rotation = 0; // CRITICAL: reset rotation (shared texture may have PI/2 from threshold)
+        tex.offset.set(0, 0);
+        tex.repeat.set(seg.width / NATURAL_TILE_W, 1);
+        return tex;
+    }, [baseboardTexture, seg.width]);
+    useDispose(bbTexture);
+
+    // =============================================
+    // PRZYCINANIE LISTWY PRZY DRZWIACH
+    // =============================================
+    // Listwa jest węższa o BASEBOARD_DOOR_MARGIN z każdej strony
+    // gdzie segment sąsiaduje z drzwiami (trimStart / trimEnd).
+    const bbMarginHighZ = seg.trimHighZ ? BASEBOARD_DOOR_MARGIN : 0;
+    const bbMarginLowZ = seg.trimLowZ ? BASEBOARD_DOOR_MARGIN : 0;
+    const bbWidth = seg.width - bbMarginHighZ - bbMarginLowZ;
+
+    // Przesunięcie środka listwy wzdłuż osi lokalnej (X w przestrzeni grupy)
+    let bbOffsetX;
+    if (seg.isLeft) {
+        // +X lokalny = -Z świat = strona lowZ
+        bbOffsetX = (bbMarginLowZ - bbMarginHighZ) / 2;
+    } else {
+        // +X lokalny = +Z świat = strona highZ
+        bbOffsetX = (bbMarginHighZ - bbMarginLowZ) / 2;
+    }
+
+    return (
+        <group position={seg.position} rotation={seg.rotation || [0, seg.rotationY, 0]}>
+            {/* Main Wall Segment */}
+            <mesh>
+                <planeGeometry args={[seg.width, corridorHeight]} />
+                <meshBasicMaterial color="#e0e0e0"
+                    map={segTexture}
+                    roughness={1}
+                    metalness={0}
+                />
+            </mesh>
+
+            {/* Baseboard (Listwa przypodłogowa) - przycięta przy drzwiach */}
+            <mesh position={[bbOffsetX, -corridorHeight / 2 + 0.075, 0.01]}>
+                <planeGeometry args={[bbWidth, 0.15]} />
+                <meshBasicMaterial color="#e0e0e0"
+                    map={bbTexture}
+                    roughness={0.8}
+                    side={THREE.DoubleSide}
+                />
+            </mesh>
+        </group>
     );
 };
 
@@ -99,6 +179,33 @@ const CorridorWalls = ({ zStart = 10, length = 80, doorPositions = [], zClip = 1
     const ceilingTexture = useTexture('/textures/corridor/ceiling_texture.webp');
     ceilingTexture.wrapS = ceilingTexture.wrapT = THREE.RepeatWrapping;
 
+    // =============================================
+    // FLOOR SIDE-STRIP TEXTURES (hoisted + memoized)
+    // =============================================
+    // Przycięte tekstury do bocznych pasów podłogi (ta sama skala co środek).
+    // Previously cloned inside the render body — every re-render uploaded a
+    // fresh GPU copy. Now memoized once per source texture and disposed on
+    // unmount.
+    // UV repeat = jaki ułamek tekstury pokazać (SIDE_WIDTH / CENTER_WIDTH)
+    const floorSideTextures = useMemo(() => {
+        const CENTER_WIDTH = 5;
+        const SIDE_WIDTH = 1;
+        const uvFraction = SIDE_WIDTH / CENTER_WIDTH; // np. 1/5 = 0.2 → 20% tekstury
+
+        const leftSideTexture = floorTexture.clone();
+        leftSideTexture.needsUpdate = true;
+        leftSideTexture.repeat.set(1, uvFraction);    // Pełna długość, przycięta szerokość
+        leftSideTexture.offset.set(0, 0);             // Lewa krawędź tekstury
+
+        const rightSideTexture = floorTexture.clone();
+        rightSideTexture.needsUpdate = true;
+        rightSideTexture.repeat.set(1, uvFraction);
+        rightSideTexture.offset.set(0, 1 - uvFraction); // Prawa krawędź tekstury
+
+        return [leftSideTexture, rightSideTexture];
+    }, [floorTexture]);
+    useDispose(...floorSideTextures);
+
     // Calculate effective geometry based on clipping
     // We only render from Math.min(zStart, zClip) down to (zStart - length)
     const effectiveStart = Math.min(zStart, zClip);
@@ -107,14 +214,6 @@ const CorridorWalls = ({ zStart = 10, length = 80, doorPositions = [], zClip = 1
 
     // If fully clipped, render nothing
     if (effectiveLength <= 0) return null;
-
-    // =============================================
-    // REGULACJA PRZYCIĘCIA LISTWY PRZY DRZWIACH
-    // =============================================
-    // O ile (w unitach 3D) skrócić listwę z każdej strony przy ramce drzwi.
-    // Zwiększ wartość → większa przerwa między listwą a drzwiami.
-    // Zmniejsz wartość → listwa bliżej drzwi (może najeżdżać na ramkę).
-    const BASEBOARD_DOOR_MARGIN = 0.5;
 
     // Helper to generate wall segments for a side ('left' or 'right')
     const generateWallSegments = (side) => {
@@ -283,19 +382,7 @@ const CorridorWalls = ({ zStart = 10, length = 80, doorPositions = [], zClip = 1
                 const SIDE_WIDTH = 1;            // Szerokość bocznych pasów po lewej i prawej
                 const FLOOR_START_OFFSET = 2;    // Offset startu (+ = dalej, - = bliżej kamery)
 
-                // Przycięte tekstury do bocznych pasów (ta sama skala co środek, nie rozciągnięte!)
-                // UV repeat = jaki ułamek tekstury pokazać (SIDE_WIDTH / CENTER_WIDTH)
-                const uvFraction = SIDE_WIDTH / CENTER_WIDTH; // np. 1/5 = 0.2 → 20% tekstury
-
-                const leftSideTexture = floorTexture.clone();
-                leftSideTexture.needsUpdate = true;
-                leftSideTexture.repeat.set(1, uvFraction);    // Pełna długość, przycięta szerokość
-                leftSideTexture.offset.set(0, 0);             // Lewa krawędź tekstury
-
-                const rightSideTexture = floorTexture.clone();
-                rightSideTexture.needsUpdate = true;
-                rightSideTexture.repeat.set(1, uvFraction);
-                rightSideTexture.offset.set(0, 1 - uvFraction); // Prawa krawędź tekstury
+                const [leftSideTexture, rightSideTexture] = floorSideTextures;
 
                 const tiles = [];
                 const floorY = -corridorHeight / 2;
@@ -414,72 +501,15 @@ const CorridorWalls = ({ zStart = 10, length = 80, doorPositions = [], zClip = 1
             {/* Skip 'connector' and 'door' segments - door segments are now handled by DoorSection */}
             {[...leftSegments, ...rightSegments]
                 .filter(seg => seg.type === 'filler')
-                .map((seg, i) => {
-                    // Wall texture clone (same pattern for wall + baseboard)
-                    const segTexture = wallTexture.clone();
-                    segTexture.needsUpdate = true;
-                    segTexture.repeat.set(seg.width / 2, corridorHeight / 2);
-
-                    // Baseboard texture clone
-                    // Texture: 1582x94 px. Natural tile = (1582/94)*0.15 = 2.524 units wide
-                    const bbTexture = baseboardTexture.clone();
-                    bbTexture.needsUpdate = true;
-                    bbTexture.wrapS = bbTexture.wrapT = THREE.RepeatWrapping;
-                    bbTexture.rotation = 0; // CRITICAL: reset rotation (shared texture may have PI/2 from threshold)
-                    bbTexture.offset.set(0, 0);
-                    const NATURAL_TILE_W = (1582 / 94) * 0.15;
-                    bbTexture.repeat.set(seg.width / NATURAL_TILE_W, 1);
-
-                    // =============================================
-                    // PRZYCINANIE LISTWY PRZY DRZWIACH
-                    // =============================================
-                    // Listwa jest węższa o BASEBOARD_DOOR_MARGIN z każdej strony
-                    // gdzie segment sąsiaduje z drzwiami (trimStart / trimEnd).
-                    // Środek listwy jest przesunięty, żeby wyrównać do ściany.
-                    // trimHighZ = przytnij od strony wyższego Z (gdzie zaczyna się wnęka drzwi)
-                    // trimLowZ  = przytnij od strony niższego Z  (gdzie kończy się wnęka drzwi)
-                    const bbMarginHighZ = seg.trimHighZ ? BASEBOARD_DOOR_MARGIN : 0;
-                    const bbMarginLowZ = seg.trimLowZ ? BASEBOARD_DOOR_MARGIN : 0;
-                    const bbWidth = seg.width - bbMarginHighZ - bbMarginLowZ;
-
-                    // Przesunięcie środka listwy wzdłuż osi lokalnej (X w przestrzeni grupy)
-                    // Segment jest obrócony, więc lokalna oś X = wzdłuż ściany.
-                    // Po rotacji +PI/2 (lewa ściana): lokalna oś +X → świat -Z (niższy Z)
-                    // Po rotacji -PI/2 (prawa ściana): lokalna oś +X → świat +Z (wyższy Z)
-                    // Dlatego offset jest odwrócony między lewą a prawą ścianą.
-                    let bbOffsetX;
-                    if (seg.isLeft) {
-                        // +X lokalny = -Z świat = strona lowZ
-                        bbOffsetX = (bbMarginLowZ - bbMarginHighZ) / 2;
-                    } else {
-                        // +X lokalny = +Z świat = strona highZ
-                        bbOffsetX = (bbMarginHighZ - bbMarginLowZ) / 2;
-                    }
-
-                    return (
-                        <group key={i} position={seg.position} rotation={seg.rotation || [0, seg.rotationY, 0]}>
-                            {/* Main Wall Segment */}
-                            <mesh>
-                                <planeGeometry args={[seg.width, corridorHeight]} />
-                                <meshBasicMaterial color="#e0e0e0"
-                                    map={segTexture}
-                                    roughness={1}
-                                    metalness={0}
-                                />
-                            </mesh>
-
-                            {/* Baseboard (Listwa przypodłogowa) - przycięta przy drzwiach */}
-                            <mesh position={[bbOffsetX, -corridorHeight / 2 + 0.075, 0.01]}>
-                                <planeGeometry args={[bbWidth, 0.15]} />
-                                <meshBasicMaterial color="#e0e0e0"
-                                    map={bbTexture}
-                                    roughness={0.8}
-                                    side={THREE.DoubleSide}
-                                />
-                            </mesh>
-                        </group>
-                    );
-                })}
+                .map((seg, i) => (
+                    <FillerWallSegment
+                        key={i}
+                        seg={seg}
+                        wallTexture={wallTexture}
+                        baseboardTexture={baseboardTexture}
+                        corridorHeight={corridorHeight}
+                    />
+                ))}
 
 
 

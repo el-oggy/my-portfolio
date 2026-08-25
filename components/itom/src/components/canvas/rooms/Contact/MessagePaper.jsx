@@ -153,9 +153,6 @@ const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || '';
 const ALLOWED_ORIGINS = [
     'localhost',
     '127.0.0.1',
-    'itomdev.com',
-    'www.itomdev.com',
-    'portfolio-itom.pages.dev',
     'adarsh-vlsi.vercel.app',
 ];
 

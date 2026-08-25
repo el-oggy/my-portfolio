@@ -4,6 +4,7 @@ import { useTexture, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { useAudio } from '../../../context/AudioManager';
+import { useDispose } from '../../../utils/useDispose';
 
 // Global settings for automatic segment doors audio
 const SEGMENT_DOOR_AUDIO_SETTINGS = {
@@ -12,6 +13,42 @@ const SEGMENT_DOOR_AUDIO_SETTINGS = {
     distance: 4,      // Reference distance for spatial audio
     rolloff: 2,       // Dropoff factor
     closeDelay: 0.5   // Seconds to wait before playing close sound
+};
+
+/**
+ * TiledStripMesh - flat textured plane (thresholds / baseboards).
+ *
+ * Clones the source texture once per mount via useMemo and disposes it on
+ * unmount. Replaces the previous render-time IIFEs that re-cloned the
+ * texture on every re-render (hover/open state changes), leaking GPU memory.
+ */
+const TiledStripMesh = ({
+    src,
+    repeatX,
+    width,
+    height,
+    position,
+    rotation,
+    color = '#e0e0e0',
+    roughness = 0.8,
+}) => {
+    const tex = useMemo(() => {
+        const t = src.clone();
+        t.needsUpdate = true;
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.rotation = 0; // Reset rotation (shared texture may carry one)
+        t.offset.set(0, 0);
+        t.repeat.set(repeatX, 1);
+        return t;
+    }, [src, repeatX]);
+    useDispose(tex);
+
+    return (
+        <mesh position={position} rotation={rotation}>
+            <planeGeometry args={[width, height]} />
+            <meshBasicMaterial color={color} map={tex} roughness={roughness} metalness={0} side={THREE.DoubleSide} />
+        </mesh>
+    );
 };
 
 /**
@@ -328,70 +365,36 @@ const SegmentDoors = ({
                 decay={2}
             /> */}
             {/* === THRESHOLD STRIPE (Próg przy drzwiach) === */}
-            {(() => {
-                // =============================================
-                // REGULACJA PROGU PRZY DRZWIACH KOŃCOWYCH
-                // =============================================
-                // THRESHOLD_DEPTH  → grubość progu (wzdłuż Z korytarza)
-                // THRESHOLD_WIDTH  → szerokość progu (wzdłuż X korytarza)
-                const THRESHOLD_DEPTH = 0.15;
-                const THRESHOLD_WIDTH = frameWidth + 0.1;
-
-                const threshTex = baseboardTexSrc.clone();
-                threshTex.needsUpdate = true;
-                threshTex.wrapS = threshTex.wrapT = THREE.RepeatWrapping;
-                threshTex.rotation = 0; // Brak rotacji - tekstura idzie wzdłuż X
-                threshTex.offset.set(0, 0);
-                // Naturalny kafelek: 1582x94px przy wysokości 0.15 → szerokość ~2.524 units
-                // Dla progu: powtarzamy wzdłuż X (szerokość), 1 raz wzdłuż Z (głębokość)
-                threshTex.repeat.set(THRESHOLD_WIDTH / NATURAL_TILE_W, 1);
-
-                return (
-                    <mesh
-                        position={[0, floorY + 0.005, 0]}
-                        rotation={[-Math.PI / 2, 0, 0]}
-                    >
-                        <planeGeometry args={[THRESHOLD_WIDTH, THRESHOLD_DEPTH]} />
-                        <meshBasicMaterial color="#e0e0e0"
-                            map={threshTex}
-                            roughness={0.9}
-                            metalness={0}
-                            side={THREE.DoubleSide}
-                        />
-                    </mesh>
-                );
-            })()}
+            {/* THRESHOLD_DEPTH  → grubość progu (wzdłuż Z korytarza) = 0.15
+                THRESHOLD_WIDTH  → szerokość progu (wzdłuż X korytarza)
+                Naturalny kafelek: 1582x94px przy wysokości 0.15 → szerokość ~2.524 units.
+                Dla progu: powtarzamy wzdłuż X (szerokość), 1 raz wzdłuż Z (głębokość). */}
+            <TiledStripMesh
+                src={baseboardTexSrc}
+                repeatX={(frameWidth + 0.1) / NATURAL_TILE_W}
+                width={frameWidth + 0.1}
+                height={0.15}
+                position={[0, floorY + 0.005, 0]}
+                rotation={[-Math.PI / 2, 0, 0]}
+                roughness={0.9}
+            />
             {/* === BASEBOARD (Listwa) LEFT SIDE === */}
-            {(() => {
-                const bbTex = baseboardTexSrc.clone();
-                bbTex.wrapS = bbTex.wrapT = THREE.RepeatWrapping;
-                bbTex.rotation = 0;
-                bbTex.offset.set(0, 0);
-                bbTex.needsUpdate = true;
-                bbTex.repeat.set(sideWallWidth / NATURAL_TILE_W, 1);
-                return (
-                    <mesh position={[-(doorOpeningWidth / 2 + sideWallWidth / 2), floorY + 0.075, wallThickness / 2 + 0.01]}>
-                        <planeGeometry args={[sideWallWidth, 0.15]} />
-                        <meshBasicMaterial color="#e0e0e0" map={bbTex} roughness={0.8} side={THREE.DoubleSide} />
-                    </mesh>
-                );
-            })()}
+            <TiledStripMesh
+                src={baseboardTexSrc}
+                repeatX={sideWallWidth / NATURAL_TILE_W}
+                width={sideWallWidth}
+                height={0.15}
+                position={[-(doorOpeningWidth / 2 + sideWallWidth / 2), floorY + 0.075, wallThickness / 2 + 0.01]}
+            />
 
             {/* === BASEBOARD (Listwa) RIGHT SIDE === */}
-            {(() => {
-                const bbTex = baseboardTexSrc.clone();
-                bbTex.wrapS = bbTex.wrapT = THREE.RepeatWrapping;
-                bbTex.rotation = 0;
-                bbTex.offset.set(0, 0);
-                bbTex.needsUpdate = true;
-                bbTex.repeat.set(sideWallWidth / NATURAL_TILE_W, 1);
-                return (
-                    <mesh position={[(doorOpeningWidth / 2 + sideWallWidth / 2), floorY + 0.075, wallThickness / 2 + 0.01]}>
-                        <planeGeometry args={[sideWallWidth, 0.15]} />
-                        <meshBasicMaterial color="#e0e0e0" map={bbTex} roughness={0.8} side={THREE.DoubleSide} />
-                    </mesh>
-                );
-            })()}
+            <TiledStripMesh
+                src={baseboardTexSrc}
+                repeatX={sideWallWidth / NATURAL_TILE_W}
+                width={sideWallWidth}
+                height={0.15}
+                position={[(doorOpeningWidth / 2 + sideWallWidth / 2), floorY + 0.075, wallThickness / 2 + 0.01]}
+            />
 
             {/* SPATIAL AUDIO NODES */}
             <PositionalAudio

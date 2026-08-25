@@ -102,6 +102,14 @@ const StaticCloud = ({ position, scale, opacity, textureIndex, driftSpeed, initi
     const width = 2.5 * scale;
     const height = width / aspectRatio;
 
+    // Billboard offset quaternion — computed once instead of allocating a
+    // new Euler + Quaternion on every frame
+    const offsetQuaternion = useMemo(() => {
+        const e = new THREE.Euler(rotationOffset[0], rotationOffset[1], rotationOffset[2]);
+        return new THREE.Quaternion().setFromEuler(e);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     useFrame(({ camera, clock }) => {
         if (!meshRef.current) return;
 
@@ -116,8 +124,6 @@ const StaticCloud = ({ position, scale, opacity, textureIndex, driftSpeed, initi
         meshRef.current.position.z = basePosition.current[2];
 
         // Billboard - always face camera with rotation offset
-        const offsetRotation = new THREE.Euler(rotationOffset[0], rotationOffset[1], rotationOffset[2]);
-        const offsetQuaternion = new THREE.Quaternion().setFromEuler(offsetRotation);
         meshRef.current.quaternion.copy(camera.quaternion).multiply(offsetQuaternion);
     });
 

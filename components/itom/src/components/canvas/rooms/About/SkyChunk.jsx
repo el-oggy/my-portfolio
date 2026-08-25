@@ -20,6 +20,13 @@ const CORRIDOR_CLIP_Z = -8.0;
 // Pozycja pokoju w world space (hardcoded, bo AboutRoom ma position=[0,0,-25])
 const ROOM_Z = -25;
 
+// Billboard offset (90° left) — module-level constant, computed once.
+// Previously allocated a new Euler + Quaternion inside useFrame per chunk,
+// every frame.
+const BILLBOARD_OFFSET_QUATERNION = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(0, -Math.PI / 3, 0)
+);
+
 // Available cloud textures
 const CLOUD_TEXTURES = [
     '/textures/clouds/1131c3eb-dfae-423f-924b-ff39d8ccd6dc.webp',
@@ -167,9 +174,7 @@ const Cloud = ({
         }
 
         // Billboard effect - always face camera, turned 90° left
-        const offsetRotation = new THREE.Euler(0, -Math.PI / 3, 0);
-        const offsetQuaternion = new THREE.Quaternion().setFromEuler(offsetRotation);
-        meshRef.current.quaternion.copy(camera.quaternion).multiply(offsetQuaternion);
+        meshRef.current.quaternion.copy(camera.quaternion).multiply(BILLBOARD_OFFSET_QUATERNION);
     });
 
     return (

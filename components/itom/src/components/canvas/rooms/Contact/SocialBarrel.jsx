@@ -8,6 +8,8 @@ import { isTouchDevice } from '../../../../utils/deviceDetect';
 
 // Reusable Vector3 to avoid allocations in useFrame
 const _tempScale = new THREE.Vector3();
+// Paint-reveal plane normal — constant, hoisted out of useFrame
+const REVEAL_DIR = new THREE.Vector3(1.0, 0.0, -0.1).normalize();
 
 const SocialBarrel = ({ position, rotation = [0, 0, 0], texturePath, label, onClick, scale = [2.12, 2.3], paintOnBeforeCompile, paintUniforms }) => {
     const meshRef = useRef();
@@ -50,7 +52,7 @@ const SocialBarrel = ({ position, rotation = [0, 0, 0], texturePath, label, onCl
             // Paint Transition for Text
             if (paintUniforms && textRef.current) {
                 const localPos = meshRef.current.position;
-                const revealDir = new THREE.Vector3(1.0, 0.0, -0.1).normalize();
+                const revealDir = REVEAL_DIR;
                 
                 const pStartDist = -5.0;
                 const pEndDist = 55.0;

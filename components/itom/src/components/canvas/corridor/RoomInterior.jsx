@@ -120,6 +120,25 @@ const RoomInterior = memo(({ label, showRoom, onReady, isExiting }) => {
         roomBackWall: new THREE.PlaneGeometry(roomWidth, roomHeight)
     }), []);
 
+    // Dispose imperatively-created materials/geometries on unmount (this
+    // component remounts on every corridor segment cycle). All texture maps
+    // above are local `.clone()`s, so freeing them cannot affect the shared
+    // drei texture cache.
+    useEffect(() => {
+        return () => {
+            Object.values(materials).forEach((mat) => {
+                if (!mat || typeof mat.dispose !== 'function') return;
+                if (mat.map && typeof mat.map.dispose === 'function') {
+                    mat.map.dispose();
+                }
+                mat.dispose();
+            });
+            Object.values(geometries).forEach((geo) => {
+                if (geo && typeof geo.dispose === 'function') geo.dispose();
+            });
+        };
+    }, [materials, geometries]);
+
     const isGallery = label === 'THE GALLERY';
 
     // Trigger onReady for generic rooms (which don't have their own component to do it)

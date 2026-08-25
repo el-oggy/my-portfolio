@@ -341,6 +341,9 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     const cityTexture = useTexture('/textures/gallery/miastotlo.webp');
     const birdTexture = useTexture('/textures/gallery/bird_gray.webp');
     const clothespinTexture = useTexture('/textures/gallery/klamerka.webp');
+    // Shared cache entry for the baseboard texture (cloned locally below so
+    // repeat settings don't leak into other users of this file)
+    const bbTexSrc = useTexture('/textures/corridor/texturadoprogow.webp');
 
     useEffect(() => {
         if (floorTexture) {
@@ -373,8 +376,11 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
         const thresholdMat = new THREE.MeshBasicMaterial({
             color: '#e0e0e0',
+            // Clone from the shared drei cache instead of a raw
+            // `new TextureLoader().load()` (which bypassed the cache and
+            // re-downloaded/re-uploaded the texture on every room mount).
             map: (() => {
-                const t = new THREE.TextureLoader().load('/textures/corridor/texturadoprogow.webp');
+                const t = bbTexSrc.clone();
                 t.colorSpace = THREE.SRGBColorSpace;
                 t.wrapS = t.wrapT = THREE.RepeatWrapping;
                 t.repeat.set(15 / 2.524, 1);
@@ -391,7 +397,17 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             rope: ropeMat,
             threshold: thresholdMat
         };
-    }, [floorTexture, onBeforeCompile]);
+    }, [floorTexture, bbTexSrc, onBeforeCompile]);
+
+    // Dispose imperative materials on unmount. NOTE: floorMat.map is the
+    // SHARED cached gallery floor texture — only threshold's map is a local
+    // clone and safe to dispose.
+    useEffect(() => {
+        return () => {
+            if (materials.threshold?.map) materials.threshold.map.dispose();
+            Object.values(materials).forEach((m) => m?.dispose?.());
+        };
+    }, [materials]);
 
     const curve = useMemo(() => {
         return new THREE.CatmullRomCurve3([
@@ -406,6 +422,8 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     const ropeGeometry = useMemo(() => {
         return new THREE.TubeGeometry(curve, 64, 0.015, 8, false);
     }, [curve]);
+    // Free the tube geometry when the room unmounts
+    useEffect(() => () => ropeGeometry?.dispose?.(), [ropeGeometry]);
 
     const floorShape = useMemo(() => {
         const shape = new THREE.Shape();

@@ -359,7 +359,7 @@ const Preloader = ({ onComplete, ready }) => {
   const percentageText = `${Math.round(safeProgress)}%`;
 
   return (
-    <div className="preloader" ref={containerRef}>
+    <div className="preloader" ref={containerRef} role="status" aria-live="polite" aria-label="Loading portfolio">
       {/* LEFT HALF */}
       <div
         className="preloader__half preloader__half--left"

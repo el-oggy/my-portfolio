@@ -9,6 +9,7 @@ import { useScene } from '../../../context/SceneContext';
 import { useAchievements } from '../../../context/AchievementsContext';
 import { useAudio } from '../../../context/AudioManager';
 import { isTouchDevice } from '../../../utils/deviceDetect';
+import { useDispose } from '../../../utils/useDispose';
 
 // Constants from CorridorSegment
 const WALL_X_OUTER = 3.5;
@@ -206,6 +207,9 @@ const DoorSection = ({
 
         return tex;
     }, [originalWallTexture]);
+    // Free the cloned GPU texture when this door section unmounts (happens on
+    // every corridor segment window change)
+    useDispose(wallTexture);
 
     // Load door textures - use the right texture based on label
     const doorTexturePath = DOOR_TEXTURES[label] || DOOR_TEXTURES['THE GALLERY'];
@@ -249,6 +253,23 @@ const DoorSection = ({
         tex.repeat.set(doorBoardWidth / NATURAL_TILE_W, 1);
         return tex;
     }, [baseboardTexture]);
+    // Dispose cloned baseboard textures on unmount
+    useDispose(doorBbTexLeft, doorBbTexRight);
+
+    // Threshold texture (Próg) — hoisted out of the render body. Previously
+    // cloned inside a render-time IIFE, which uploaded a fresh GPU copy on
+    // every hover/open re-render.
+    const threshTex = useMemo(() => {
+        const THRESH_W = 1.1; // Szerokość progu (matches JSX below)
+        const tex = baseboardTexture.clone();
+        tex.needsUpdate = true;
+        tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+        tex.rotation = 0;
+        tex.offset.set(0, 0);
+        tex.repeat.set(THRESH_W / NATURAL_TILE_W, 1);
+        return tex;
+    }, [baseboardTexture]);
+    useDispose(threshTex);
 
     // Door dimensions - based on legacy texture aspect ratio (approx 0.376)
     const doorRatio = label === 'THE STUDIO' ? 0.388 : 0.376;
@@ -294,6 +315,9 @@ const DoorSection = ({
 
         return new THREE.ShapeGeometry(wallShape);
     }, [holeWidth, holeHeight, holeOffsetY]);
+    // Dispose the imperative wall geometry on unmount (R3F does not
+    // auto-dispose geometries passed via the `geometry` prop)
+    useDispose(wallWithHoleGeometry);
 
     // Tilt parameters
     const BASE_ROTATION = Math.PI / 2; // 90 degrees - side wall orientation
@@ -1021,32 +1045,21 @@ const DoorSection = ({
                 </mesh>
 
                 {/* === THRESHOLD STRIPE (Próg przy drzwiach bocznych) === */}
-                {(() => {
-                    // Próg leży na podłodze, prostopadle do ściany bocznej
-                    // Szerokość progu = szerokość otworu drzwiowego (~1.1)
-                    const THRESH_W = 1.1;   // Szerokość (wzdłuż X lokalnego = wzdłuż ściany)
-                    const THRESH_D = 0.15;  // Głębokość (wzdłuż Z lokalnego = w głąb korytarza)
-                    const threshTex = baseboardTexture.clone();
-                    threshTex.needsUpdate = true;
-                    threshTex.wrapS = threshTex.wrapT = THREE.RepeatWrapping;
-                    threshTex.rotation = 0;
-                    threshTex.offset.set(0, 0);
-                    threshTex.repeat.set(THRESH_W / NATURAL_TILE_W, 1);
-                    return (
-                        <mesh
-                            position={[wallOffsetX, -CORRIDOR_HEIGHT / 2 + 0.005, 0.02]}
-                            rotation={[-Math.PI / 2, 0, 0]}
-                        >
-                            <planeGeometry args={[THRESH_W, THRESH_D]} />
-                            <meshBasicMaterial color="#e0e0e0"
-                                map={threshTex}
-                                roughness={0.9}
-                                metalness={0}
-                                side={THREE.DoubleSide}
-                            />
-                        </mesh>
-                    );
-                })()}
+                {/* Próg leży na podłodze, prostopadle do ściany bocznej.
+                    Szerokość progu = szerokość otworu drzwiowego (~1.1).
+                    Tekstura (threshTex) jest memoizowana w głowie komponentu. */}
+                <mesh
+                    position={[wallOffsetX, -CORRIDOR_HEIGHT / 2 + 0.005, 0.02]}
+                    rotation={[-Math.PI / 2, 0, 0]}
+                >
+                    <planeGeometry args={[1.1, 0.15]} />
+                    <meshBasicMaterial color="#e0e0e0"
+                        map={threshTex}
+                        roughness={0.9}
+                        metalness={0}
+                        side={THREE.DoubleSide}
+                    />
+                </mesh>
 
                 {/* Door and frame - centered on wall */}
                 <group position={[wallOffsetX, -0.4, 0]}>

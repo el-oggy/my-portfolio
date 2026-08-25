@@ -11,8 +11,10 @@ export const TIERS = {
 // Settings for each tier
 const SETTINGS = {
   [TIERS.HIGH]: {
-    dpr: [1, 2], // Allow up to 2x pixel density
-    shadows: true, // Enable shadows
+    dpr: [1, 1.75], // Capped below 2x: the hand-drawn paper textures gain
+    // nothing from >1.75x supersampling but fragment cost scales quadratically.
+    shadows: false, // Scene is fully unlit (MeshBasicMaterial) — no light
+    // casts shadows anywhere, so enabling the shadow pipeline is pure overhead.
     antialias: true,
     powerPreference: "high-performance",
     physicsStep: 1 / 60,

@@ -17,6 +17,37 @@ import "./globals.css";
 
 const SITE_URL = "https://adarsh-vlsi.vercel.app/";
 
+/** Schema.org Person — helps search engines associate the portfolio with
+ *  its author and cross-link GitHub / LinkedIn profiles. */
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Adarsh Swarup Maharana",
+  jobTitle: "Embedded Systems · IoT · Electronics Engineer",
+  url: SITE_URL,
+  email: "mailto:adarshswarupmaharana@gmail.com",
+  sameAs: [
+    "https://github.com/el-oggy",
+    "https://www.linkedin.com/in/adarsh-swarup-maharana-4839763b8/",
+  ],
+  knowsAbout: [
+    "Embedded Systems",
+    "IoT",
+    "PCB Design",
+    "STM32",
+    "ESP32",
+    "Firmware",
+    "Drones",
+    "Verilog",
+  ],
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Berhampur",
+    addressRegion: "Odisha",
+    addressCountry: "IN",
+  },
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -67,7 +98,20 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {/* Keyboard/screen-reader escape hatch out of the immersive canvas */}
+        <a
+          href="#projects"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[9999] focus:rounded-md focus:border-2 focus:border-[var(--ink)] focus:bg-white focus:px-4 focus:py-2 focus:font-mono focus:text-sm focus:text-[var(--ink)]"
+        >
+          Skip to content
+        </a>
+        {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </body>
     </html>
   );
 }

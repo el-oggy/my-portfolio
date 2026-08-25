@@ -212,7 +212,7 @@ function SectionCopy({ scene }: { scene: string }) {
               Projects Gallery
             </h2>
             <p className="mt-3 text-base sm:text-lg text-[var(--ink-dim)] max-w-xl mx-auto">
-              Hover over cards to see the interactive WebGL liquid distortion shader. Click any project to open the full technical breakdown.
+              Hover over cards to reveal them, and click any project to open the full technical breakdown.
             </p>
           </div>
           <ProjectGallery />
