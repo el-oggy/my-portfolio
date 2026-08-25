@@ -5,7 +5,7 @@ import * as THREE from 'three';
 
 const SignSystem = (props) => {
     const groupRef = useRef();
-    const signTexture = useTexture('/textures/entrance/sign.webp');
+    const signTexture = useTexture('/textures/entrance/ad_sign.webp');
     const mountTexture = useTexture('/textures/entrance/belka.webp');
 
     // Physics parameters

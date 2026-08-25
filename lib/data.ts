@@ -113,6 +113,8 @@ export interface Project {
   details: string[];
   /** URL for the project thumbnail image. */
   image?: string;
+  /** Painted (color-accent) variant revealed on hover. */
+  imagePainted?: string;
 }
 
 export const projects: Project[] = [
@@ -140,7 +142,8 @@ export const projects: Project[] = [
       "Firmware includes test sketches — gps_testing_stm32.ino, led_blink_stm32.ino, MPU6500_Visualizer_Code.ino — plus a browser-based Drone_IMU_GroundStation.html.",
       "Repo organized into docs/, hardware/, firmware/, images/. Educational / research, under active development.",
     ],
-    image: "https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?auto=format&fit=crop&q=80&w=800",
+    image: "/textures/gallery/ad_hexacopter.webp",
+    imagePainted: "/textures/gallery/ad_hexacopter_painted.webp",
   },
   {
     id: "weather-station",
@@ -156,7 +159,8 @@ export const projects: Project[] = [
       "Solar-powered for remote placement, with a custom PCB design.",
       "Presented as completed project; no standalone public repo linked here.",
     ],
-    image: "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&q=80&w=800",
+    image: "/textures/gallery/ad_weatherstation.webp",
+    imagePainted: "/textures/gallery/ad_weatherstation_painted.webp",
   },
   {
     id: "home-automation",
@@ -172,7 +176,8 @@ export const projects: Project[] = [
       "Smart staircase lighting triggered by presence.",
       "Presented as completed project; no standalone public repo linked here.",
     ],
-    image: "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&q=80&w=800",
+    image: "/textures/gallery/ad_staircase.webp",
+    imagePainted: "/textures/gallery/ad_staircase_painted.webp",
   },
   {
     id: "zmk-keyboard",
@@ -189,7 +194,8 @@ export const projects: Project[] = [
       "GitHub Actions CI automatically builds firmware on every commit (build.yaml).",
       "Standard ZMK repo structure: workflow, board/shield definitions, config, and build slices.",
     ],
-    image: "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=800",
+    image: "/textures/gallery/ad_zmk.webp",
+    imagePainted: "/textures/gallery/ad_zmk_painted.webp",
   },
   {
     id: "flowos",
@@ -206,7 +212,8 @@ export const projects: Project[] = [
       "Modular JavaScript: database, UI, state, calendar, and habits modules.",
       "On GitHub the repo is now named 'Habit Tracker (formerly FlowOS)'; the portfolio retains the FlowOS branding.",
     ],
-    image: "https://images.unsplash.com/photo-1618044733300-9472054094ee?auto=format&fit=crop&q=80&w=800",
+    image: "/textures/gallery/ad_flowos.webp",
+    imagePainted: "/textures/gallery/ad_flowos_painted.webp",
   },
   {
     id: "systolic-array",
@@ -225,7 +232,8 @@ export const projects: Project[] = [
       "Input matrices A and B are streamed into the array, and the result matrix C is accumulated in place.",
       "This project is an application of parallel computing principles in hardware. The RTL computes matrix multiplication; convolution, DSP, and MIMO processing are related application areas that share this architectural foundation.",
     ],
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
+    image: "/textures/gallery/ad_systolic.webp",
+    imagePainted: "/textures/gallery/ad_systolic_painted.webp",
   },
 ];
 

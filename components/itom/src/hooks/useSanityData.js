@@ -17,8 +17,8 @@ export function useGalleryProjects() {
     url: project.repo || links.github,
     description: project.blurb,
     front: project.image || "/images/ink-splash.webp",
-    painted: project.image || "/images/ink-splash.webp",
-    techStack: [],
+    painted: project.imagePainted || project.image || "/images/ink-splash.webp",
+    techStackLabels: project.stack || [],
   }));
 }
 

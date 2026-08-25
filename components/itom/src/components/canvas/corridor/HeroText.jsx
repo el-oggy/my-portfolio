@@ -64,12 +64,10 @@ const HeroText = ({ position = [0, 0.3, 0] }) => {
         { char: 'H', baseX: 1.35, splitDir: 2.0, delay: 0 },
     ], []);
 
-    // Tagline words for split effect
+    // Poetic tagline — two lines, each splits apart on approach
     const taglineWords = useMemo(() => [
-        { text: 'Embedded', baseX: -0.9, splitDir: -1.4, delay: 0 },
-        { text: 'Systems', baseX: -0.3, splitDir: -0.5, delay: 0 },
-        { text: '& VLSI', baseX: 0.3, splitDir: 0.5, delay: 0 },
-        { text: 'Engineer', baseX: 0.9, splitDir: 1.4, delay: 0 },
+        { text: 'Turning sand into thought —', baseX: 0, baseY: -0.42, splitDir: -0.9, delay: 0 },
+        { text: 'one transistor at a time.', baseX: 0, baseY: -0.66, splitDir: 1.1, delay: 0 },
     ], []);
 
     // Animation loop
@@ -113,7 +111,7 @@ const HeroText = ({ position = [0, 0.3, 0] }) => {
             }
         });
 
-        // Apply split to tagline words
+        // Apply split to tagline lines
         taglineRefs.current.forEach((ref, i) => {
             if (ref) {
                 // Ensure opacity is 1
@@ -121,7 +119,7 @@ const HeroText = ({ position = [0, 0.3, 0] }) => {
 
                 const word = taglineWords[i];
                 ref.position.x = word.baseX + word.splitDir * splitAmount.current * 0.6;
-                ref.position.y = -0.45 + Math.sin(time * 0.6 + i * 0.3) * 0.008;
+                ref.position.y = word.baseY + Math.sin(time * 0.6 + i * 0.3) * 0.008;
             }
         });
 
@@ -152,18 +150,18 @@ const HeroText = ({ position = [0, 0.3, 0] }) => {
                 </Text>
             ))}
 
-            {/* Tagline words - Cabin Sketch font with fade-in animation */}
+            {/* Poetic tagline - Cabin Sketch font, two lines */}
             {taglineWords.map((word, i) => (
                 <Text
                     key={word.text}
                     ref={(el) => (taglineRefs.current[i] = el)}
-                    position={[word.baseX, -0.55, 0.3]}
-                    fontSize={0.16}
+                    position={[word.baseX, word.baseY, 0.3]}
+                    fontSize={0.17}
                     font={CABIN_SKETCH_URL}
                     color="#555555"
                     anchorX="center"
                     anchorY="middle"
-                    letterSpacing={0.04}
+                    letterSpacing={0.03}
                 >
                     {word.text}
                 </Text>

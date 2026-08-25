@@ -28,17 +28,18 @@ const DOOR_Z_SPAN = 4;
 // Angle of the wall relative to the corridor axis
 const WALL_ANGLE = Math.atan2(WALL_X_OUTER - WALL_X_INNER, DOOR_Z_SPAN);
 
+// Learnable electronics facts — one per plaque, rotated by day of year
 const QUOTES = [
-  { title: "Daily Thought", body: "The best way to predict the future is to invent it." },
-  { title: "Engineering", body: "Simplicity is the ultimate sophistication." },
-  { title: "Innovation", body: "Any sufficiently advanced technology is indistinguishable from magic." },
-  { title: "Perseverance", body: "It's not that I'm so smart, it's just that I stay with problems longer." },
-  { title: "Design", body: "Good design is obvious. Great design is transparent." },
-  { title: "Learning", body: "The important thing is not to stop questioning." },
-  { title: "Craftsmanship", body: "First solve the problem. Then write the code. Then tape out the silicon." },
-  { title: "Vision", body: "The chip does not care about your deadline. It cares about your timing closure." },
-  { title: "Discipline", body: "Premature optimization is the root of all evil — but premature tapeout is worse." },
-  { title: "Passion", body: "Engineers like to solve problems. If there are no problems available they will create their own." },
+  { title: "The Transistor", body: "Billions live on a chip smaller than your fingernail — the most manufactured object in human history." },
+  { title: "CMOS", body: "Your phone doesn't melt because CMOS gates sip current only while switching. Static power: nearly zero." },
+  { title: "The MOSFET", body: "A voltage-controlled switch. Every CPU core is billions of these, flipping billions of times per second." },
+  { title: "Ohm's Law", body: "V = I × R. Three letters that govern every trace you will ever route." },
+  { title: "Resistor Color Code", body: "Black-brown-red-orange-yellow-green-blue-violet-grey-white → digits 0-9. Read toward the gold band." },
+  { title: "Setup & Hold", body: "Data must arrive before the clock edge — and stay a little after. Violate either, and metastability bites." },
+  { title: "Moore's Law", body: "Transistors per chip doubling roughly every two years — a prediction that became the industry's roadmap." },
+  { title: "Pull-up & Pull-down", body: "A floating input hears ghosts. Bias it high or low — or noise will decide for you." },
+  { title: "Debouncing", body: "One switch press is really ten. Sample twice, or your interrupt counter will lie to you." },
+  { title: "Kirchhoff's Laws", body: "Current in equals current out; voltages around a loop sum to zero. The bookkeepers of every circuit." },
 ];
 
 function getDayOfYear() {

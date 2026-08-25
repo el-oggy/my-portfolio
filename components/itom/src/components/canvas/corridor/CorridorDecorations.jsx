@@ -379,11 +379,17 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,     // Legacy ratio 3200x1792
             y: 0.3,                  // Wysokość na ścianie
             id: 'frame-1',
-            // Custom setup for "rysuneknaobraz1.png"
-            image: '/textures/corridor/rysuneknaobraz1.webp',
+            // Sketch portrait placeholder at the workbench (swap for a real
+            // AI portrait later — keep the same filename)
+            image: '/textures/gallery/ad_portrait.webp',
             imageWidth: 1.1,
             imageHeight: 1.1,
             offsetFromWall: 0.1, // Przesunięcie bliżej środka korytarza (0.1 unit)
+            signature: "Adarsh Swarup Maharana\nembedded · vlsi · iot",
+            signatureX: 0,
+            signatureY: -0.72,
+            signatureSize: 0.085,
+            signatureColor: '#333333'
         },
         {
             z: zOffset - 25,         // Między Gallery a Studio (relZ -20 do -30)
@@ -404,10 +410,15 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.25,
             id: 'frame-3',
-            signature: "Empty canvas!\nWant your art here?\nContact me!",
+            // CMOS inverter schematic + teaching caption
+            image: '/textures/corridor/decorations/ad_cmos_inverter.webp',
+            imageWidth: 1.7,
+            imageHeight: 1.7 * (640 / 1024),
+            offsetFromWall: 0.1,
+            signature: "CMOS inverter — one bit flipped,\nalmost zero static power.",
             signatureX: 0,
-            signatureY: 0,
-            signatureSize: 0.12,
+            signatureY: -0.72,
+            signatureSize: 0.085,
             signatureColor: '#333333'
         },
         {
@@ -417,10 +428,15 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.35,
             id: 'frame-4',
-            signature: "Empty canvas!\nWant your art here?\nContact me!",
+            // Resistor color-code chart + teaching caption
+            image: '/textures/corridor/decorations/ad_resistor_codes.webp',
+            imageWidth: 1.7,
+            imageHeight: 1.7 * (640 / 1024),
+            offsetFromWall: 0.1,
+            signature: "Read the bands toward gold:\ndigit · digit · ×multiplier · ±tol",
             signatureX: 0,
-            signatureY: 0,
-            signatureSize: 0.12,
+            signatureY: -0.72,
+            signatureSize: 0.085,
             signatureColor: '#333333'
         },
     ], [zOffset]);
