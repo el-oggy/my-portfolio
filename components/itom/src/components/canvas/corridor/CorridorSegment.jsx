@@ -28,18 +28,18 @@ const DOOR_Z_SPAN = 4;
 // Angle of the wall relative to the corridor axis
 const WALL_ANGLE = Math.atan2(WALL_X_OUTER - WALL_X_INNER, DOOR_Z_SPAN);
 
-// Learnable electronics facts — one per plaque, rotated by day of year
+// Hallway plaques — personal code, mottos & electronics humor
 const QUOTES = [
-  { title: "The Transistor", body: "Billions live on a chip smaller than your fingernail — the most manufactured object in human history." },
-  { title: "CMOS", body: "Your phone doesn't melt because CMOS gates sip current only while switching. Static power: nearly zero." },
-  { title: "The MOSFET", body: "A voltage-controlled switch. Every CPU core is billions of these, flipping billions of times per second." },
-  { title: "Ohm's Law", body: "V = I × R. Three letters that govern every trace you will ever route." },
-  { title: "Resistor Color Code", body: "Black-brown-red-orange-yellow-green-blue-violet-grey-white → digits 0-9. Read toward the gold band." },
-  { title: "Setup & Hold", body: "Data must arrive before the clock edge — and stay a little after. Violate either, and metastability bites." },
-  { title: "Moore's Law", body: "Transistors per chip doubling roughly every two years — a prediction that became the industry's roadmap." },
-  { title: "Pull-up & Pull-down", body: "A floating input hears ghosts. Bias it high or low — or noise will decide for you." },
-  { title: "Debouncing", body: "One switch press is really ten. Sample twice, or your interrupt counter will lie to you." },
-  { title: "Kirchhoff's Laws", body: "Current in equals current out; voltages around a loop sum to zero. The bookkeepers of every circuit." },
+  { title: "The Code I Live By", body: "Jack of all trades, master of none — yet oftentimes better than the master of one." },
+  { title: "What I Do", body: "Designing the micro-world that powers the macro-world." },
+  { title: "Binary", body: "There are 10 types of people: those who understand binary and those who don't." },
+  { title: "Networking", body: "I'd tell you a UDP joke — but you might not get it." },
+  { title: "Calendar Bug", body: "Why do programmers confuse Halloween and Christmas? Because OCT 31 equals DEC 25." },
+  { title: "Resistors", body: "The most rebellious components in your box — they always oppose the current." },
+  { title: "Capacitors", body: "Proof that sometimes life just needs a quick charge to bounce back." },
+  { title: "Debugging", body: "Being the detective in a crime story where you are also the murderer." },
+  { title: "Soldering", body: "My iron and I are very close — we've bonded over so many hot topics." },
+  { title: "Timing Closure", body: "Like dieting: easy to promise at tape-out, impossible to achieve before the deadline." },
 ];
 
 function getDayOfYear() {

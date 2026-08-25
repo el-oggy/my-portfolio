@@ -55,12 +55,13 @@ const EntranceDoors = ({
     const dummyTex = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
     const frameTexture = useTexture('/textures/doors/frame_sketch.webp');
-    const doorLeftTexture = useTexture('/textures/doors/door_left_sketch.webp');
-    const doorRightTexture = useTexture('/textures/doors/door_right_sketch.webp');
+    // Custom door leaves — vertical "ADARSH" / "SWARUP" lettering
+    const doorLeftTexture = useTexture('/textures/doors/ad_door_left.webp');
+    const doorRightTexture = useTexture('/textures/doors/ad_door_right.webp');
 
     // Mobile optimization: Don't load painted textures or handles on phones
-    const doorRightPaintedTexture = useTexture(isMobileDevice ? dummyTex : '/textures/doors/door_right_painted.webp');
-    const doorLeftPaintedTexture = useTexture(isMobileDevice ? dummyTex : '/textures/doors/door_left_painted.webp');
+    const doorRightPaintedTexture = useTexture(isMobileDevice ? dummyTex : '/textures/doors/ad_door_right_painted.webp');
+    const doorLeftPaintedTexture = useTexture(isMobileDevice ? dummyTex : '/textures/doors/ad_door_left_painted.webp');
     const handleLeftTexture = useTexture('/textures/doors/handle_left_sketch.webp');
     const handleLeftPaintedTexture = useTexture(isMobileDevice ? dummyTex : '/textures/doors/handle_left_painted.webp');
     const handleRightTexture = useTexture('/textures/doors/handle_right_sketch.webp');
@@ -105,16 +106,16 @@ const EntranceDoors = ({
 
     // Rubber Duck Debugging Quotes
     const duckQuotes = [
-        "Have you tried console.log()?",
-        "Did you clear the cache?",
-        "It works on my machine! 🤷",
-        "Have you turned it off and on again?",
-        "Maybe it's a CSS issue?",
-        "Check for missing semicolons!",
-        "Did you read the error message?",
-        "Have you tried Stack Overflow?",
+        "Did you check the pull-ups?",
+        "Have you tried re-seating the jumper?",
+        "Maybe it's a grounding issue!",
+        "Is the baud rate right? 🤷",
+        "Check your decoupling caps!",
+        "Did you read the datasheet?",
+        "Have you tried turning it off and on again?",
         "Is it plugged in?",
         "Works in production! 🚀",
+        "Let the magic smoke back in! 💨",
     ];
 
     // Bug Click Handler

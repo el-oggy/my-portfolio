@@ -249,7 +249,7 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     const handleMailSelect = () => {
         // Awaryjne przekierowanie mailto:
-        window.location.href = 'mailto:tomszma12@gmail.com';
+        window.location.href = 'mailto:adarshswarupmaharana@gmail.com';
 
         /* 
         setShowSelection(false);
@@ -418,22 +418,22 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                 paintOnBeforeCompile={onBeforeCompile}
                 paintUniforms={uniformsData}
             />
-            {/* FACEBOOK */}
+            {/* DOWNLOAD CV (opens current CV) */}
             <SocialBarrel
                 position={isMobile ? [1.2, 0.5, -10] : [3, 0.5, -10]}
                 rotation={[0, -0.2, 0]}
                 texturePath="/textures/contact/beczka.webp"
-                label="FACEBOOK"
-                onClick={() => window.open('https://adarsh-vlsi.vercel.app/', '_blank')}
+                label="CV ↓"
+                onClick={() => window.open('https://drive.google.com/file/d/1XYQu1boH9sWpseAs0uv-9hWWglkdFMjl/view?usp=sharing', '_blank')}
                 paintOnBeforeCompile={onBeforeCompile}
                 paintUniforms={uniformsData}
             />
-            {/* INSTAGRAM */}
+            {/* EMAIL (mailto) */}
             <SocialBarrel
                 position={isMobile ? [1.5, -0.3, -7] : [5, -0.3, -8]}
                 rotation={[0, -0.3, 0]}
                 texturePath="/textures/contact/beczka.webp"
-                label="INSTAGRAM"
+                label="EMAIL"
                 onClick={() => window.open('mailto:adarshswarupmaharana@gmail.com', '_blank')}
                 paintOnBeforeCompile={onBeforeCompile}
                 paintUniforms={uniformsData}

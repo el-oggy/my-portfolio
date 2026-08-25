@@ -410,16 +410,11 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.25,
             id: 'frame-3',
-            // CMOS inverter schematic + teaching caption
-            image: '/textures/corridor/decorations/ad_cmos_inverter.webp',
+            // Electronics humor poster
+            image: '/textures/corridor/decorations/ad_joke_breadboard.webp',
             imageWidth: 1.7,
             imageHeight: 1.7 * (640 / 1024),
             offsetFromWall: 0.1,
-            signature: "CMOS inverter — one bit flipped,\nalmost zero static power.",
-            signatureX: 0,
-            signatureY: -0.72,
-            signatureSize: 0.085,
-            signatureColor: '#333333'
         },
         {
             z: zOffset - 55,         // Między About a Connect (relZ -50 do -60)
@@ -428,16 +423,11 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.35,
             id: 'frame-4',
-            // Resistor color-code chart + teaching caption
-            image: '/textures/corridor/decorations/ad_resistor_codes.webp',
+            // Electronics humor poster
+            image: '/textures/corridor/decorations/ad_joke_smoke.webp',
             imageWidth: 1.7,
             imageHeight: 1.7 * (640 / 1024),
             offsetFromWall: 0.1,
-            signature: "Read the bands toward gold:\ndigit · digit · ×multiplier · ±tol",
-            signatureX: 0,
-            signatureY: -0.72,
-            signatureSize: 0.085,
-            signatureColor: '#333333'
         },
     ], [zOffset]);
 

@@ -346,26 +346,26 @@ const IntroMilestone = ({ z, scrollProgressRef }) => {
             <Text
                 ref={titleRef}
                 position={[0, 5, 0.1]}
-                fontSize={0.8}
+                fontSize={0.62}
                 color="#1a1a1a"
                 anchorX="center"
                 anchorY="middle"
                 font="/fonts/RubikScribble-Regular.ttf"
             >
-                ADARSH MAHARANA
+                ADARSH SWARUP MAHARANA
             </Text>
 
             {/* Subtitle - Brand (spreads right) */}
             <Text
                 ref={brandRef}
-                position={[0, 4.3, 0.1]}
-                fontSize={0.45}
+                position={[0, 4.35, 0.1]}
+                fontSize={0.42}
                 color="#4a4a4a"
                 anchorX="center"
                 anchorY="middle"
                 font="/fonts/CabinSketch-Regular.ttf"
             >
-                (ADARSH)
+                physical design · rtl · embedded
             </Text>
 
             {/* Avatar on cloud - floating + spreads up-left */}

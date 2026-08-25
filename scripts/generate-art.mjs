@@ -636,10 +636,142 @@ async function entranceSign() {
   await writeWebp(dir, "ad_sign_painted.webp", svgDoc(W, H, body + paint));
 }
 
+// ============================================================
+// 6. HALLWAY JOKE POSTERS — 1024×640 landscape (wall frames)
+// ============================================================
+const JW = 1024, JH = 640;
+
+async function jokePosters() {
+  console.log("Joke posters:");
+  const dir = path.join(ROOT, "public", "textures", "corridor", "decorations");
+
+  // --- Poster A: breadboard excuse ---
+  {
+    const body = `
+      ${txt(cabinBold, "IT WORKS ON MY", 512, 120, 64, INK, "center")}
+      ${txt(cabinBold, "BREADBOARD", 512, 196, 88, INK, "center")}
+      <g stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round">
+        <rect x="312" y="280" width="400" height="180" rx="10"/>
+        <path d="M332 310 h360 M332 340 h360 M332 430 h360 M332 400 h360" stroke-dasharray="7 7" stroke-width="2"/>
+        ${Array.from({ length: 12 }, (_, i) => `<circle cx="${356 + i * 28}" cy="385" r="4"/>`).join("")}
+        <path d="M370 320 q 30 60 -20 60 M420 330 q -20 50 30 60" stroke-width="3"/>
+        <rect x="520" y="300" width="90" height="46" rx="6"/>
+        <circle cx="430" cy="300" r="12"/><path d="M442 300 h60" stroke-width="3"/>
+      </g>
+      ${txt(cabinReg, "the production version is a mystery", 512, 545, 34, FAINT, "center")}`;
+    const paint = `
+      <rect x="520" y="300" width="90" height="46" rx="6" fill="${ACC.green}" opacity="0.25"/>
+      <circle cx="430" cy="300" r="12" fill="${ACC.amber}"/>`;
+    const common = paper(JW, JH) + sketch(body);
+    await writeWebp(dir, "ad_joke_breadboard.webp", svgDoc(JW, JH, common));
+    await writeWebp(dir, "ad_joke_breadboard_painted.webp", svgDoc(JW, JH, common + paint));
+  }
+
+  // --- Poster B: magic smoke ---
+  {
+    const smoke = `
+      <path d="M470 250 q -26 -40 8 -70 q 30 -26 6 -58" stroke-width="3.4"/>
+      <path d="M540 244 q 30 -36 -2 -66 q -28 -28 -2 -56" stroke-width="3.4"/>
+      <path d="M506 236 q -4 -30 22 -48" stroke-width="3"/>`;
+    const body = `
+      ${txt(cabinBold, "MAGIC SMOKE", 512, 110, 84, INK, "center")}
+      <g stroke="${INK}" stroke-width="4.4" fill="none" stroke-linecap="round">
+        <rect x="392" y="270" width="240" height="170" rx="10"/>
+        <circle cx="432" cy="300" r="9"/><circle cx="592" cy="300" r="9"/>
+        <circle cx="432" cy="410" r="9"/><circle cx="592" cy="410" r="9"/>
+        <circle cx="512" cy="355" r="42" stroke-dasharray="10 8" stroke-width="3.4"/>
+        ${smoke}
+        <line x1="352" y1="300" x2="392" y2="300"/><line x1="352" y1="380" x2="392" y2="380"/>
+        <line x1="632" y1="300" x2="672" y2="300"/><line x1="632" y1="380" x2="672" y2="380"/>
+      </g>
+      ${txt(cabinReg, "every chip runs on it.", 512, 500, 36, INK, "center")}
+      ${txt(cabinReg, "let it out — and it never works again.", 512, 552, 32, FAINT, "center")}`;
+    const paint = `${smoke.replace(/stroke-width/g, `stroke="${ACC.orange}" stroke-width`)}`;
+    const common = paper(JW, JH) + sketch(body);
+    await writeWebp(dir, "ad_joke_smoke.webp", svgDoc(JW, JH, common));
+    await writeWebp(dir, "ad_joke_smoke_painted.webp", svgDoc(JW, JH, common + `<g fill="none" stroke-linecap="round">${paint}</g>`));
+  }
+}
+
+// ============================================================
+// 7. ENTRANCE DOOR LEAVES — 664×1696 (legacy leaf 332×848 @2x)
+// ============================================================
+async function entranceDoors() {
+  console.log("Entrance doors:");
+  const dir = path.join(ROOT, "public", "textures", "doors");
+  const DW2 = 664, DH2 = 1696;
+
+  function leaf(letters) {
+    const n = letters.length;
+    const size = 210;
+    const startY = 330;
+    const gap = 200;
+    const letterPaths = letters
+      .split("")
+      .map((ch, i) =>
+        txt(cabinBold, ch, DW2 / 2, startY + i * gap, size, INK, "center")
+      )
+      .join("");
+    return `
+      <rect x="16" y="16" width="${DW2 - 32}" height="${DH2 - 32}" rx="14"
+        fill="${CARD}" stroke="${INK}" stroke-width="9"/>
+      <!-- inset panels -->
+      <g stroke="${INK}" stroke-width="4.5" fill="none">
+        <rect x="72" y="80" width="${DW2 - 144}" height="260" rx="10"/>
+        <rect x="72" y="${DH2 - 340}" width="${DW2 - 144}" height="260" rx="10"/>
+      </g>
+      <g stroke="${FAINT}" stroke-width="2.4" fill="none" stroke-dasharray="12 9">
+        <rect x="86" y="94" width="${DW2 - 172}" height="232" rx="8"/>
+        <rect x="86" y="${DH2 - 326}" width="${DW2 - 172}" height="232" rx="8"/>
+      </g>
+      <!-- circuit doodles in lower panel -->
+      <g stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round">
+        <path d="M140 ${DH2 - 220} h120 v-60 h90"/>
+        <circle cx="350" cy="${DH2 - 280}" r="14"/>
+        <path d="M140 ${DH2 - 160} h80 l50 50 h120" stroke-dasharray="14 10"/>
+        <circle cx="176" cy="${DH2 - 220}" r="8" />
+      </g>
+      <!-- name letters -->
+      ${letterPaths}
+      <!-- handle plate hint near inner edge -->
+      <rect x="${DW2 - 118}" y="${DH2 * 0.52}" width="54" height="190" rx="10"
+        fill="none" stroke="${INK}" stroke-width="4"/>
+    `;
+  }
+
+  await writeWebp(dir, "ad_door_left.webp", svgDoc(DW2, DH2, leaf("ADARSH")), 90);
+  await writeWebp(dir, "ad_door_right.webp", svgDoc(DW2, DH2, leaf("SWARUP")), 90);
+
+  // Painted variants: accent-colored letters + warm tinted panels
+  async function paintedLeaf(file, letters, accent) {
+    const src = svgDoc(DW2, DH2, leaf(letters));
+    // overlay: re-render letters in accent on top of the base art
+    const n = letters.length;
+    const size = 210;
+    const startY = 330;
+    const gap = 200;
+    const accentLetters = letters
+      .split("")
+      .map((ch, i) =>
+        txt(cabinBold, ch, DW2 / 2, startY + i * gap, size, accent, "center")
+      )
+      .join("");
+    const overlay = `
+      <rect x="72" y="80" width="${DW2 - 144}" height="260" rx="10" fill="${accent}" opacity="0.08"/>
+      <rect x="72" y="${DH2 - 340}" width="${DW2 - 144}" height="260" rx="10" fill="${accent}" opacity="0.08"/>
+      ${accentLetters}`;
+    await writeWebp(dir, file, svgDoc(DW2, DH2, src.slice(0, src.length - 6) /* strip </svg> */ + overlay + "</svg>"), 90);
+  }
+  await paintedLeaf("ad_door_left_painted.webp", "ADARSH", ACC.green);
+  await paintedLeaf("ad_door_right_painted.webp", "SWARUP", ACC.green);
+}
+
 // ---------- run ----------
 await covers();
 await portrait();
 await diagrams();
 await balloons();
 await entranceSign();
+await jokePosters();
+await entranceDoors();
 console.log("\nAll artwork generated.");
