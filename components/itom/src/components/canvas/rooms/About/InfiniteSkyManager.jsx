@@ -1304,7 +1304,9 @@ const SkillBalloon = ({ config, revealFactorRef, spreadFactorRef, timeRef }) => 
                     onPointerOver={handlePointerOver}
                     onPointerOut={handlePointerOut}
                     onPointerMove={(e) => {
-                        if (hovered && !isPopping && outerGroupRef.current) {
+                        // e.point can be undefined on some synthetic/ray
+                        // event dispatches — never trust it blindly.
+                        if (hovered && !isPopping && outerGroupRef.current && e.point) {
                             outerGroupRef.current.getWorldPosition(_tempVec3);
                             // Reduced magnetic pull from 0.5 to 0.15 for gentler effect
                             targetMagnet.current.x = (e.point.x - _tempVec3.x) * 0.15;

@@ -18,9 +18,13 @@ import { SceneProvider, useScene } from "./itom/src/context/SceneContext";
 import { initAudio } from "./itom/src/utils/audioManager";
 
 // Room-specific atmosphere: while inside a room, melt the global paper fog
-// into that room's ambience (About = sky blue so clouds read as white).
+// into that room's ambience. Hallway (null) keeps the classic paper white.
+// Tints are pastel versions of each room's accent colour.
 const ROOM_ATMOSPHERE = {
-  about: "#bfe0ff",
+  about: "#bfe0ff",    // sky blue
+  gallery: "#ffe1ea",  // rose blush   (accent-projects)
+  studio: "#e6ddff",   // soft violet  (accent-firmware)
+  contact: "#d2eef3",  // seafoam aqua (accent-contact)
 };
 
 function RoomAtmosphere() {
