@@ -42,44 +42,6 @@ An immersive, interactive 3D WebGL portfolio celebrating embedded systems, micro
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18.17.0 or higher recommended)
-- `npm` / `yarn` / `pnpm`
-
-### Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/el-oggy/my-portfolio.git
-   cd my-portfolio
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Verify assets & static references**:
-   ```bash
-   npm run check:assets
-   ```
-
-4. **Run local development server**:
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-5. **Build for production**:
-   ```bash
-   npm run build
-   ```
-
----
-
 ## 📁 Repository Structure
 
 ```text
