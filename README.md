@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛰️ Adarsh Swarup Maharana — 3D Interactive Portfolio
 
-## Getting Started
+> *"Designing the micro-world that powers the macro-world."*
 
-First, run the development server:
+An immersive, interactive 3D WebGL portfolio celebrating embedded systems, microcontrollers, IoT, robotics, and hardware engineering. Built with **Next.js 14**, **Three.js / React Three Fiber**, **GSAP**, and **Tailwind CSS**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-18-blue?style=flat-square&logo=react)](https://reactjs.org/)
+[![Three.js](https://img.shields.io/badge/Three.js-0.169-black?style=flat-square&logo=three.js)](https://threejs.org/)
+[![React Three Fiber](https://img.shields.io/badge/R3F-8.18-red?style=flat-square)](https://docs.pmnd.rs/react-three-fiber/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
+
+---
+
+## 🌟 Key Features
+
+- 🏛️ **3D Infinite Sketchbook Corridor**: Smooth camera progression through an architectural paper hallway along the Z-axis, with interactive hanging signs, Easter eggs, and dynamic room doorways.
+- 🚪 **4 Dedicated 3D Thematic Rooms**:
+  - **🎓 About Room**: 4 hand-drawn education islands (Class X, UCP Diploma, PMEC B.Tech, TDS Consultancy), real industry internships (NIT Rourkela & PMEC), certifications, and 3D electronics skill balloons (*Verilog, SystemVerilog, STM32, C/C++, KiCad, ESP32, Vivado, Git, Python*).
+  - **🖼️ Gallery Room**: Interactive showcase of real hardware, firmware, and digital design builds (STM32 Hexacopter, Solar Weather Station, IoT Smart Staircase, Systolic Array, etc.) with detailed lightbox modals.
+  - **🛠️ Studio Room**: 3D electronics workshop scene with interactive props and tools.
+  - **📬 Contact Room**: Interactive 3D barrels for CV download and direct signal transmission, backed by an in-experience Web3Forms modal and standalone `/email` route.
+- ⚡ **Optimized Performance Engine**:
+  - Room keep-alive caching to eliminate re-entry lag.
+  - Dynamic performance scaling (`LOW`, `MED`, `HIGH` tiers) with automatic DPR and antialiasing adjustments.
+  - GPU memory management and texture lifecycle handling.
+- ♿ **Semantic Accessibility & SEO**:
+  - Full semantic HTML fallback cards for screen readers and SEO indexers.
+  - Schema.org `Person` JSON-LD metadata and dynamic OpenGraph social cards.
+
+---
+
+## 🛠️ Tech Stack
+
+| Domain | Technologies |
+|---|---|
+| **Framework & Core** | [Next.js 14](https://nextjs.org/) (App Router), React 18, TypeScript |
+| **3D & Canvas** | [Three.js](https://threejs.org/), [@react-three/fiber](https://docs.pmnd.rs/react-three-fiber/), [@react-three/drei](https://github.com/pmndrs/drei) |
+| **Animation & Motion** | [GSAP 3](https://greensock.com/gsap/), [Framer Motion](https://www.framer.com/motion/), [Lenis](https://lenis.darkroom.engineering/) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/), Sass / SCSS modules |
+| **Tooling & Scripts** | Custom asset validators (`check-assets.cjs`), procedural canvas sketch generators |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18.17.0 or higher recommended)
+- `npm` / `yarn` / `pnpm`
+
+### Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/el-oggy/my-portfolio.git
+   cd my-portfolio
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Verify assets & static references**:
+   ```bash
+   npm run check:assets
+   ```
+
+4. **Run local development server**:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+5. **Build for production**:
+   ```bash
+   npm run build
+   ```
+
+---
+
+## 📁 Repository Structure
+
+```text
+├── app/                  # Next.js App Router (pages, layout, metadata, email route)
+├── components/
+│   ├── experience/       # WebGL root bridge & fallback wrappers
+│   ├── itom/             # 3D Canvas scenes (corridor, entrance, rooms, shaders)
+│   └── ui/               # DOM UI overlays (lightbox, gallery, navigation, email modal)
+├── lib/                  # Centralized content layer (data.ts) & scene camera config
+├── public/               # Textures, models, audio, fonts, and sketch art assets
+├── scripts/              # Asset verification, OG generator, and procedural art tools
+└── SESSION-CHANGELOG.md  # Detailed record of performance refactors and transformations
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🙏 Credits & Acknowledgments
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Special recognition and immense gratitude to **Tom** ([**itom.dev**](https://itom.dev) / [**@itomdev on GitHub**](https://github.com/itomdev)) for the original 3D paper sketchbook portfolio concept, creative aesthetic direction, and foundational WebGL reference that inspired this project.
 
-## Learn More
+This repository adapts and rebuilds upon that visual language, transforming the experience to showcase the world of **Electronics, Embedded Systems, Microcontrollers, and Robotics**.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📬 Contact & Connect
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Engineer:** Adarsh Swarup Maharana
+- **GitHub:** [@el-oggy](https://github.com/el-oggy)
+- **LinkedIn:** [Adarsh Swarup Maharana](https://www.linkedin.com/in/adarsh-swarup-maharana-4839763b8/)
+- **Email:** [adarshswarupmaharana@gmail.com](mailto:adarshswarupmaharana@gmail.com)
+- **Live Site:** [adarsh-vlsi.vercel.app](https://adarsh-vlsi.vercel.app/)
