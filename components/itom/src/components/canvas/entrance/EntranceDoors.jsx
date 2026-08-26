@@ -640,9 +640,8 @@ const EntranceDoors = ({
             </mesh>
 
             {/* === WELCOME PLANK (above the doors) === */}
-            {/* frameTop ≈ doorBottomY + frameHeight; plank hangs just above it */}
-            <mesh position={[0, doorBottomY + frameHeight + 0.62, 0.2]}>
-                <planeGeometry args={[4.4, 1.1]} />
+            <mesh position={[0, doorBottomY + frameHeight + 0.45, 0.22]}>
+                <planeGeometry args={[5.4, 1.35]} />
                 <meshBasicMaterial color="#e0e0e0"
                     map={welcomeTexture}
                     transparent={true}

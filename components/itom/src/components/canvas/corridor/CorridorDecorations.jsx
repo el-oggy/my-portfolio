@@ -379,17 +379,11 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,     // Legacy ratio 3200x1792
             y: 0.3,                  // Wysokość na ścianie
             id: 'frame-1',
-            // Sketch portrait placeholder at the workbench (swap for a real
-            // AI portrait later — keep the same filename)
-            image: '/textures/gallery/ad_portrait.webp',
-            imageWidth: 1.1,
-            imageHeight: 1.1,
-            offsetFromWall: 0.1, // Przesunięcie bliżej środka korytarza (0.1 unit)
-            signature: "Adarsh Swarup Maharana\nembedded · vlsi · iot",
-            signatureX: 0,
-            signatureY: -0.72,
-            signatureSize: 0.085,
-            signatureColor: '#333333'
+            // Binary joke board
+            image: '/textures/corridor/decorations/ad_board_binary.webp',
+            imageWidth: 1.7,
+            imageHeight: 1.7 * (640 / 1024),
+            offsetFromWall: 0.1,
         },
         {
             z: zOffset - 25,         // Między Gallery a Studio (relZ -20 do -30)
@@ -398,9 +392,10 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.2,
             id: 'frame-2',
-            image: '/textures/corridor/rysuneknaobrazek3.webp',
+            // UDP joke board
+            image: '/textures/corridor/decorations/ad_board_udp.webp',
             imageWidth: 1.7,
-            imageHeight: 1,
+            imageHeight: 1.7 * (640 / 1024),
             offsetFromWall: 0.1
         },
         {

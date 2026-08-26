@@ -733,51 +733,125 @@ async function welcomePlank() {
 
   const body = `
     <rect x="14" y="14" width="${PW - 28}" height="${PH - 28}" rx="22"
-      fill="${CARD}" stroke="${INK}" stroke-width="9"/>
-    ${txt(cabinBold, "WELCOME", PW / 2, 172, 138, INK, "center")}
-    <g stroke="${FAINT}" stroke-width="4" fill="none" stroke-linecap="round">
-      <path d="M120 128 H300" stroke-dasharray="14 11"/>
-      <path d="M724 128 H904" stroke-dasharray="14 11"/>
-      <circle cx="86" cy="128" r="14"/>
-      <circle cx="938" cy="128" r="14"/>
+      fill="${CARD}" stroke="${INK}" stroke-width="11"/>
+    ${txt(cabinBold, "WELCOME", PW / 2, 178, 148, INK, "center")}
+    <g stroke="${FAINT}" stroke-width="5" fill="none" stroke-linecap="round">
+      <path d="M96 128 H276" stroke-dasharray="16 12"/>
+      <path d="M748 128 H928" stroke-dasharray="16 12"/>
+      <circle cx="60" cy="128" r="16"/>
+      <circle cx="964" cy="128" r="16"/>
     </g>`;
   const paint = `
-    ${txt(cabinBold, "WELCOME", PW / 2, 172, 138, ACC.green, "center")}`;
+    ${txt(cabinBold, "WELCOME", PW / 2, 178, 148, ACC.green, "center")}`;
 
   await writeWebp(dir, "ad_welcome.webp", svgDoc(PW, PH, body), 92);
   await writeWebp(dir, "ad_welcome_painted.webp", svgDoc(PW, PH, body + paint), 92);
 }
 
 // ============================================================
+// 6c. TEXT BOARDS for hallway frames (jokes / quotes, no photos)
+// ============================================================
+async function textBoards() {
+  console.log("Text boards:");
+  const dir = path.join(ROOT, "public", "textures", "corridor", "decorations");
+
+  // --- Binary joke ---
+  {
+    const body = `
+      ${txtLines(cabinBold, ["THERE ARE", "10 TYPES OF PEOPLE:"], 512, 190, 96, 72)}
+      ${txtLines(cabinReg, ["those who understand binary", "and those who don't."], 512, 400, 56, 40, "#44403a")}
+      <g stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round">
+        <path d="M330 500 h44 v-36 h36 v72 h36 v-72 h36 v36 h44"/>
+      </g>`;
+    const paint = `<path d="M330 500 h44 v-36 h36 v72 h36 v-72 h36 v36 h44" stroke="${ACC.blue}" stroke-width="4" fill="none"/>`;
+    const common = paper(JW, JH) + sketch(body);
+    await writeWebp(dir, "ad_board_binary.webp", svgDoc(JW, JH, common));
+    await writeWebp(dir, "ad_board_binary_painted.webp", svgDoc(JW, JH, common + paint));
+  }
+
+  // --- UDP joke ---
+  {
+    const body = `
+      ${txt(cabinBold, "I'D TELL YOU A", 512, 150, 74, INK, "center")}
+      ${txt(cabinBold, "UDP JOKE...", 512, 250, 88, INK, "center")}
+      ${txt(cabinReg, "but you might not get it.", 512, 380, 46, "#44403a", "center")}
+      <g stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round">
+        <circle cx="392" cy="480" r="34"/>
+        <circle cx="512" cy="480" r="34" stroke-dasharray="10 9"/>
+        <circle cx="632" cy="480" r="34"/>
+        <path d="M426 480 h50 M546 480 h50" stroke-dasharray="8 8"/>
+        ${txtStroke(cabinBold, "?", 512, 494, 40, FAINT, 2)}
+      </g>`;
+    const paint = `<circle cx="512" cy="480" r="34" fill="${ACC.orange}" opacity="0.22"/><path d="M426 480 h50 M546 480 h50" stroke="${ACC.orange}" stroke-width="4" stroke-dasharray="8 8"/>`;
+    const common = paper(JW, JH) + sketch(body);
+    await writeWebp(dir, "ad_board_udp.webp", svgDoc(JW, JH, common));
+    await writeWebp(dir, "ad_board_udp_painted.webp", svgDoc(JW, JH, common + paint));
+  }
+}
+
+// ============================================================
+// 6d. FLOATING ISLAND — 1100×600 (Journey milestone islands)
+// ============================================================
+async function journeyIsland() {
+  console.log("Journey island:");
+  const dir = path.join(ROOT, "public", "textures", "about");
+
+  const body = `
+    <g stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round">
+      <!-- grass top -->
+      <ellipse cx="550" cy="200" rx="430" ry="118" fill="${CARD}"/>
+      <path d="M180 172 q 40 -30 90 -12 M330 130 q 50 -24 110 -6 M560 108 q 60 -20 120 4 M760 140 q 50 -16 96 10"
+        stroke-width="3.4"/>
+      <!-- rock underside -->
+      <path d="M170 232 q -30 70 40 120 q 80 58 170 30 q 60 78 170 44 q 120 40 200 -30 q 90 20 140 -50 q 40 -56 -30 -114" />
+      <path d="M420 300 l -40 90 M640 290 l 50 84 M540 320 l 6 96" stroke-width="3.4"/>
+      <!-- roots -->
+      <path d="M360 372 q -10 44 -34 64 M700 366 q 16 40 40 58" stroke-dasharray="12 10" stroke-width="3.4"/>
+      <!-- stones -->
+      <ellipse cx="300" cy="240" rx="34" ry="18"/>
+      <ellipse cx="760" cy="230" rx="40" ry="20"/>
+    </g>
+    <!-- grass tufts -->
+    <g stroke="${INK}" stroke-width="3.4" fill="none" stroke-linecap="round">
+      <path d="M260 132 l -8 -26 M272 134 l 2 -28 M284 136 l 10 -22"/>
+      <path d="M640 112 l -8 -26 M652 114 l 2 -28 M664 116 l 10 -22"/>
+      <path d="M850 168 l -8 -24 M862 170 l 2 -26 M874 172 l 10 -20"/>
+    </g>`;
+  const paint = `
+    <ellipse cx="550" cy="200" rx="430" ry="118" fill="${ACC.green}" opacity="0.15"/>
+    <g stroke="${ACC.green}" stroke-width="3.4" fill="none" stroke-linecap="round">
+      <path d="M260 132 l -8 -26 M272 134 l 2 -28 M284 136 l 10 -22"/>
+      <path d="M640 112 l -8 -26 M652 114 l 2 -28 M664 116 l 10 -22"/>
+      <path d="M850 168 l -8 -24 M862 170 l 2 -26 M874 172 l 10 -20"/>
+    </g>`;
+
+  await writeWebp(dir, "ad_island.webp", svgDoc(1100, 600, sketch(body)), 92);
+  await writeWebp(dir, "ad_island_painted.webp", svgDoc(1100, 600, sketch(body) + paint), 92);
+}
+
+// ============================================================
 // 7. ENTRANCE DOOR LEAVES — 664×1696 (legacy leaf 332×848 @2x)
+//    Electronics skill LOGOS stacked down each leaf.
 // ============================================================
 async function entranceDoors() {
   console.log("Entrance doors:");
   const dir = path.join(ROOT, "public", "textures", "doors");
   const DW2 = 664, DH2 = 1696;
 
-  function leaf(letters) {
-    // Vertically stack glyphs with measured heights — no overlaps,
-    // centered in the free zone between the inset panels.
-    const size = 190;
+  // Icon stack: [iconKind, accentColor]
+  const LEFT_ICONS = [["wave", ACC.orange], ["chip", ACC.blue], ["braces", ACC.violet]];
+  const RIGHT_ICONS = [["traces", ACC.green], ["espboard", ACC.blue], ["branch", ACC.amber]];
+
+  function leaf(icons) {
     const zoneTop = 430;
     const zoneBottom = DH2 - 430;
-    const gap = 34;
+    const step = (zoneBottom - zoneTop) / (icons.length + 1);
+    const scale = 1.75;
 
-    const glyphs = letters.split("").map((ch) => {
-      const p = cabinBold.getPath(ch, 0, 0, size);
-      const b = p.getBoundingBox();
-      return { ch, p, h: b.y2 - b.y1 };
-    });
-    const totalH =
-      glyphs.reduce((s, g) => s + g.h, 0) + gap * (glyphs.length - 1);
-    let cursor = zoneTop + (zoneBottom - zoneTop - totalH) / 2;
-
-    const letterPaths = glyphs
-      .map((g) => {
-        const cy = cursor + g.h / 2;
-        cursor += g.h + gap;
-        return centeredGlyph(cabinBold, g.ch, DW2 / 2, cy, size, INK);
+    const iconPaths = icons
+      .map(([kind, accent], i) => {
+        const cy = zoneTop + step * (i + 1);
+        return `<g transform="translate(${DW2 / 2} ${cy}) scale(${scale})">${balloonIcon(kind, accent)}</g>`;
       })
       .join("");
 
@@ -793,58 +867,35 @@ async function entranceDoors() {
         <rect x="86" y="94" width="${DW2 - 172}" height="232" rx="8"/>
         <rect x="86" y="${DH2 - 326}" width="${DW2 - 172}" height="232" rx="8"/>
       </g>
-      <!-- circuit doodles in lower panel -->
-      <g stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round">
-        <path d="M140 ${DH2 - 220} h120 v-60 h90"/>
-        <circle cx="350" cy="${DH2 - 280}" r="14"/>
-        <path d="M140 ${DH2 - 160} h80 l50 50 h120" stroke-dasharray="14 10"/>
-        <circle cx="176" cy="${DH2 - 220}" r="8" />
-      </g>
-      <!-- name letters -->
-      ${letterPaths}
+      <!-- electronics logos -->
+      ${iconPaths}
       <!-- handle plate hint near inner edge -->
       <rect x="${DW2 - 118}" y="${DH2 * 0.52}" width="54" height="190" rx="10"
         fill="none" stroke="${INK}" stroke-width="4"/>
     `;
   }
 
-  await writeWebp(dir, "ad_door_left.webp", svgDoc(DW2, DH2, leaf("ADARSH")), 90);
-  await writeWebp(dir, "ad_door_right.webp", svgDoc(DW2, DH2, leaf("SWARUP")), 90);
+  await writeWebp(dir, "ad_door_left.webp", svgDoc(DW2, DH2, leaf(LEFT_ICONS)), 90);
+  await writeWebp(dir, "ad_door_right.webp", svgDoc(DW2, DH2, leaf(RIGHT_ICONS)), 90);
 
-  // Painted variants: accent-colored letters + warm tinted panels
-  async function paintedLeaf(file, letters, accent) {
-    const src = svgDoc(DW2, DH2, leaf(letters));
-    // overlay: re-render letters in accent on top of the base art
-    const size = 190;
+  // Painted variants: icons tinted with their accents
+  async function paintedLeaf(file, icons) {
+    const src = svgDoc(DW2, DH2, leaf(icons));
     const zoneTop = 430;
     const zoneBottom = DH2 - 430;
-    const gap = 34;
-
-    const glyphs = letters.split("").map((ch) => {
-      const p = cabinBold.getPath(ch, 0, 0, size);
-      const b = p.getBoundingBox();
-      return { ch, p, h: b.y2 - b.y1 };
-    });
-    const totalH =
-      glyphs.reduce((s, g) => s + g.h, 0) + gap * (glyphs.length - 1);
-    let cursor = zoneTop + (zoneBottom - zoneTop - totalH) / 2;
-
-    const accentLetters = glyphs
-      .map((g) => {
-        const cy = cursor + g.h / 2;
-        cursor += g.h + gap;
-        return centeredGlyph(cabinBold, g.ch, DW2 / 2, cy, size, accent);
-      })
-      .join("");
+    const step = (zoneBottom - zoneTop) / (icons.length + 1);
+    const scale = 1.75;
 
     const overlay = `
-      <rect x="72" y="80" width="${DW2 - 144}" height="260" rx="10" fill="${accent}" opacity="0.08"/>
-      <rect x="72" y="${DH2 - 340}" width="${DW2 - 144}" height="260" rx="10" fill="${accent}" opacity="0.08"/>
-      ${accentLetters}`;
-    await writeWebp(dir, file, svgDoc(DW2, DH2, src.slice(0, src.length - 6) /* strip </svg> */ + overlay + "</svg>"), 90);
+      <rect x="72" y="80" width="${DW2 - 144}" height="260" rx="10" fill="${ACC.green}" opacity="0.08"/>
+      <rect x="72" y="${DH2 - 340}" width="${DW2 - 144}" height="260" rx="10" fill="${ACC.green}" opacity="0.08"/>
+      ${icons.map(([kind, accent], i) =>
+        `<g transform="translate(${DW2 / 2} ${zoneTop + step * (i + 1)}) scale(${scale})">${balloonIcon(kind, accent)}</g>`
+      ).join("")}`;
+    await writeWebp(dir, file, svgDoc(DW2, DH2, src.slice(0, src.length - 6) + overlay + "</svg>"), 90);
   }
-  await paintedLeaf("ad_door_left_painted.webp", "ADARSH", ACC.green);
-  await paintedLeaf("ad_door_right_painted.webp", "SWARUP", ACC.green);
+  await paintedLeaf("ad_door_left_painted.webp", LEFT_ICONS);
+  await paintedLeaf("ad_door_right_painted.webp", RIGHT_ICONS);
 }
 
 // ---------- run ----------
@@ -855,5 +906,7 @@ await balloons();
 await entranceSign();
 await quotePosters();
 await welcomePlank();
+await textBoards();
+await journeyIsland();
 await entranceDoors();
 console.log("\nAll artwork generated.");

@@ -390,7 +390,7 @@ const IntroMilestone = ({ z, scrollProgressRef }) => {
                 font="/fonts/CabinSketch-Regular.ttf"
                 fontStyle="italic"
             >
-                "Turning sand into thought —
+                "Designing the micro-world
             </Text>
 
             {/* Motto - Line 2 (spreads left) */}
@@ -404,7 +404,7 @@ const IntroMilestone = ({ z, scrollProgressRef }) => {
                 font="/fonts/CabinSketch-Regular.ttf"
                 fontStyle="italic"
             >
-                one transistor at a time."
+                that powers the macro-world"
             </Text>
         </group>
     );
@@ -814,31 +814,52 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
 
 /**
  * JOURNEY Milestone - Floating Islands
- * UO Island (left) and Freelance Island (right) floating in clouds
+ * One island per education / career milestone.
  */
+const JOURNEY_ISLANDS = [
+    {
+        id: 'matric',
+        title: 'CLASS X',
+        org: 'St. Xavier High School',
+        period: '2020',
+        x: -6.6, y: 0.8, z: 0.2, phase: 0,
+    },
+    {
+        id: 'diploma',
+        title: 'DIPLOMA · E&TC',
+        org: 'Uma Charan Pattnik Engg. College',
+        period: '2020 – 2023',
+        x: -2.2, y: 1.6, z: -0.3, phase: 1.4,
+    },
+    {
+        id: 'btech',
+        title: 'B.TECH · E&TC',
+        org: 'Parala Maharaja Engg. College',
+        period: '2024 – 2027',
+        x: 2.2, y: 0.4, z: 0.4, phase: 2.6,
+    },
+    {
+        id: 'tds',
+        title: 'TDS CONSULTANCY',
+        org: 'Consultancy Agent',
+        period: '2025',
+        x: 6.6, y: 1.9, z: 0, phase: 3.8,
+    },
+];
+
 const JourneyMilestone = ({ z, scrollProgressRef }) => {
     const { camera, viewport } = useThree();
     const isTouch = isTouchDevice();
     const groupRef = useRef();
-    const uoRef = useRef();
-    const freelanceRef = useRef();
+    const islandRefs = useRef([]);
 
-    // Load textures
-    const uoTexture = useLoader(THREE.TextureLoader, '/textures/about/uowyspa.webp');
-    const freelanceTexture = useLoader(THREE.TextureLoader, '/textures/about/freelancewyspa.webp');
+    // Shared generated island texture (sketch style, no third-party branding)
+    const islandTexture = useLoader(THREE.TextureLoader, '/textures/about/ad_island.webp');
+    islandTexture.colorSpace = THREE.SRGBColorSpace;
 
-    // Texture settings
-    uoTexture.colorSpace = THREE.SRGBColorSpace;
-    freelanceTexture.colorSpace = THREE.SRGBColorSpace;
-
-    // Calculate aspect ratios to keep images 1:1 (not stretched)
-    // LEGACY FIX: Use original dimensions (2816x1536)
-    const islandLegacyAspect = 2816 / 1536;
-    const uoAspect = islandLegacyAspect;
-    const freelanceAspect = islandLegacyAspect;
-
-    // Base height for islands - width will adjust automatically
-    const islandHeight = 4.5;
+    // Texture aspect (1100×600)
+    const islandAspect = 1100 / 600;
+    const islandHeight = 3.1;
 
     useFrame((state) => {
         if (!groupRef.current) return;
@@ -855,8 +876,7 @@ const JourneyMilestone = ({ z, scrollProgressRef }) => {
         const distanceZ = z + scrollProgress - 55;
 
         // Reveal effect (islands float up from below clouds)
-        // === EDYTUJ TUTAJ (JOURNEY) ===
-        const revealStart = -100; // Wcześniejszy start
+        const revealStart = -100;
         const revealEnd = -20;
         let revealFactor = 0;
 
@@ -868,28 +888,14 @@ const JourneyMilestone = ({ z, scrollProgressRef }) => {
             revealFactor = 1;
         }
 
-        // Floating animation (bobbing)
-        // UO Island (Left)
-        if (uoRef.current) {
-            // === EDYTUJ POZYCJE TUTAJ (UO) ===
-            const startY = -2;
-            const endY = 1.5;
-
-            const currentBaseY = startY + revealFactor * (endY - startY);
-            uoRef.current.position.y = currentBaseY + Math.sin(time * 0.5) * 0.2;
-            uoRef.current.rotation.z = Math.sin(time * 0.3) * 0.05;
-        }
-
-        // Freelance Island (Right)
-        if (freelanceRef.current) {
-            // === EDYTUJ POZYCJE TUTAJ (Freelance) ===
-            const startY = -1;
-            const endY = 2.5;
-
-            const currentBaseY = startY + revealFactor * (endY - startY);
-            freelanceRef.current.position.y = currentBaseY + Math.sin(time * 0.4 + 2) * 0.25;
-            freelanceRef.current.rotation.z = Math.sin(time * 0.2 + 1) * -0.05;
-        }
+        // Per-island bobbing
+        JOURNEY_ISLANDS.forEach((island, i) => {
+            const ref = islandRefs.current[i];
+            if (!ref) return;
+            const currentBaseY = island.y + revealFactor * 2.2;
+            ref.position.y = currentBaseY + Math.sin(time * 0.45 + island.phase) * 0.22;
+            ref.rotation.z = Math.sin(time * 0.25 + island.phase) * 0.04;
+        });
     });
 
     return (
@@ -915,54 +921,57 @@ const JourneyMilestone = ({ z, scrollProgressRef }) => {
                 anchorY="middle"
                 font="/fonts/CabinSketch-Regular.ttf"
             >
-                My path so far...
+                Education & experience — one island at a time
             </Text>
 
-            {/* === UO ISLAND (Left) === */}
-            <group ref={uoRef} position={[-3.5, -1, 0]}>
-                <mesh>
-                    <planeGeometry args={[islandHeight * uoAspect, islandHeight]} />
-                    <meshBasicMaterial color="#e0e0e0"
-                        map={uoTexture}
-                        transparent
-                        side={THREE.DoubleSide}
-                    />
-                </mesh>
-                {/* NAPIS NA WYSPIE (UO) - EDYTUJ TUTAJ */}
-                <Text
-                    position={[0.1, -0.85, 0.1]} // POZYCJA (X, Y, Z)
-                    fontSize={0.4}           // WIELKOŚĆ
-                    color="#1a1a1a"
-                    anchorX="center"
-                    anchorY="middle"
-                    font="/fonts/CabinSketch-Bold.ttf"
+            {/* === EDUCATION & EXPERIENCE ISLANDS === */}
+            {JOURNEY_ISLANDS.map((island, i) => (
+                <group
+                    key={island.id}
+                    ref={(el) => (islandRefs.current[i] = el)}
+                    position={[island.x, island.y, island.z]}
                 >
-                    2025-NOW
-                </Text>
-            </group>
-
-            {/* === FREELANCE ISLAND (Right) === */}
-            <group ref={freelanceRef} position={[3.5, -2, 0.5]}>
-                <mesh>
-                    <planeGeometry args={[islandHeight * freelanceAspect, islandHeight]} />
-                    <meshBasicMaterial color="#e0e0e0"
-                        map={freelanceTexture}
-                        transparent
-                        side={THREE.DoubleSide}
-                    />
-                </mesh>
-                {/* NAPIS NA WYSPIE (Freelance) - EDYTUJ TUTAJ */}
-                <Text
-                    position={[0, -0.65, 0.1]} // POZYCJA (X, Y, Z)
-                    fontSize={0.5}           // WIELKOŚĆ
-                    color="#1a1a1a"
-                    anchorX="center"
-                    anchorY="middle"
-                    font="/fonts/CabinSketch-Bold.ttf"
-                >
-                    2023-NOW
-                </Text>
-            </group>
+                    <mesh>
+                        <planeGeometry args={[islandHeight * islandAspect, islandHeight]} />
+                        <meshBasicMaterial color="#e0e0e0"
+                            map={islandTexture}
+                            transparent
+                            side={THREE.DoubleSide}
+                        />
+                    </mesh>
+                    {/* Island label stack */}
+                    <Text
+                        position={[0, 1.15, 0.1]}
+                        fontSize={0.34}
+                        color="#1a1a1a"
+                        anchorX="center"
+                        anchorY="middle"
+                        font="/fonts/CabinSketch-Bold.ttf"
+                    >
+                        {island.title}
+                    </Text>
+                    <Text
+                        position={[0, 0.72, 0.1]}
+                        fontSize={0.21}
+                        color="#444444"
+                        anchorX="center"
+                        anchorY="middle"
+                        font="/fonts/CabinSketch-Regular.ttf"
+                    >
+                        {island.org}
+                    </Text>
+                    <Text
+                        position={[0, 0.36, 0.1]}
+                        fontSize={0.26}
+                        color="#c2410c"
+                        anchorX="center"
+                        anchorY="middle"
+                        font="/fonts/RubikScribble-Regular.ttf"
+                    >
+                        {island.period}
+                    </Text>
+                </group>
+            ))}
         </group>
     );
 };

@@ -64,10 +64,9 @@ const HeroText = ({ position = [0, 0.3, 0] }) => {
         { char: 'H', baseX: 1.35, splitDir: 2.0, delay: 0 },
     ], []);
 
-    // Poetic tagline — two lines, each splits apart on approach
+    // Tagline — one line under the name
     const taglineWords = useMemo(() => [
-        { text: 'Turning sand into thought —', baseX: 0, baseY: -0.42, splitDir: -0.9, delay: 0 },
-        { text: 'one transistor at a time.', baseX: 0, baseY: -0.66, splitDir: 1.1, delay: 0 },
+        { text: 'Designing the micro-world that powers the macro-world', baseX: 0, baseY: -0.52, splitDir: -0.9, delay: 0 },
     ], []);
 
     // Animation loop
