@@ -129,11 +129,21 @@ function ItomCanvas({ fallback }) {
 }
 
 export default function ItomExperienceCore({ fallback }) {
-  return (
-    <PerformanceProvider>
-      <AchievementsProvider>
-        <ItomCanvas fallback={fallback} />
-      </AchievementsProvider>
-    </PerformanceProvider>
-  );
+    // Scroll-lock opt-in: while the immersive canvas is alive, lock page
+    // scrolling (html.webgl-active). DOM routes like /email never mount this
+    // component, so they keep normal scrolling.
+    useEffect(() => {
+        document.documentElement.classList.add("webgl-active");
+        return () => {
+            document.documentElement.classList.remove("webgl-active");
+        };
+    }, []);
+
+    return (
+        <PerformanceProvider>
+            <AchievementsProvider>
+                <ItomCanvas fallback={fallback} />
+            </AchievementsProvider>
+        </PerformanceProvider>
+    );
 }

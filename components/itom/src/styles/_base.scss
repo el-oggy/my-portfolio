@@ -26,8 +26,15 @@ body {
     font-family: $font-primary;
     background-color: #fafafa;
     color: $color-black;
-    overflow: hidden; // No scroll - 3D handles it
+    // NOTE: no global overflow lock — DOM routes like /email must scroll.
+    // The 3D experience opts into the lock via the `webgl-active` class
+    // (set on <html> by ItomExperienceCore when the canvas boots).
     @include smooth-text;
+}
+
+// Scroll lock ONLY while the immersive 3D experience is active
+html.webgl-active body {
+    overflow: hidden; // No scroll - 3D handles it
     @include hide-scrollbar;
 }
 

@@ -61,12 +61,19 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   background-color: var(--bg-paper);
   color: var(--ink);
   font-family: var(--font-sans);
+}
+
+/* Scroll lock ONLY while the immersive 3D experience is active.
+   DOM routes (/email) must scroll normally — ItomExperienceCore adds the
+   `webgl-active` class to <html> when the canvas boots. */
+html.webgl-active,
+html.webgl-active body {
+  overflow: hidden;
 }
 
 /* Kinetic content z-order */
