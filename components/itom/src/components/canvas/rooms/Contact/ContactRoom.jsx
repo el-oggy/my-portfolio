@@ -428,13 +428,13 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                 paintOnBeforeCompile={onBeforeCompile}
                 paintUniforms={uniformsData}
             />
-            {/* EMAIL (mailto) */}
+            {/* EMAIL (opens the dedicated email page — send right from the site) */}
             <SocialBarrel
                 position={isMobile ? [1.5, -0.3, -7] : [5, -0.3, -8]}
                 rotation={[0, -0.3, 0]}
                 texturePath="/textures/contact/beczka.webp"
                 label="EMAIL"
-                onClick={() => window.open('mailto:adarshswarupmaharana@gmail.com', '_blank')}
+                onClick={() => window.location.assign('/email')}
                 paintOnBeforeCompile={onBeforeCompile}
                 paintUniforms={uniformsData}
             />

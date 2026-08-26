@@ -280,10 +280,10 @@ function SectionCopy({ scene }: { scene: string }) {
 
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <a
-              href={`mailto:${links.email}`}
+              href="/email"
               className="sketch-btn bg-[var(--note-yellow)] text-sm"
             >
-              ✉ {links.email}
+              ✉ Email me
             </a>
             <a
               href={links.github}

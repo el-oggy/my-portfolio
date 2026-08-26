@@ -420,8 +420,9 @@ const AWARDS_DATA = {
         layout: 'certificate_grid',
         title: 'Certifications & Training',
         items: [
-            { label: 'Young IoT Prodigy', date: 'Infosys Spring Board', image: '/textures/about/SOTD.webp', url: null },
+            { label: 'Research & Technical Intern', date: 'NIT Rourkela', image: '/textures/about/SOTD.webp', url: null },
             { label: 'VLSI Design using EDA Tools (Internship)', date: 'PMEC', image: '/textures/about/SOTD.webp', url: null },
+            { label: 'Young IoT Prodigy', date: 'Infosys Spring Board', image: '/textures/about/SOTD.webp', url: null },
             { label: 'Python Programming for Everybody', date: 'Coursera', image: '/textures/about/SOTD.webp', url: null },
             { label: 'VLSI Innovation, Embedded Systems & Cutting-Edge Hardware Solutions', date: 'Certification Program', image: '/textures/about/SOTD.webp', url: null },
         ],
@@ -436,7 +437,6 @@ const AWARDS_DATA = {
         layout: 'certificate_grid',
         title: 'Courses',
         items: [
-            { label: 'Young IoT Prodigy', date: 'Infosys Spring Board', image: '/textures/about/SOTD.webp', url: null },
             { label: 'Python Programming for Everybody', date: 'Coursera', image: '/textures/about/SOTD.webp', url: null },
         ],
         platformConfig: {
@@ -450,6 +450,7 @@ const AWARDS_DATA = {
         layout: 'certificate_grid',
         title: 'Internships',
         items: [
+            { label: 'Research & Technical Intern', date: 'NIT Rourkela', image: '/textures/about/SOTD.webp', url: null },
             { label: 'VLSI Design using EDA Tools (Internship)', date: 'PMEC', image: '/textures/about/SOTD.webp', url: null },
         ],
         platformConfig: {
@@ -461,12 +462,13 @@ const AWARDS_DATA = {
     other: {
         id: 'award-other',
         layout: 'certificate_grid',
-        title: 'Programs',
+        title: 'Certificates',
         items: [
+            { label: 'Young IoT Prodigy', date: 'Infosys Spring Board', image: '/textures/about/SOTD.webp', url: null },
             { label: 'VLSI Innovation, Embedded Systems & Cutting-Edge Hardware Solutions', date: 'Certification Program', image: '/textures/about/SOTD.webp', url: null },
         ],
         platformConfig: {
-            label: 'PROGRAM',
+            label: 'CERTIFICATE',
             color: '#1a1a1a',
             icon: '👑'
         }
@@ -737,7 +739,7 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
                     anchorY="middle"
                     font="/fonts/CabinSketch-Bold.ttf"
                 >
-                    INTERNSHIP
+                    INTERNSHIPS
                 </Text>
                 {/* AWARD COUNT */}
                 <Text
@@ -797,7 +799,7 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
                     anchorY="middle"
                     font="/fonts/CabinSketch-Bold.ttf"
                 >
-                    PROGRAMS
+                    CERTIFICATES
                 </Text>
                 {/* AWARD COUNT */}
                 <Text
