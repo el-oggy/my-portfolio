@@ -23,7 +23,6 @@
     "three": "^0.169.0"
   },
   "devDependencies": {
-    "@img/sharp-win32-x64": "^0.35.3",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
