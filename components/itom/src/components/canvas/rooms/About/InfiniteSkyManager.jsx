@@ -411,18 +411,19 @@ const IntroMilestone = ({ z, scrollProgressRef }) => {
 };
 
 /**
- * MOCK DATA FOR AWARDS
+ * AWARDS DATA — Adarsh's real certifications & training.
+ * Certificate frame art: /textures/about/SOTD.webp (+_painted).
  */
 const AWARDS_DATA = {
     featured: {
         id: 'award-featured',
         layout: 'certificate_grid',
-        title: 'Featured Projects Collection',
+        title: 'Certifications & Training',
         items: [
-            { label: 'Featured - Awwwards', date: 'May 2025', image: '/textures/about/FEATURED.webp', url: 'https://awwwards.com' },
-            { label: 'Featured - CSS Design Awards', date: 'June 2025', image: '/textures/about/FEATURED.webp', url: 'https://cssdesignawards.com' },
-            { label: 'Featured - The FWA', date: 'July 2025', image: '/textures/about/FEATURED.webp', url: 'https://thefwa.com' },
-            { label: 'Featured - Behance', date: 'August 2025', image: '/textures/about/FEATURED.webp', url: 'https://behance.net' },
+            { label: 'Young IoT Prodigy', date: 'Infosys Spring Board', image: '/textures/about/SOTD.webp', url: null },
+            { label: 'VLSI Design using EDA Tools (Internship)', date: 'PMEC', image: '/textures/about/SOTD.webp', url: null },
+            { label: 'Python Programming for Everybody', date: 'Coursera', image: '/textures/about/SOTD.webp', url: null },
+            { label: 'VLSI Innovation, Embedded Systems & Cutting-Edge Hardware Solutions', date: 'Certification Program', image: '/textures/about/SOTD.webp', url: null },
         ],
         platformConfig: {
             label: 'HONOR',
@@ -433,15 +434,13 @@ const AWARDS_DATA = {
     sotd: {
         id: 'award-sotd',
         layout: 'certificate_grid',
-        title: 'Site of the Day Awards',
+        title: 'Courses',
         items: [
-            { label: 'SOTD - GSAP', date: 'February 13, 2026', image: '/textures/about/SOTDAYYOUNGMULTIGSAP.webp', url: 'https://www.linkedin.com/posts/greensock_site-of-the-day-young-multi-this-immersive-activity-7427567524940017664-zU2n?utm_source=share&utm_medium=member_desktop&rcm=ACoAAE3TV6UBqXoaJXUN5-1s3ij6SQJwTRAcbCM' },
-            { label: 'SOTD - CSS Winner', date: 'January 24, 2026', image: '/textures/about/SOTDAYYOUNGMULTICSSWINNER.webp', url: 'https://www.csswinner.com/details/young-multi-official-experience/19045' },
-            { label: 'SOTD - Orpetron', date: 'January 29, 2026', image: '/textures/about/SOTDAYYOUNGMULTIORPETRON.webp', url: 'https://orpetron.com/sites/young-multi/' },
-            { label: 'SOTD - Design Nominess', date: 'February 17, 2026', image: '/textures/about/SOTDAYYOUNGMULTIDESIGNNOMINESS.webp', url: 'https://www.designnominees.com/sites/young-multi' }
+            { label: 'Young IoT Prodigy', date: 'Infosys Spring Board', image: '/textures/about/SOTD.webp', url: null },
+            { label: 'Python Programming for Everybody', date: 'Coursera', image: '/textures/about/SOTD.webp', url: null },
         ],
         platformConfig: {
-            label: 'AWARD',
+            label: 'COURSE',
             color: '#1a1a1a',
             icon: '🏆'
         }
@@ -449,10 +448,12 @@ const AWARDS_DATA = {
     sotm: {
         id: 'award-sotm',
         layout: 'certificate_grid',
-        title: 'Site of the Month Awards',
-        items: [],
+        title: 'Internships',
+        items: [
+            { label: 'VLSI Design using EDA Tools (Internship)', date: 'PMEC', image: '/textures/about/SOTD.webp', url: null },
+        ],
         platformConfig: {
-            label: 'AWARD',
+            label: 'INTERNSHIP',
             color: '#1a1a1a',
             icon: '📅'
         }
@@ -460,10 +461,12 @@ const AWARDS_DATA = {
     other: {
         id: 'award-other',
         layout: 'certificate_grid',
-        title: 'Other Awards',
-        items: [],
+        title: 'Programs',
+        items: [
+            { label: 'VLSI Innovation, Embedded Systems & Cutting-Edge Hardware Solutions', date: 'Certification Program', image: '/textures/about/SOTD.webp', url: null },
+        ],
         platformConfig: {
-            label: 'PRESTIGE',
+            label: 'PROGRAM',
             color: '#1a1a1a',
             icon: '👑'
         }
@@ -673,7 +676,7 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
                     anchorY="middle"
                     font="/fonts/CabinSketch-Bold.ttf"
                 >
-                    SOTD
+                    COURSES
                 </Text>
                 {/* AWARD COUNT */}
                 <Text
@@ -734,7 +737,7 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
                     anchorY="middle"
                     font="/fonts/CabinSketch-Bold.ttf"
                 >
-                    SOTM
+                    INTERNSHIP
                 </Text>
                 {/* AWARD COUNT */}
                 <Text
@@ -794,7 +797,7 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
                     anchorY="middle"
                     font="/fonts/CabinSketch-Bold.ttf"
                 >
-                    OTHER
+                    PROGRAMS
                 </Text>
                 {/* AWARD COUNT */}
                 <Text

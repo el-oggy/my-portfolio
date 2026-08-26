@@ -438,7 +438,10 @@ const ContentCard = ({ content, isOpen, onClose, isMobile }) => {
                                     }}
                                         onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
                                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                                        onClick={() => window.open(item.url || content.url || '#', '_blank')}
+                                        onClick={() => {
+                                            const u = item.url || content.url;
+                                            if (u && u !== '#') window.open(u, '_blank');
+                                        }}
                                     >
                                         <div style={{
                                             position: 'relative',
