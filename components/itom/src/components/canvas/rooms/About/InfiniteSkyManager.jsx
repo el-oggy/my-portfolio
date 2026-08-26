@@ -825,28 +825,28 @@ const JOURNEY_ISLANDS = [
         title: 'CLASS X',
         org: 'St. Xavier High School',
         period: '2020',
-        x: -6.6, y: 0.8, z: 0.2, phase: 0,
+        x: -7.4, y: 0.2, z: 0.2, phase: 0,
     },
     {
         id: 'diploma',
         title: 'DIPLOMA · E&TC',
         org: 'Uma Charan Pattnik Engg. College',
         period: '2020 – 2023',
-        x: -2.2, y: 1.6, z: -0.3, phase: 1.4,
+        x: -2.5, y: 1.1, z: -0.3, phase: 1.4,
     },
     {
         id: 'btech',
         title: 'B.TECH · E&TC',
         org: 'Parala Maharaja Engg. College',
         period: '2024 – 2027',
-        x: 2.2, y: 0.4, z: 0.4, phase: 2.6,
+        x: 2.5, y: -0.4, z: 0.4, phase: 2.6,
     },
     {
         id: 'tds',
         title: 'TDS CONSULTANCY',
         org: 'Consultancy Agent',
         period: '2023 – 2024 · ~6 mo',
-        x: 6.6, y: 1.9, z: 0, phase: 3.8,
+        x: 7.4, y: 1.0, z: 0, phase: 3.8,
     },
 ];
 
@@ -903,9 +903,9 @@ const JourneyMilestone = ({ z, scrollProgressRef }) => {
 
     return (
         <group ref={groupRef} position={[0, 0, z]}>
-            {/* Title */}
+            {/* Title — lifted well above the islands */}
             <Text
-                position={[0, 5, 0.3]}
+                position={[0, 7.4, 0.3]}
                 fontSize={1.2}
                 color="#1a1a1a"
                 anchorX="center"
@@ -917,7 +917,7 @@ const JourneyMilestone = ({ z, scrollProgressRef }) => {
 
             {/* Subtitle */}
             <Text
-                position={[0, 4.2, 0.3]}
+                position={[0, 6.5, 0.3]}
                 fontSize={0.35}
                 color="#555555"
                 anchorX="center"
@@ -934,7 +934,8 @@ const JourneyMilestone = ({ z, scrollProgressRef }) => {
                     ref={(el) => (islandRefs.current[i] = el)}
                     position={[island.x, island.y, island.z]}
                 >
-                    <mesh>
+                    {/* Island artwork sits BELOW its label stack */}
+                    <mesh position={[0, -1.05, 0]}>
                         <planeGeometry args={[islandHeight * islandAspect, islandHeight]} />
                         <meshBasicMaterial color="#e0e0e0"
                             map={islandTexture}
@@ -942,9 +943,9 @@ const JourneyMilestone = ({ z, scrollProgressRef }) => {
                             side={THREE.DoubleSide}
                         />
                     </mesh>
-                    {/* Island label stack */}
+                    {/* Island label stack — floats clear above the art */}
                     <Text
-                        position={[0, 1.15, 0.1]}
+                        position={[0, 1.55, 0.1]}
                         fontSize={0.34}
                         color="#1a1a1a"
                         anchorX="center"
@@ -954,8 +955,8 @@ const JourneyMilestone = ({ z, scrollProgressRef }) => {
                         {island.title}
                     </Text>
                     <Text
-                        position={[0, 0.72, 0.1]}
-                        fontSize={0.21}
+                        position={[0, 1.12, 0.1]}
+                        fontSize={0.19}
                         color="#444444"
                         anchorX="center"
                         anchorY="middle"
@@ -964,8 +965,8 @@ const JourneyMilestone = ({ z, scrollProgressRef }) => {
                         {island.org}
                     </Text>
                     <Text
-                        position={[0, 0.36, 0.1]}
-                        fontSize={0.26}
+                        position={[0, 0.74, 0.1]}
+                        fontSize={0.24}
                         color="#c2410c"
                         anchorX="center"
                         anchorY="middle"

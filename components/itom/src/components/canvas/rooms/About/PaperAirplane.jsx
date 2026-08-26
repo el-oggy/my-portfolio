@@ -99,7 +99,7 @@ const PaperAirplane = ({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, 
                 <Edges
                     linewidth={2}
                     threshold={15}
-                    color="#888888"
+                    color="#6e4a2c"
                 />
             </mesh>
 
@@ -118,7 +118,7 @@ const PaperAirplane = ({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, 
                         ])}
                     />
                 </bufferGeometry>
-                <lineBasicMaterial color="#888888" linewidth={2} />
+                <lineBasicMaterial color="#6e4a2c" linewidth={2} />
             </line>
         </group>
     );

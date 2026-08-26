@@ -27,6 +27,79 @@ const tempQuat = new THREE.Quaternion();
 
 
 const CABIN_SKETCH_URL = '/fonts/CabinSketch-Regular.ttf';
+const CABIN_SKETCH_BOLD_URL = '/fonts/CabinSketch-Bold.ttf';
+
+/**
+ * FrameBoard — text written directly inside the photo frame.
+ * A paper backing plane + troika Text stack (title / body lines / credit).
+ * No image textures: the words ARE the artwork, always perfectly fitted.
+ */
+const FrameBoard = ({ board, width, height }) => {
+    const paperW = width * 0.86;
+    const paperH = height * 0.74;
+    const titleSize = board.titleSize || 0.135;
+    const lineSize = board.textSize || 0.102;
+    const step = board.lineStep || 0.155;
+
+    const titleY = paperH / 2 - 0.17;
+    const linesStartY = titleY - 0.26;
+
+    return (
+        <group>
+            {/* Paper backing */}
+            <mesh position={[0, 0, -0.004]}>
+                <planeGeometry args={[paperW, paperH]} />
+                <meshBasicMaterial color="#fffdfa" side={THREE.DoubleSide} />
+            </mesh>
+            {/* Thin inner rule */}
+            <mesh position={[0, 0, -0.003]}>
+                <planeGeometry args={[paperW - 0.12, paperH - 0.12]} />
+                <meshBasicMaterial color="#a89f93" transparent opacity={0.35} side={THREE.DoubleSide} />
+            </mesh>
+            {/* Title */}
+            {board.title && (
+                <Text
+                    position={[0, titleY, 0.02]}
+                    fontSize={titleSize}
+                    font={CABIN_SKETCH_BOLD_URL}
+                    color="#1c1c1c"
+                    anchorX="center"
+                    anchorY="middle"
+                    letterSpacing={0.02}
+                >
+                    {board.title}
+                </Text>
+            )}
+            {/* Body lines */}
+            {board.lines.map((line, i) => (
+                <Text
+                    key={i}
+                    position={[0, linesStartY - i * step, 0.02]}
+                    fontSize={lineSize}
+                    font={CABIN_SKETCH_URL}
+                    color={board.accent && i === board.lines.length - 1 ? board.accent : "#2f2b26"}
+                    anchorX="center"
+                    anchorY="middle"
+                >
+                    {line}
+                </Text>
+            ))}
+            {/* Credit */}
+            {board.credit && (
+                <Text
+                    position={[0, -paperH / 2 + 0.14, 0.02]}
+                    fontSize={0.085}
+                    font={CABIN_SKETCH_URL}
+                    color="#8a8177"
+                    anchorX="center"
+                    anchorY="middle"
+                >
+                    {board.credit}
+                </Text>
+            )}
+        </group>
+    );
+};
 
 const PictureContent = ({ imagePath, imagePaintedPath, width, height, isPainted }) => {
     const texture = useTexture(imagePath);
@@ -286,7 +359,7 @@ const InspectableFrame = ({ frame, wallX, frameTexture, framePaintedTexture, CAB
                 />
             </mesh>
 
-            {/* OBRAZEK WEWNĄTRZ */}
+            {/* OBRAZEK WEWNĄTRZ / TEXT BOARD */}
             {frame.image && (
                 <PictureContent
                     imagePath={frame.image}
@@ -295,6 +368,9 @@ const InspectableFrame = ({ frame, wallX, frameTexture, framePaintedTexture, CAB
                     height={frame.imageHeight || frame.height * 0.7}
                     isPainted={isHovered || isInspected}
                 />
+            )}
+            {!frame.image && frame.board && (
+                <FrameBoard board={frame.board} width={frame.width} height={frame.height} />
             )}
 
             {/* PODPIS */}
@@ -379,11 +455,14 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,     // Legacy ratio 3200x1792
             y: 0.3,                  // Wysokość na ścianie
             id: 'frame-1',
-            // Binary joke board
-            image: '/textures/corridor/decorations/ad_board_binary.webp',
-            imageWidth: 1.7,
-            imageHeight: 1.7 * (640 / 1024),
-            offsetFromWall: 0.1,
+            board: {
+                title: 'BINARY',
+                lines: [
+                    'There are 10 types of people:',
+                    'those who understand binary,',
+                    "and those who don't.",
+                ],
+            },
         },
         {
             z: zOffset - 25,         // Między Gallery a Studio (relZ -20 do -30)
@@ -392,11 +471,13 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.2,
             id: 'frame-2',
-            // UDP joke board
-            image: '/textures/corridor/decorations/ad_board_udp.webp',
-            imageWidth: 1.7,
-            imageHeight: 1.7 * (640 / 1024),
-            offsetFromWall: 0.1
+            board: {
+                title: 'NETWORKING',
+                lines: [
+                    "I'd tell you a UDP joke —",
+                    'but you might not get it.',
+                ],
+            },
         },
         {
             z: zOffset - 40,         // Między Studio a About (relZ -34 do -46)
@@ -405,11 +486,15 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.25,
             id: 'frame-3',
-            // Personal motto poster — "Jack of all trades..."
-            image: '/textures/corridor/decorations/ad_quote_jack.webp',
-            imageWidth: 1.7,
-            imageHeight: 1.7 * (640 / 1024),
-            offsetFromWall: 0.1,
+            board: {
+                title: 'THE CODE I LIVE BY',
+                lines: [
+                    'Jack of all trades, master of none —',
+                    'yet oftentimes better than',
+                    'the master of one.',
+                ],
+                credit: '— my motto',
+            },
         },
         {
             z: zOffset - 55,         // Między About a Connect (relZ -50 do -60)
@@ -418,11 +503,15 @@ const CorridorDecorations = ({ segmentLength, zOffset, corridorWidth = 4, corrid
             height: 2.5 / 1.785,
             y: 0.35,
             id: 'frame-4',
-            // Personal motto poster — "Designing the micro-world..."
-            image: '/textures/corridor/decorations/ad_quote_micro.webp',
-            imageWidth: 1.7,
-            imageHeight: 1.7 * (640 / 1024),
-            offsetFromWall: 0.1,
+            board: {
+                lines: [
+                    'Designing the micro-world',
+                    'that powers the macro-world.',
+                ],
+                textSize: 0.125,
+                lineStep: 0.21,
+                credit: '— Adarsh Swarup Maharana',
+            },
         },
     ], [zOffset]);
 

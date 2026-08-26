@@ -1,8 +1,9 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { PerformanceMonitor, Preload } from "@react-three/drei";
+import * as THREE from "three";
 
 import Experience from "./itom/src/components/canvas/Experience";
 import GlobalOverlay from "./itom/src/components/ui/GlobalOverlay";
@@ -13,8 +14,28 @@ import ScreenReaderOverlay from "./itom/src/components/ui/ScreenReaderOverlay";
 import { AchievementsProvider } from "./itom/src/context/AchievementsContext";
 import { AudioProvider, useAudio } from "./itom/src/context/AudioManager";
 import { PerformanceProvider, usePerformance } from "./itom/src/context/PerformanceContext";
-import { SceneProvider } from "./itom/src/context/SceneContext";
+import { SceneProvider, useScene } from "./itom/src/context/SceneContext";
 import { initAudio } from "./itom/src/utils/audioManager";
+
+// Room-specific atmosphere: while inside a room, melt the global paper fog
+// into that room's ambience (About = sky blue so clouds read as white).
+const ROOM_ATMOSPHERE = {
+  about: "#bfe0ff",
+};
+
+function RoomAtmosphere() {
+  const { currentRoom } = useScene();
+  const { scene } = useThree();
+
+  useEffect(() => {
+    if (!scene) return;
+    const target = ROOM_ATMOSPHERE[currentRoom] || "#fafafa";
+    scene.background = new THREE.Color(target);
+    if (scene.fog) scene.fog.color.set(target);
+  }, [currentRoom, scene]);
+
+  return null;
+}
 
 function GlobalAudioEnabler() {
   const { enableAudio } = useAudio();
@@ -67,6 +88,7 @@ function ItomCanvas({ fallback }) {
             >
               <color attach="background" args={["#fafafa"]} />
               <fog attach="fog" args={["#fafafa", 15, 50]} />
+              <RoomAtmosphere />
               <PerformanceMonitor
                 onDecline={() => downgradeTier()}
                 flipflops={3}

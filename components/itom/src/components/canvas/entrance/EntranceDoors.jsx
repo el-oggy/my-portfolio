@@ -72,8 +72,6 @@ const EntranceDoors = ({
     const edgeTexture = useTexture(isMobileDevice ? '/textures/doors/pien_sketch.webp' : '/textures/doors/pien.webp');
 
     const bricksTexture = useTexture('/textures/entrance/wall_bricks_2.webp');
-    // WELCOME plank hung above the door frame
-    const welcomeTexture = useTexture('/textures/doors/ad_welcome.webp');
     const stonePathTexture = useTexture('/textures/entrance/stone-path.webp');
     // const catTexture = useTexture('/textures/entrance/cat_sketch.webp'); // Old side cat
     const catFrontBodyTexture = useTexture('/textures/entrance/cat_front_body.webp');
@@ -636,17 +634,6 @@ const EntranceDoors = ({
                     alphaTest={0.1}
                     roughness={0.9}
                     depthWrite={false}
-                />
-            </mesh>
-
-            {/* === WELCOME PLANK (above the doors) === */}
-            <mesh position={[0, doorBottomY + frameHeight + 0.45, 0.22]}>
-                <planeGeometry args={[5.4, 1.35]} />
-                <meshBasicMaterial color="#e0e0e0"
-                    map={welcomeTexture}
-                    transparent={true}
-                    alphaTest={0.1}
-                    roughness={0.9}
                 />
             </mesh>
 

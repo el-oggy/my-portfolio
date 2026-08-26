@@ -622,15 +622,14 @@ async function entranceSign() {
       fill="${CARD}" stroke="${INK}" stroke-width="8"/>
     <rect x="40" y="40" width="${W - 80}" height="${H - 80}" rx="16"
       fill="none" stroke="${FAINT}" stroke-width="2.5" stroke-dasharray="14 10"/>
-    ${txt(cabinBold, "HI, I'M ADARSH", W / 2, H / 2 - 20, 128, INK, "center")}
-    <path d="M180 ${H / 2 + 26} H ${W - 180}" stroke="${FAINT}" stroke-width="3" stroke-dasharray="12 9"/>
-    ${txt(cabinReg, "embedded · vlsi · iot", W / 2, H / 2 + 92, 46, "#6b6257", "center")}
-    ${txt(cabinReg, "- scroll to walk -", W / 2, H - 74, 36, FAINT, "center")}`;
+    ${txt(cabinBold, "WELCOME", W / 2, H / 2 + 30, 158, INK, "center")}
+    <path d="M180 ${H / 2 + 96} H ${W - 180}" stroke="${FAINT}" stroke-width="3" stroke-dasharray="12 9"/>
+    ${txt(cabinReg, "- come on in -", W / 2, H / 2 + 168, 46, "#6b6257", "center")}`;
 
   const paint = `
     <rect x="18" y="18" width="${W - 36}" height="${H - 36}" rx="26"
       fill="none" stroke="${ACC.green}" stroke-width="8"/>
-    ${txt(cabinBold, "HI, I'M ADARSH", W / 2, H / 2 - 20, 128, ACC.green, "center")}`;
+    ${txt(cabinBold, "WELCOME", W / 2, H / 2 + 30, 158, ACC.green, "center")}`;
 
   await writeWebp(dir, "ad_sign.webp", svgDoc(W, H, body));
   await writeWebp(dir, "ad_sign_painted.webp", svgDoc(W, H, body + paint));
