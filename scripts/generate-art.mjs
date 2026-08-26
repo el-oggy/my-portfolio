@@ -898,14 +898,12 @@ async function entranceDoors() {
 }
 
 // ---------- run ----------
+// NOTE: retired generators — portrait()/diagrams()/quotePosters()/textBoards()
+// produced baked images for the hallway frames, which now render live text
+// (FrameBoard); welcomePlank() fed the removed door plank.
 await covers();
-await portrait();
-await diagrams();
 await balloons();
 await entranceSign();
-await quotePosters();
-await welcomePlank();
-await textBoards();
 await journeyIsland();
 await entranceDoors();
 console.log("\nAll artwork generated.");
