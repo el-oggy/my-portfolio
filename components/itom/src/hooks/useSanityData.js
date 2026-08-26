@@ -35,18 +35,46 @@ export function useStudioContent() {
   }));
 }
 
-export function useAwards() {
-  const items = certifications.map((certification) => ({
+const AWARD_IMG = "/textures/about/SOTD.webp";
+
+// Two real internships (also surfaced on the Journey islands)
+const INTERNSHIPS = [
+  { label: "Research & Technical Intern", date: "NIT Rourkela", image: AWARD_IMG, url: null },
+  { label: "VLSI Design using EDA Tools (Internship)", date: "PMEC", image: AWARD_IMG, url: null },
+];
+
+// Certifications excluding the PMEC internship entry (no duplicates across groups)
+const CERTIFICATES = certifications
+  .filter((c) => !/internship/i.test(c.title))
+  .map((certification) => ({
     label: certification.title,
     date: certification.issuer,
-    image: "/textures/about/SOTD.webp",
+    image: AWARD_IMG,
     url: certification.href || null,
   }));
 
+export function useAwards() {
   return {
-    featured: { id: "award-featured", layout: "certificate_grid", title: "Selected Work", items: [], platformConfig: { label: "WORK", color: "#1a1a1a", icon: "⭐" } },
-    sotd: { id: "award-sotd", layout: "certificate_grid", title: "Certifications & Training", items, platformConfig: { label: "CREDENTIAL", color: "#1a1a1a", icon: "🏆" } },
-    sotm: { id: "award-sotm", layout: "certificate_grid", title: "Programs", items: [], platformConfig: { label: "PROGRAM", color: "#1a1a1a", icon: "📅" } },
-    other: { id: "award-other", layout: "certificate_grid", title: "Other", items: [], platformConfig: { label: "OTHER", color: "#1a1a1a", icon: "👑" } },
+    featured: {
+      id: "award-featured",
+      layout: "certificate_grid",
+      title: "Achievements",
+      items: [...INTERNSHIPS, ...CERTIFICATES],
+      platformConfig: { label: "WORK", color: "#1a1a1a", icon: "⭐" },
+    },
+    sotm: {
+      id: "award-sotm",
+      layout: "certificate_grid",
+      title: "Internships",
+      items: INTERNSHIPS,
+      platformConfig: { label: "INTERNSHIP", color: "#1a1a1a", icon: "📅" },
+    },
+    other: {
+      id: "award-other",
+      layout: "certificate_grid",
+      title: "Certificates",
+      items: CERTIFICATES,
+      platformConfig: { label: "CERTIFICATE", color: "#1a1a1a", icon: "👑" },
+    },
   };
 }

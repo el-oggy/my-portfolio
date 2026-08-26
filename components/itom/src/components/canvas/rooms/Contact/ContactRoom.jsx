@@ -358,7 +358,7 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     return (
         <group ref={groupRef} position={[0, -0.7, -5]}>
-            {!isWarmup && (
+            {!isWarmup && showRoom && (
                 <PositionalAudio
                     ref={audioRef}
                     url="/sounds/szummorza.mp3"

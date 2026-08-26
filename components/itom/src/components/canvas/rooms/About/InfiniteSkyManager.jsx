@@ -411,14 +411,15 @@ const IntroMilestone = ({ z, scrollProgressRef }) => {
 };
 
 /**
- * AWARDS DATA — Adarsh's real certifications & training.
+ * AWARDS DATA — Adarsh's real internships & certifications.
+ * (Fallback only — useAwards() from hooks mirrors this shape.)
  * Certificate frame art: /textures/about/SOTD.webp (+_painted).
  */
 const AWARDS_DATA = {
     featured: {
         id: 'award-featured',
         layout: 'certificate_grid',
-        title: 'Certifications & Training',
+        title: 'Achievements',
         items: [
             { label: 'Research & Technical Intern', date: 'NIT Rourkela', image: '/textures/about/SOTD.webp', url: null },
             { label: 'VLSI Design using EDA Tools (Internship)', date: 'PMEC', image: '/textures/about/SOTD.webp', url: null },
@@ -430,19 +431,6 @@ const AWARDS_DATA = {
             label: 'HONOR',
             color: '#1a1a1a',
             icon: '⭐'
-        }
-    },
-    sotd: {
-        id: 'award-sotd',
-        layout: 'certificate_grid',
-        title: 'Courses',
-        items: [
-            { label: 'Python Programming for Everybody', date: 'Coursera', image: '/textures/about/SOTD.webp', url: null },
-        ],
-        platformConfig: {
-            label: 'COURSE',
-            color: '#1a1a1a',
-            icon: '🏆'
         }
     },
     sotm: {
@@ -465,6 +453,7 @@ const AWARDS_DATA = {
         title: 'Certificates',
         items: [
             { label: 'Young IoT Prodigy', date: 'Infosys Spring Board', image: '/textures/about/SOTD.webp', url: null },
+            { label: 'Python Programming for Everybody', date: 'Coursera', image: '/textures/about/SOTD.webp', url: null },
             { label: 'VLSI Innovation, Embedded Systems & Cutting-Edge Hardware Solutions', date: 'Certification Program', image: '/textures/about/SOTD.webp', url: null },
         ],
         platformConfig: {
@@ -477,7 +466,7 @@ const AWARDS_DATA = {
 
 /**
  * AWARDS Milestone - Floating Cards
- * SOTY (center), SOTD, SOTM, Featured (behind)
+ * SOTY (center), SOTM (left), Certificates (right)
  */
 const AwardsMilestone = ({ z, scrollProgressRef }) => {
     // Pobieranie danych nagród z Sanity (z fallbackiem)
@@ -489,13 +478,9 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
     const { openOverlay } = useScene();
     const groupRef = useRef();
     const sotyRef = useRef();
-    const sotdRef = useRef();
     const sotmRef = useRef();
 
     // Card reveal refs (driven by button hover)
-    const sotdCardRevealRef = useRef();
-    const sotdCardPaintedRef = useRef();
-    const sotdHideDelayRef = useRef();
     const sotmCardRevealRef = useRef();
     const sotmCardPaintedRef = useRef();
     const sotmHideDelayRef = useRef();
@@ -505,20 +490,16 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
 
     // Load textures
     const sotyTexture = useLoader(THREE.TextureLoader, '/textures/about/SOTY.webp');
-    const sotdTexture = useLoader(THREE.TextureLoader, '/textures/about/SOTD.webp');
     const sotmTexture = useLoader(THREE.TextureLoader, '/textures/about/SOTM.webp');
     const sotyPaintedTexture = useLoader(THREE.TextureLoader, isTouch ? '/textures/about/SOTY.webp' : '/textures/about/SOTY_painted.webp');
-    const sotdPaintedTexture = useLoader(THREE.TextureLoader, isTouch ? '/textures/about/SOTD.webp' : '/textures/about/SOTD_painted.webp');
     const sotmPaintedTexture = useLoader(THREE.TextureLoader, isTouch ? '/textures/about/SOTM.webp' : '/textures/about/SOTM_painted.webp');
     const buttonTexture = useLoader(THREE.TextureLoader, '/textures/about/button.webp');
     const buttonPaintedTexture = useLoader(THREE.TextureLoader, isTouch ? '/textures/about/button.webp' : '/textures/about/button_painted.webp');
 
     // Color space fix
     sotyTexture.colorSpace = THREE.SRGBColorSpace;
-    sotdTexture.colorSpace = THREE.SRGBColorSpace;
     sotmTexture.colorSpace = THREE.SRGBColorSpace;
     sotyPaintedTexture.colorSpace = THREE.SRGBColorSpace;
-    sotdPaintedTexture.colorSpace = THREE.SRGBColorSpace;
     sotmPaintedTexture.colorSpace = THREE.SRGBColorSpace;
     buttonTexture.colorSpace = THREE.SRGBColorSpace;
     buttonPaintedTexture.colorSpace = THREE.SRGBColorSpace;
@@ -606,14 +587,12 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
 
         const spreadX = 5;
 
-        if (sotdRef.current) {
-            sotdRef.current.position.x = -revealFactor * spreadX;
-        }
         if (sotmRef.current) {
-            sotmRef.current.position.x = revealFactor * spreadX;
+            sotmRef.current.position.x = -revealFactor * spreadX;
         }
 
         if (sotyRef.current) {
+            sotyRef.current.position.x = revealFactor * spreadX;
             sotyRef.current.position.y = 0.5 + sotyFactor * 2.5;
         }
     });
@@ -629,71 +608,10 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
                 anchorY="middle"
                 font="/fonts/RubikScribble-Regular.ttf"
             >
-                AWARDS
+                ACHIEVEMENTS
             </Text>
 
-            {/* === SOTD (behind SOTY, rendered second) === */}
-            <group ref={sotdRef} position={[0, 0.5, -0.5]}>
-                {/* Painted card (behind) - hidden until button hover */}
-                <mesh ref={sotdCardPaintedRef} position={[0, 0, -0.001]} visible={true}>
-                    <planeGeometry args={[cardHeight * cardLegacyAspect, cardHeight]} />
-                    <meshBasicMaterial color="#e0e0e0"
-                        map={sotdPaintedTexture}
-                        transparent
-                        opacity={0}
-                        side={THREE.DoubleSide}
-                        alphaTest={0.5}
-                    />
-                </mesh>
-                {/* Sketch card (front) with reveal */}
-                <mesh>
-                    <planeGeometry args={[cardHeight * cardLegacyAspect, cardHeight]} />
-                    <revealBasicMaterial
-                        ref={sotdCardRevealRef}
-                        map={sotdTexture}
-                        transparent
-                        side={THREE.DoubleSide}
-                        uProgress={0.0}
-                    />
-                </mesh>
-                {/* BUTTON */}
-                <AwardButton
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        openOverlay(awardsData.sotd);
-                    }}
-                    texture={buttonTexture}
-                    paintedTexture={buttonPaintedTexture}
-                    width={buttonWidth}
-                    height={buttonHeight}
-                    position={[0, buttonY, 0.05]}
-                    onHoverChange={makeCardHoverHandler(sotdCardRevealRef, sotdCardPaintedRef, sotdHideDelayRef)}
-                />
-                {/* AWARD LABEL */}
-                <Text
-                    position={[0, 0.95, 0.01]}
-                    fontSize={0.45}
-                    color="#1a1a1a"
-                    anchorX="center"
-                    anchorY="middle"
-                    font="/fonts/CabinSketch-Bold.ttf"
-                >
-                    COURSES
-                </Text>
-                {/* AWARD COUNT */}
-                <Text
-                    position={[-0.05, 0, 0.01]}
-                    fontSize={0.8}
-                    color="#1a1a1a"
-                    anchorX="center"
-                    anchorY="middle"
-                    font="/fonts/CabinSketch-Bold.ttf"
-                >
-                    {awardsData.sotd.items.length}
-                </Text>
-            </group>
-
-            {/* === SOTM (behind SOTY, rendered third) === */}
+            {/* === INTERNSHIPS (left card, rendered behind) === */}
             <group ref={sotmRef} position={[0, 0.5, -0.2]}>
                 {/* Painted card (behind) - hidden until button hover */}
                 <mesh ref={sotmCardPaintedRef} position={[0, 0, -0.001]} visible={true}>

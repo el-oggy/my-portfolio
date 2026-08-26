@@ -11,67 +11,105 @@ export const metadata: Metadata = {
 
 export default function EmailPage() {
   return (
-    <main className="min-h-screen bg-[var(--bg-paper)] px-4 py-12">
-      <div className="mx-auto max-w-3xl">
-        {/* Header */}
-        <div className="text-center">
+    <main className="min-h-screen bg-[var(--bg-paper)] px-4 py-12 sm:px-8">
+      <div className="mx-auto max-w-6xl">
+        {/* ===== HEADER BAND ===== */}
+        <header className="text-center">
           <div className="font-caveat text-3xl text-[var(--accent-contact)]">
             ✉ drop me a line ✉
           </div>
-          <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-[var(--ink)] sm:text-5xl">
-            Email Adarsh
+          <h1 className="mt-2 text-5xl font-extrabold tracking-tight text-[var(--ink)] sm:text-6xl">
+            Send a Signal
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-base text-[var(--ink-dim)]">
+          <p className="mx-auto mt-4 max-w-xl text-lg text-[var(--ink-dim)]">
             Open for embedded systems, IoT hardware design, VLSI, and robotics
-            collaborations — messages land straight in the inbox.
+            collaborations. Messages land straight in the inbox — no middlemen.
           </p>
-        </div>
 
-        {/* Contact details strip */}
-        <div className="mx-auto mt-8 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-3">
-          <a
-            href={`mailto:${links.email}`}
-            className="rounded-lg border-2 border-[var(--pencil-line)] bg-white p-3 text-center transition hover:-translate-y-0.5"
-          >
-            <div className="font-hand text-xs text-[var(--ink-faint)]">direct</div>
-            <div className="truncate font-mono text-xs font-bold text-[var(--ink)]">
-              {links.email}
+          {/* Signal-wave divider */}
+          <div className="mt-6 flex items-center justify-center gap-1.5" aria-hidden>
+            {[8, 18, 30, 44, 56, 64, 56, 44, 30, 18, 8].map((h, i) => (
+              <span
+                key={i}
+                className={`w-2 rounded-full ${i === 5 ? "bg-[var(--accent-contact)]" : "bg-[var(--pencil-line)]"}`}
+                style={{ height: h / 2 + 8 }}
+              />
+            ))}
+          </div>
+        </header>
+
+        {/* ===== TWO-COLUMN BODY ===== */}
+        <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.35fr]">
+          {/* Left — who you're writing to */}
+          <aside className="sketch-card relative h-fit p-8 lg:sticky lg:top-10">
+            <div className="sketch-tape" />
+            <div
+              className="flex h-20 w-20 items-center justify-center rounded-xl border-4 border-[var(--ink)] bg-[var(--accent-contact)] font-caveat text-5xl text-white"
+              aria-hidden
+            >
+              A
             </div>
-          </a>
-          <a
-            href={links.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border-2 border-[var(--pencil-line)] bg-white p-3 text-center transition hover:-translate-y-0.5"
-          >
-            <div className="font-hand text-xs text-[var(--ink-faint)]">code</div>
-            <div className="font-mono text-xs font-bold text-[var(--ink)]">GitHub ↗</div>
-          </a>
-          <a
-            href={links.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border-2 border-[var(--pencil-line)] bg-white p-3 text-center transition hover:-translate-y-0.5"
-          >
-            <div className="font-hand text-xs text-[var(--ink-faint)]">network</div>
-            <div className="font-mono text-xs font-bold text-[var(--ink)]">LinkedIn ↗</div>
-          </a>
+            <h2 className="mt-4 text-2xl font-extrabold text-[var(--ink)]">
+              {identity.name}
+            </h2>
+            <p className="font-hand text-lg text-[var(--accent-contact)]">
+              embedded · vlsi · iot
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--ink-dim)]">
+              Electronics engineer from {identity.location}. Builds flight
+              controllers, keyboard firmware, and systolic arrays — happy to
+              talk hardware, internships, or wild ideas.
+            </p>
+
+            <dl className="mt-6 space-y-3 font-mono text-xs">
+              <div>
+                <dt className="font-hand text-sm text-[var(--ink-faint)]">direct</dt>
+                <dd>
+                  <a
+                    href={`mailto:${links.email}`}
+                    className="break-all text-[var(--ink)] underline hover:text-[var(--accent-contact)]"
+                  >
+                    {links.email}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt className="font-hand text-sm text-[var(--ink-faint)]">response time</dt>
+                <dd className="flex items-center gap-2 text-[var(--ink)]">
+                  <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+                  usually within 24 hours
+                </dd>
+              </div>
+            </dl>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              <a href={links.github} target="_blank" rel="noopener noreferrer" className="sketch-tag">
+                GitHub ↗
+              </a>
+              <a href={links.linkedin} target="_blank" rel="noopener noreferrer" className="sketch-tag">
+                LinkedIn ↗
+              </a>
+              <a href={links.resume} target="_blank" rel="noopener noreferrer" className="sketch-tag">
+                CV ↗
+              </a>
+            </div>
+          </aside>
+
+          {/* Right — the form */}
+          <section aria-label="Contact form">
+            <EmailForm />
+          </section>
         </div>
 
-        {/* The form */}
-        <div className="mt-10">
-          <EmailForm />
-        </div>
-
-        {/* Footer */}
-        <div className="mt-10 text-center">
+        {/* ===== FOOTER ===== */}
+        <footer className="mt-16 border-t-2 border-dashed border-[var(--pencil-line)]/40 pt-6 text-center">
           <Link href="/" className="sketch-btn inline-block text-sm">
             ← Back to the 3D portfolio
           </Link>
-          <div className="mt-6 font-mono text-xs text-[var(--ink-faint)]">
-            📍 {identity.location}
+          <div className="mt-4 font-mono text-xs text-[var(--ink-faint)]">
+            📍 {identity.location} · built with react-three-fiber & too much coffee
           </div>
-        </div>
+        </footer>
       </div>
     </main>
   );

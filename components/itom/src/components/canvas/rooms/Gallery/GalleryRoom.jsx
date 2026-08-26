@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useEffect, forwardRef, useImperativeHandle, memo } from 'react';
+﻿import { useRef, useState, useMemo, useEffect, forwardRef, useImperativeHandle, memo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text, useTexture, Float, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
@@ -437,7 +437,7 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     return (
         <group ref={groupRef}>
-            {!isWarmup && (
+            {!isWarmup && showRoom && (
                 <PositionalAudio
                     ref={audioRef}
                     url="/sounds/szummiasta.mp3"

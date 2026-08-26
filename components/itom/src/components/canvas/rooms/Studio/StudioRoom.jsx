@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react';
+﻿import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useFrame, useThree, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -549,7 +549,7 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     return (
         <group ref={groupRef} position={[0, -1.2, 0]}>
-            {!isWarmup && (
+            {!isWarmup && showRoom && (
                 <PositionalAudio
                     ref={audioRef}
                     url="/sounds/szummonitorow.mp3"

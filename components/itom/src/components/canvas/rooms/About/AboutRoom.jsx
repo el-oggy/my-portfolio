@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+﻿import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
@@ -235,7 +235,7 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     return (
         <group ref={roomRef} position={[0, 0, -25]}>
-            {!isWarmup && (
+            {!isWarmup && showRoom && (
                 <PositionalAudio
                     ref={audioRef}
                     url="/sounds/szumwiatru.mp3"

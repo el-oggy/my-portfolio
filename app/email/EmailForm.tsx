@@ -134,10 +134,21 @@ export default function EmailForm() {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="sketch-btn mt-6 w-full bg-[var(--note-yellow)] text-base disabled:opacity-50"
+        className="sketch-btn mt-6 w-full bg-[var(--note-yellow)] text-base font-bold tracking-wide disabled:opacity-50"
       >
-        {status === "sending" ? "Sending…" : "Send it ✈"}
+        {status === "sending" ? "Transmitting…" : "Let's transmit signal 📡"}
       </button>
+
+      {/* Signal-wave flourish */}
+      <div className="mt-4 flex items-center justify-center gap-1 opacity-60" aria-hidden>
+        {[6, 12, 20, 28, 36, 28, 20, 12, 6].map((h, i) => (
+          <span
+            key={i}
+            className="w-1.5 rounded-full bg-[var(--accent-contact)]"
+            style={{ height: h }}
+          />
+        ))}
+      </div>
 
       <p className="mt-4 text-center font-mono text-xs text-[var(--ink-faint)]">
         or write directly:{" "}

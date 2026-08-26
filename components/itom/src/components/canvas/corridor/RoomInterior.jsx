@@ -1,4 +1,4 @@
-import { useMemo, memo, Suspense, useEffect } from 'react';
+import { useMemo, memo, Suspense, useEffect, useState } from 'react';
 import { Text } from '@react-three/drei';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
@@ -141,6 +141,15 @@ const RoomInterior = memo(({ label, showRoom, onReady, isExiting }) => {
 
     const isGallery = label === 'THE GALLERY';
 
+    // KEEP-ALIVE: once a room has been entered, keep it mounted forever and
+    // merely hide it on exit. Remounting the full room (textures → GPU
+    // upload, geometry builds, shader compiles) is what caused the visible
+    // hitch every time the player walked back into a room.
+    const [hasEverShown, setHasEverShown] = useState(false);
+    useEffect(() => {
+        if (showRoom && !hasEverShown) setHasEverShown(true);
+    }, [showRoom, hasEverShown]);
+
     // Trigger onReady for generic rooms (which don't have their own component to do it)
     useEffect(() => {
         if (showRoom && !['THE GALLERY', 'THE STUDIO', 'THE ABOUT', "LET'S CONNECT"].includes(label)) {
@@ -208,8 +217,12 @@ const RoomInterior = memo(({ label, showRoom, onReady, isExiting }) => {
             />
 
             {/* === ROOM CONTENT === */}
-            {showRoom && (
-                <group>
+            {/* KEEP-ALIVE: after the first entry the room stays mounted and is
+                only hidden (visible={showRoom}) — remounting caused lag spikes.
+                Ambient PositionalAudio inside each room is gated on showRoom,
+                so hidden rooms stay silent. */}
+            {hasEverShown && (
+                <group visible={showRoom}>
                     {isGallery ? (
                         // === NEW GALLERY ROOM ===
                         // Positioned at the end of the corridor
@@ -241,7 +254,7 @@ const RoomInterior = memo(({ label, showRoom, onReady, isExiting }) => {
                         </group>
                     ) : (
                         // === DEFAULT GENERIC ROOM (For other sections) ===
-                        <group position={[0, roomHeight / 2 - corridorHeight / 2, roomZ]}>
+                        <group position={[0, roomHeight / 2 - corridorHeight / 2, roomZ]} visible={showRoom}>
                             {/* Floor */}
                             <mesh
                                 position={[0, -roomHeight / 2, 0]}
