@@ -11,6 +11,7 @@ import NavigationUI from "./itom/src/components/ui/NavigationUI";
 import PaperTransition from "./itom/src/components/dom/PaperTransition";
 import Preloader from "./itom/src/components/dom/Preloader";
 import ScreenReaderOverlay from "./itom/src/components/ui/ScreenReaderOverlay";
+import EmailOverlay from "./ui/EmailOverlay";
 import { AchievementsProvider } from "./itom/src/context/AchievementsContext";
 import { AudioProvider, useAudio } from "./itom/src/context/AudioManager";
 import { PerformanceProvider, usePerformance } from "./itom/src/context/PerformanceContext";
@@ -115,6 +116,7 @@ function ItomCanvas({ fallback }) {
               <GlobalOverlay />
               <PaperTransition />
               <ScreenReaderOverlay />
+              <EmailOverlay />
             </>
           )}
 

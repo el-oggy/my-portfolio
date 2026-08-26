@@ -1,113 +1,70 @@
-import { useRef, useState, Suspense } from 'react';
+import { useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-
-// Eagerly import all room components
-import GalleryRoom from '../rooms/Gallery/GalleryRoom';
-import StudioRoom from '../rooms/Studio/StudioRoom';
-import AboutRoom from '../rooms/About/AboutRoom';
-import ContactRoom from '../rooms/Contact/ContactRoom';
 import { isSanityDataLoaded } from '../../../hooks/useSanityData';
 
 /**
- * RoomWarmup Component
- * 
- * Mounts all 4 rooms off-screen during the preloader phase to force
- * shader compilation and texture upload to GPU. After a few frames,
- * it unmounts the rooms to free memory. This ensures the first room
- * entry has zero shader compilation stutter.
- * 
- * Positioned 500 units below the scene so nothing is visible.
- * Audio components won't be audible at this distance.
+ * RoomWarmup — LIGHTWEIGHT BOOT GATE
+ *
+ * Previously this mounted ALL FOUR rooms off-screen and ran a full
+ * gl.compileAsync — which is exactly why the preloader crawled from ~90%
+ * to 100%. Rooms are keep-alive now (RoomInterior parks them mounted but
+ * hidden after first entry), so first-entry hitches are already masked by
+ * the paper transition. Boot only needs to:
+ *   1. wait for data,
+ *   2. let the corridor graph flush a couple of frames,
+ *   3. compile the (small) visible scene.
+ *
+ * If you ever want the old heavy warmup back, see git history.
  */
 const RoomWarmup = ({ onWarmupComplete, isLowTier }) => {
     const [isDone, setIsDone] = useState(false);
     const frameCount = useRef(0);
     const completeFired = useRef(false);
+    const settleStart = useRef(0);
     const { gl, scene, camera } = useThree();
-
-    // Wait for rooms to render a few frames, then compile and unmount
-    const warmupStart = useRef(performance.now());
 
     useFrame(() => {
         if (isDone || completeFired.current) return;
 
-        // Wait until Sanity data is loaded before starting warmup
+        // Wait until Sanity data is loaded before starting
         if (!isSanityDataLoaded()) return;
 
         frameCount.current++;
 
-        // For low tier, we skip warmup, but still wait 1 frame for entrance to mount
-        const targetFrames = isLowTier ? 1 : 3;
+        // Let the corridor graph flush a few frames
+        const targetFrames = 2;
+        if (frameCount.current < targetFrames) return;
+        if (!settleStart.current) settleStart.current = performance.now();
 
-        if (frameCount.current >= targetFrames) {
-            completeFired.current = true;
+        // Small settle window so pending corridor textures kick off
+        if (performance.now() - settleStart.current < 250) return;
 
-            const finishWarmup = () => {
-                const warmupDuration = ((performance.now() - warmupStart.current) / 1000).toFixed(2);
-                // console.info(`🔥 GPU/Shader Warmup Complete: ${warmupDuration}s ${isLowTier ? '(Bypassed for LOW tier)' : ''}`);
-                
-                requestAnimationFrame(() => {
-                    setIsDone(true);
-                    onWarmupComplete?.();
-                });
-            };
+        completeFired.current = true;
 
-            // On low tier, bypass intense gl.compileAsync to save memory and avoid Context Lost
-            if (isLowTier) {
-                finishWarmup();
-                return;
-            }
+        const finish = () => {
+            requestAnimationFrame(() => {
+                setIsDone(true);
+                onWarmupComplete?.();
+            });
+        };
 
-            // Force compile all shaders in the scene (including warm-up rooms)
-            // Use 2026 compileAsync to avoid blocking the main thread!
-            if (gl.compileAsync) {
-                gl.compileAsync(scene, camera, scene)
-                    .then(finishWarmup)
-                    .catch((err) => {
-                        console.error('Async compilation failed, falling back to sync', err);
-                        gl.compile(scene, camera);
-                        finishWarmup();
-                    });
-            } else {
-                gl.compile(scene, camera);
-                finishWarmup();
-            }
+        // Compile only what exists today (corridor + entrance) — cheap now.
+        // Low tier skips even this to avoid Context Lost risk.
+        if (isLowTier || typeof gl.compileAsync !== 'function') {
+            finish();
+            return;
         }
+
+        Promise.resolve(gl.compileAsync(scene, camera, scene))
+            .then(finish)
+            .catch(() => {
+                try { gl.compile(scene, camera); } catch { /* noop */ }
+                finish();
+            });
     });
 
     if (isDone) return null;
-
-    // Do not mount rooms at all on low end devices to prevent WebGL Context Lost
-    if (isLowTier) return null;
-
-    // Dummy handlers to prevent errors (rooms expect these props)
-    const noop = () => {};
-
-    return (
-        <group position={[0, -500, 0]}>
-            {/* Mount all rooms in Suspense - positioned far below camera */}
-            <Suspense fallback={null}>
-                <group position={[-20, 0, 0]}>
-                    <GalleryRoom showRoom={true} onReady={noop} isExiting={false} isWarmup={true} />
-                </group>
-            </Suspense>
-            <Suspense fallback={null}>
-                <group position={[20, 0, 0]}>
-                    <StudioRoom showRoom={true} onReady={noop} isExiting={false} isWarmup={true} />
-                </group>
-            </Suspense>
-            <Suspense fallback={null}>
-                <group position={[-20, 0, -50]}>
-                    <AboutRoom showRoom={true} onReady={noop} isExiting={false} isWarmup={true} />
-                </group>
-            </Suspense>
-            <Suspense fallback={null}>
-                <group position={[20, 0, -50]}>
-                    <ContactRoom showRoom={true} onReady={noop} isExiting={false} isWarmup={true} />
-                </group>
-            </Suspense>
-        </group>
-    );
+    return null;
 };
 
 export default RoomWarmup;

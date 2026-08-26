@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import EmailForm from "./EmailForm";
+import EmailForm from "@/components/email/EmailForm";
 import { identity, links } from "@/lib/data";
 
 export const metadata: Metadata = {

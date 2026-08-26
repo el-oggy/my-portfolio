@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
+﻿import { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
 import { getInitialRoomFromUrl } from '../hooks/useDocumentMeta';
 
 const SceneContext = createContext(null);
@@ -67,6 +67,12 @@ export const SceneProvider = ({ children }) => {
     const openOverlay = useCallback((content) => {
         setOverlayContent(content);
     }, []);
+
+    // Email overlay — opens the contact form INSIDE the portfolio experience
+    // (no route change, no reload, canvas state preserved).
+    const [emailOpen, setEmailOpen] = useState(false);
+    const openEmail = useCallback(() => setEmailOpen(true), []);
+    const closeEmail = useCallback(() => setEmailOpen(false), []);
 
     const closeOverlay = useCallback(() => {
         setOverlayContent(null);
@@ -148,6 +154,9 @@ export const SceneProvider = ({ children }) => {
         markEntered,
         openOverlay,    // Exposed
         closeOverlay,   // Exposed
+        emailOpen,      // Exposed
+        openEmail,      // Exposed
+        closeEmail,     // Exposed
         isInRoom: currentRoom !== null,
         // Deep linking
         initialRoom: initialRoom.current,
@@ -177,6 +186,9 @@ export const SceneProvider = ({ children }) => {
         markEntered,
         openOverlay,
         closeOverlay,
+        emailOpen,
+        openEmail,
+        closeEmail,
         // Teleportation dependencies
         teleportTarget,
         isTeleporting,
