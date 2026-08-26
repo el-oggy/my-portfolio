@@ -338,6 +338,7 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     // Wheel Listener for Desktop
     useEffect(() => {
         const handleWheel = (e) => {
+            if (overlayContent) return; // BLOCK SCROLL IF OVERLAY IS OPEN
             // e.deltaY > 0 means scroll DOWN.
             // Scroll DOWN -> Monitors go DOWN (Speed +).
             // Scroll UP -> Monitors go UP (Speed -).
@@ -347,7 +348,7 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
         window.addEventListener('wheel', handleWheel);
         return () => window.removeEventListener('wheel', handleWheel);
-    }, [unlockAchievement]);
+    }, [unlockAchievement, overlayContent]);
 
     // Global Event Listeners for seamless drag
     useEffect(() => {

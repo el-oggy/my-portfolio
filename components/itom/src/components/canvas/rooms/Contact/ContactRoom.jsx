@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+﻿import { useRef, useState, useEffect, useCallback } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
@@ -296,7 +296,7 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             if (frameCount.current >= FRAMES_TO_WAIT) {
                 hasSignaledReady.current = true;
                 onReady?.();
-                if (!isWarmup) setTimeout(() => showTutorial('contact_submit'), 2000);
+                if (!isWarmup) setTimeout(() => showTutorial('contact_choose'), 2000);
             }
         }
 
@@ -506,7 +506,7 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                     position={[0, 0.07, 2]}
                     onSend={(data) => {
                         // console.log('📬 Contact form submitted:', data);
-                        unlockAchievement('contact_submit');
+                        unlockAchievement('contact_choose');
                     }}
                 />
             </group>

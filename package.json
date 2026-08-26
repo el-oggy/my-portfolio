@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-assets.cjs",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "check:assets": "node scripts/check-assets.cjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.122.0",

@@ -6,6 +6,7 @@ gsap.registerPlugin(Observer);
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useAchievements } from '../context/AchievementsContext';
+import { getScroll } from '@/lib/scrollStore';
 
 // Door positions for auto-glance
 const DOOR_POSITIONS = [
@@ -120,6 +121,8 @@ const useInfiniteCamera = ({
     // Handle wheel scroll (desktop)
     const handleWheel = useCallback((e) => {
         if (!scrollEnabledRef.current) return;
+        // Modal overlays (project lightbox) freeze the world
+        if (getScroll().paused) return;
 
         e.preventDefault();
         const delta = e.deltaY * scrollSpeed;
@@ -134,6 +137,9 @@ const useInfiniteCamera = ({
         // Don't interfere when user is typing in inputs or textareas
         const tag = e.target.tagName;
         if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+        // Modal overlays (project lightbox) freeze the world
+        if (getScroll().paused) return;
 
         const keyScrollMap = {
             'ArrowDown': 100,

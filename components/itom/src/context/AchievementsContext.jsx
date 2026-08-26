@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { useAudio } from './AudioManager';
 
 const AchievementsContext = createContext();
 
@@ -13,8 +12,6 @@ export const ACHIEVEMENTS = {
 };
 
 export const AchievementsProvider = ({ children }) => {
-    const { playSound } = useAudio();
-
     // Synchronous ref to prevent double-firing on rapid events (like wheel scroll)
     const completedRef = useRef([]);
 

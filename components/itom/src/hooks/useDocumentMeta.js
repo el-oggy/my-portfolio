@@ -58,7 +58,7 @@ export function getInitialRoomFromUrl() {
 }
 
 export function useDocumentMeta() {
-    const { currentRoom, teleportTo, hasEntered } = useScene();
+    const { currentRoom, teleportTo, hasEntered, requestExit } = useScene();
     const isHandlingPopState = useRef(false);
     const lastPushedRoom = useRef(undefined); // Track what we last pushed to avoid duplicates
 
@@ -108,15 +108,18 @@ export function useDocumentMeta() {
 
     // Handle browser back/forward buttons
     useEffect(() => {
-        const handlePopState = (event) => {
+        const handlePopstate = (event) => {
             isHandlingPopState.current = true;
             const targetRoom = event.state?.room ?? null;
             lastPushedRoom.current = targetRoom;
 
             if (targetRoom === null) {
-                // Going back to corridor — we don't teleport, just need to trigger exit
-                // The SceneContext requestExit will handle the animation
-                // For now, we update meta immediately
+                // Going back to corridor — trigger the room exit flow so the
+                // camera actually leaves (previously this only re-titled the
+                // tab, leaving the user stuck inside the room).
+                if (currentRoom) {
+                    requestExit();
+                }
                 const meta = ROOM_META['null'];
                 document.title = meta.title;
             } else if (hasEntered) {
@@ -125,7 +128,7 @@ export function useDocumentMeta() {
             }
         };
 
-        window.addEventListener('popstate', handlePopState);
-        return () => window.removeEventListener('popstate', handlePopState);
-    }, [teleportTo, hasEntered]);
+        window.addEventListener('popstate', handlePopstate);
+        return () => window.removeEventListener('popstate', handlePopstate);
+    }, [teleportTo, hasEntered, currentRoom, requestExit]);
 }

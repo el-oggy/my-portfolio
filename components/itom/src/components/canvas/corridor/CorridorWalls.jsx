@@ -212,8 +212,9 @@ const CorridorWalls = ({ zStart = 10, length = 80, doorPositions = [], zClip = 1
     const effectiveLength = effectiveStart - (zStart - length);
     const zCenter = effectiveStart - effectiveLength / 2;
 
-    // If fully clipped, render nothing
-    if (effectiveLength <= 0) return null;
+    // NOTE: no early return here — the useMemo calls below must run on every
+    // render regardless of clip state (rules of hooks). The clip check lives
+    // right after them.
 
     // Helper to generate wall segments for a side ('left' or 'right')
     const generateWallSegments = (side) => {
@@ -360,6 +361,9 @@ const CorridorWalls = ({ zStart = 10, length = 80, doorPositions = [], zClip = 1
 
     const leftSegments = useMemo(() => generateWallSegments('left'), [effectiveStart, effectiveLength, doorPositions]);
     const rightSegments = useMemo(() => generateWallSegments('right'), [effectiveStart, effectiveLength, doorPositions]);
+
+    // If fully clipped, render nothing (placed after all hooks — rules of hooks)
+    if (effectiveLength <= 0) return null;
 
     return (
         <group>

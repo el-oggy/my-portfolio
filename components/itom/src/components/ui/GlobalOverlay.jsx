@@ -69,8 +69,8 @@ const GlobalOverlay = () => {
 };
 
 const ContentCard = ({ content, isOpen, onClose, isMobile }) => {
-    if (!content) return null;
-
+    // NOTE: no early-return here — hooks below must run unconditionally.
+    // The caller guarantees `content` is non-null.
     const label = content.platformConfig?.label || 'Content';
 
     // GSAP TextPlugin typing effect for description
