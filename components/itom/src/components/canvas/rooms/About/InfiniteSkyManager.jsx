@@ -842,7 +842,7 @@ const JOURNEY_ISLANDS = [
         id: 'tds',
         title: 'TDS CONSULTANCY',
         org: 'Consultancy Agent',
-        period: '2025',
+        period: '2023 – 2024 · ~6 mo',
         x: 6.6, y: 1.9, z: 0, phase: 3.8,
     },
 ];
