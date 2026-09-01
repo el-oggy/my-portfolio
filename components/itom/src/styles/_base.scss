@@ -35,6 +35,8 @@ body {
 // Scroll lock ONLY while the immersive 3D experience is active
 html.webgl-active body {
     overflow: hidden; // No scroll - 3D handles it
+    touch-action: none; // Prevent native browser pull-to-refresh and scroll on mobile
+    overscroll-behavior: none;
     @include hide-scrollbar;
 }
 

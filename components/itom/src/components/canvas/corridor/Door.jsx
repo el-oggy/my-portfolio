@@ -5,8 +5,8 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { PositionalAudio } from '@react-three/drei';
 import '../shaders/RevealMaterial'; // Registers alpha-discard reveal shader
-import { useAudio } from '../../../../context/AudioManager';
-import { isTouchDevice } from '../../../../utils/deviceDetect';
+import { useAudio } from '../../../context/AudioManager';
+import { isTouchDevice } from '../../../utils/deviceDetect';
 
 // Global settings for entrance doors audio
 const ENTRANCE_DOOR_AUDIO_SETTINGS = {

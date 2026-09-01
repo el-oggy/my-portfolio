@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, Suspense } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 
 import InfiniteCorridorManager from './corridor/InfiniteCorridorManager';
@@ -99,16 +99,20 @@ const Experience = ({ isLoaded, onSceneReady, performanceTier }) => {
                 <SignSystem position={[0, 0, ENTRANCE_DOORS_Z]} />
             )}
 
-            {/* === INFINITE CORRIDOR (segment -1 SegmentDoors hidden during entrance) === */}
-            <InfiniteCorridorManager
-                onDoorEnter={handleDoorEnter}
-                hideDoorsForSegments={hasEntered ? [] : [-1]} // Hide segment -1's doors until entered
-                clipSegmentNeg1={!hasEntered} // Clip segment -1 visualization until entered
-                setCameraOverride={setCameraOverride}
-            />
+            {/* === INFINITE CORRIDOR (Deferred loading for performance) === */}
+            <Suspense fallback={null}>
+                <InfiniteCorridorManager
+                    onDoorEnter={handleDoorEnter}
+                    hideDoorsForSegments={hasEntered ? [] : [-1]} // Hide segment -1's doors until entered
+                    clipSegmentNeg1={!hasEntered} // Clip segment -1 visualization until entered
+                    setCameraOverride={setCameraOverride}
+                />
+            </Suspense>
 
             {/* === TELEPORT ROOM (renders room directly during teleportation) === */}
-            <TeleportRoom />
+            <Suspense fallback={null}>
+                <TeleportRoom />
+            </Suspense>
         </>
     );
 };

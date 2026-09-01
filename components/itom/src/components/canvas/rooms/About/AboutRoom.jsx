@@ -1,4 +1,4 @@
-﻿import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
@@ -47,9 +47,14 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     // Use ref to track overlay state for event listeners (avoids stale closures)
     const overlayRef = useRef(overlayContent);
+    const isExitingRef = useRef(isExiting);
+    const isTeleportingRef = useRef(isTeleporting);
+    
     useEffect(() => {
         overlayRef.current = overlayContent;
-    }, [overlayContent]);
+        isExitingRef.current = isExiting;
+        isTeleportingRef.current = isTeleporting;
+    }, [overlayContent, isExiting, isTeleporting]);
 
     useEffect(() => {
         if (isExiting || isTeleporting) {
@@ -120,7 +125,6 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
         }
 
         // === TELEPORTING: Stop all camera control ===
-        // TeleportRoom handles camera position/rotation during teleport
         if (isTeleporting) {
             return;
         }
@@ -140,10 +144,14 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             unlockAchievement('about_fly');
         }
 
-        // === EXITING: Disable control completely ===
-        // DoorSection handles the exit animation (position + rotation)
-        // We must STOP touching the camera to avoid conflicts/snapping
+        // === EXITING: Smoothly reset rotation to 0 before freezing ===
         if (isExiting) {
+            // Smoothly lerp back to 0 so DoorSection starts from a flat plane
+            currentBank.current = THREE.MathUtils.lerp(currentBank.current, 0, 0.1);
+            currentPitch.current = THREE.MathUtils.lerp(currentPitch.current, 0, 0.1);
+            
+            camera.rotation.x = baseCameraRotation.current.x + currentPitch.current;
+            camera.rotation.z = baseCameraRotation.current.z + currentBank.current;
             return;
         }
 
@@ -198,7 +206,7 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     // Handle scroll wheel (desktop)
     useEffect(() => {
         const handleWheel = (e) => {
-            if (overlayRef.current) return; // BLOCK SCROLL IF OVERLAY IS OPEN
+            if (overlayRef.current || isExitingRef.current || isTeleportingRef.current) return;
             scrollVelocity.current += e.deltaY * 0.002;
         };
 
@@ -210,13 +218,14 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     const lastTouchY = useRef(0);
     useEffect(() => {
         const handleTouchStart = (e) => {
+            if (overlayRef.current || isExitingRef.current || isTeleportingRef.current) return;
             if (e.touches.length === 1) {
                 lastTouchY.current = e.touches[0].clientY;
             }
         };
 
         const handleTouchMove = (e) => {
-            if (overlayRef.current) return; // BLOCK SCROLL IF OVERLAY IS OPEN
+            if (overlayRef.current || isExitingRef.current || isTeleportingRef.current) return;
             if (e.touches.length === 1) {
                 const deltaY = lastTouchY.current - e.touches[0].clientY;
                 lastTouchY.current = e.touches[0].clientY;

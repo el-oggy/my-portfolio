@@ -75,7 +75,8 @@ const DoorSection = ({
     autoCloseDelay = 3000,
     enterDistance = 8, // Default fly-through distance
     setCameraOverride, // Function to take control of camera from hook
-    segmentIndex
+    segmentIndex,
+    color
 }) => {
     const groupRef = useRef(); // Main group that tilts
     const doorRef = useRef();

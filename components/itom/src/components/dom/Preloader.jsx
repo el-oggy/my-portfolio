@@ -207,15 +207,15 @@ const Preloader = ({ onComplete, ready }) => {
   // SMOOTH LOADING LOGIC
   // ----------------------------------------
   useEffect(() => {
-    let newTarget = 0;
-    if (active) {
-      newTarget = (realProgress / 100) * 85;
-    } else {
-      if (ready) {
-        newTarget = 100;
-      } else {
-        newTarget = 90;
-      }
+    // Map realProgress (0-100) directly to targetProgress for a linear feel
+    // Don't artificially cap at 85% or 90%
+    let newTarget = realProgress;
+    
+    // If we're fully loaded but waiting for ready, push to 99%
+    if (!active && !ready && realProgress === 100) {
+      newTarget = 99; 
+    } else if (!active && ready) {
+      newTarget = 100;
     }
 
     setTargetProgress(prev => Math.max(prev, newTarget));

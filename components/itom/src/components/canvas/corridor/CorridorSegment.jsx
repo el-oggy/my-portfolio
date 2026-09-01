@@ -197,27 +197,28 @@ const CorridorSegment = ({
             ))}
 
             {/* === WELCOME AREA (Start of segment) - MOVED CLOSER === */}
-            <group position={[0, 0, zOffset - 2]}>
-                {/* ITOM Text - centered (ITOM letters adjusted internally) */}
-                <HeroText position={[0, -0.1, -0.5]} />
+            {segmentIndex === 0 && (
+                <group position={[0, 0, zOffset - 2]}>
+                    {/* ITOM Text - centered (ITOM letters adjusted internally) */}
+                    <HeroText position={[0, -0.1, -0.5]} />
 
-                {/* Avatar - center */}
-                <Avatar position={[0, -0.61, -0.3]} />
+                    {/* Avatar - center */}
+                    <Avatar position={[0, -0.61, -0.3]} />
 
+                    {/* Doodles around avatar */}
+                    <Doodles />
 
-                {/* Doodles around avatar */}
-                <Doodles />
-
-                {/* Segment number (debug - can remove later) */}
-                <Text
-                    position={[1.7, 1.4, 0.3]}
-                    fontSize={0.12}
-                    color="#ccc"
-                    anchorX="center"
-                >
-                    #{segmentIndex}
-                </Text>
-            </group>
+                    {/* Segment number (debug - can remove later) */}
+                    <Text
+                        position={[1.7, 1.4, 0.3]}
+                        fontSize={0.12}
+                        color="#ccc"
+                        anchorX="center"
+                    >
+                        #{segmentIndex}
+                    </Text>
+                </group>
+            )}
 
             {/* === DOOR SECTIONS (wall + door + label as one unit) === */}
             {/* Hidden during entrance animation for segment -1 */}
