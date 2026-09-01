@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import MessagePaper from './MessagePaper';
 import SocialBarrel from './SocialBarrel';
 import { useScene } from '../../../../context/SceneContext';
+import RoomBackdrop from '../RoomBackdrop';
 import GalleryClouds from '../Gallery/GalleryClouds';
 import { useAchievements } from '../../../../context/AchievementsContext';
 import { useAudio } from '../../../../context/AudioManager';
@@ -363,6 +364,8 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     return (
         <group ref={groupRef} position={[0, -0.7, -5]}>
+            <RoomBackdrop roomId="contact" visible={showRoom} />
+
             {!isWarmup && showRoom && (
                 <PositionalAudio
                     ref={audioRef}

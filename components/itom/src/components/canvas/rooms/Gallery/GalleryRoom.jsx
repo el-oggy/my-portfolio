@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { Observer } from 'gsap/all';
 import { useScene } from '../../../../context/SceneContext';
+import RoomBackdrop from '../RoomBackdrop';
 
 gsap.registerPlugin(Observer);
 import { useAchievements } from '../../../../context/AchievementsContext';
@@ -38,8 +39,8 @@ const FALLBACK_PROJECTS = [
     {
         id: 'drone-hexcopter',
         title: 'STM32 HEXACOPTER',
-        front: '/textures/gallery/monetuneprzod.webp',
-        painted: '/textures/gallery/monetuneprzod_painted.webp',
+        front: '/textures/gallery/ad_hexacopter.webp',
+        painted: '/textures/gallery/ad_hexacopter_painted.webp',
         url: 'https://github.com/el-oggy/Drone-hexcoptor-',
         description: 'Custom six-rotor flight controller on an STM32 microcontroller with a custom KiCad PCB, MPU6500 IMU, and GPS — hardware, firmware, and telemetry in one system.',
         techStackLabels: ['STM32', 'KiCad PCB', 'MPU6500', 'Embedded C++']
@@ -47,8 +48,8 @@ const FALLBACK_PROJECTS = [
     {
         id: 'weather-station',
         title: 'IoT WEATHER STATION',
-        front: '/textures/gallery/timberkittyprzod.webp',
-        painted: '/textures/gallery/timberkittyprzod_painted.webp',
+        front: '/textures/gallery/ad_weatherstation.webp',
+        painted: '/textures/gallery/ad_weatherstation_painted.webp',
         url: '#iot',
         description: 'Solar-powered IoT weather station on an ESP32 with multiple environmental sensors, transmitting telemetry for remote monitoring.',
         techStackLabels: ['ESP32', 'BME280', 'Solar', 'C/C++']
@@ -56,8 +57,8 @@ const FALLBACK_PROJECTS = [
     {
         id: 'systolic-array',
         title: 'SYSTOLIC ARRAY RTL',
-        front: '/textures/gallery/youngmultiprzod.webp',
-        painted: '/textures/gallery/youngmultiprzod_painted.webp',
+        front: '/textures/gallery/ad_systolic.webp',
+        painted: '/textures/gallery/ad_systolic_painted.webp',
         url: '#rtl',
         description: 'A 2D systolic array for INT8 matrix multiplication — a core accelerator architecture for deep learning. Implemented in Verilog for high-throughput parallel computation.',
         techStackLabels: ['Verilog', 'VLSI', 'RTL Design', 'FPGA']
@@ -65,8 +66,8 @@ const FALLBACK_PROJECTS = [
     {
         id: 'zmk-keyboard',
         title: 'ZMK FIRMWARE',
-        front: '/textures/gallery/bioprzod.webp',
-        painted: '/textures/gallery/bioprzod_painted.webp',
+        front: '/textures/gallery/ad_zmk.webp',
+        painted: '/textures/gallery/ad_zmk_painted.webp',
         url: 'https://github.com/el-oggy/zmk-config',
         description: 'ZMK (Zephyr RTOS-based) firmware configuration for a custom mechanical keyboard, with GitHub Actions continuous-integration build pipeline.',
         techStackLabels: ['ZMK', 'Zephyr RTOS', 'CI/CD', 'Embedded C']
@@ -446,6 +447,8 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     return (
         <group ref={groupRef}>
+            <RoomBackdrop roomId="gallery" visible={showRoom} />
+            
             {!isWarmup && showRoom && (
                 <PositionalAudio
                     ref={audioRef}

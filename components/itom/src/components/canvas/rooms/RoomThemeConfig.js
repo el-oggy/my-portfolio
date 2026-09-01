@@ -14,6 +14,7 @@ export const ROOM_THEMES = {
             fog: '#bfe0ff',
             background: '#a6d4fa',
             ambient: '#ffe8cc', // Warm sun
+            directional: { color: '#ffffff', intensity: 2.0, position: [10, 20, -50] },
             gradientTop: '#7ebcff',
             gradientBottom: '#ffd5a3'
         },
@@ -24,7 +25,8 @@ export const ROOM_THEMES = {
         palette: {
             fog: '#1a293d',
             background: '#131e2d',
-            ambient: '#0b131e',
+            ambient: '#1a2233', // Slightly brighter ambient
+            directional: { color: '#ff9a55', intensity: 3.0, position: [-20, 5, -20] }, // Sunset light
             gradientTop: '#0a101a',
             gradientBottom: '#ff9a55' // coastal peach dusk
         },
@@ -33,22 +35,24 @@ export const ROOM_THEMES = {
     gallery: {
         id: 'gallery',
         palette: {
-            fog: '#e6e8e6',
-            background: '#d9dbd9',
-            ambient: '#ffffff',
-            gradientTop: '#b3c4d6',
-            gradientBottom: '#e6e3df'
+            fog: '#ffe1ea',
+            background: '#ffc2d4',
+            ambient: '#ffffff', // Bright daylight
+            directional: { color: '#fff0f5', intensity: 2.5, position: [0, 50, -20] }, // Sun from above
+            gradientTop: '#ff9ebb',
+            gradientBottom: '#ffe1ea'
         },
-        density: 'low'
+        density: 'high'
     },
     studio: {
         id: 'studio',
         palette: {
-            fog: '#0a0a14',
-            background: '#05050a',
-            ambient: '#1a1a2e',
-            gradientTop: '#020205',
-            gradientBottom: '#101026'
+            fog: '#0a0514',
+            background: '#07030f',
+            ambient: '#1a103c', // Deep dark violet ambient
+            directional: { color: '#6d4cff', intensity: 1.5, position: [10, 10, 10] }, // Cyberpunk/Nightlight directional
+            gradientTop: '#100826',
+            gradientBottom: '#2d1b4e' // dark violet
         },
         density: 'high'
     }

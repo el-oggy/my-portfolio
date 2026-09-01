@@ -8,6 +8,7 @@ import StoryMilestone from './StoryMilestone';
 import { useScene } from '../../../../context/SceneContext';
 import { useAchievements } from '../../../../context/AchievementsContext';
 import { useAudio } from '../../../../context/AudioManager';
+import RoomBackdrop from '../RoomBackdrop';
 
 // Chunk length for looping flight effect (matches SkyChunk)
 const CHUNK_LENGTH = 40;
@@ -249,6 +250,8 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     return (
         <group ref={roomRef} position={[0, 0, -25]}>
+
+
             {!isWarmup && showRoom && (
                 <PositionalAudio
                     ref={audioRef}
@@ -273,30 +276,11 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             {/* === INFINITE SKY WITH CLOUDS + STORY MILESTONES === */}
             <InfiniteSkyManager scrollProgressRef={scrollPosition} />
 
-            {/* === SKY BACKDROP (follows scroll so it always sits behind the islands) === */}
-            <SkyBackdrop scrollProgressRef={scrollPosition} />
+            {/* === ROOM BACKDROP (follows scroll so it always sits behind the islands) === */}
+            <group position={[0, 0, scrollPosition.current * -1]}>
+                <RoomBackdrop roomId="about" visible={showRoom} />
+            </group>
         </group>
-    );
-};
-
-/**
- * SkyBackdrop — huge sky-blue plane that tracks the scroll position,
- * staying just behind the farthest story milestone. Without this the
- * global paper-white fog swallowed the old fixed backdrop.
- */
-const SkyBackdrop = ({ scrollProgressRef }) => {
-    const meshRef = useRef();
-    useFrame(() => {
-        if (!meshRef.current) return;
-        const progress = scrollProgressRef?.current || 0;
-        // Keep the plane ~170 units behind the current focus point
-        meshRef.current.position.z = progress - 175;
-    });
-    return (
-        <mesh ref={meshRef} position={[0, 0, -175]}>
-            <planeGeometry args={[520, 280]} />
-            <meshBasicMaterial color="#8ecbff" side={THREE.DoubleSide} fog={false} />
-        </mesh>
     );
 };
 

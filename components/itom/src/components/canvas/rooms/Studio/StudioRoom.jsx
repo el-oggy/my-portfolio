@@ -1,4 +1,4 @@
-﻿import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useFrame, useThree, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -13,6 +13,7 @@ import { useStudioContent } from '../../../../hooks/useSanityData';
 import '../../shaders/RevealMaterial';
 import { isTouchDevice } from '../../../../utils/deviceDetect';
 import { usePaintMaterial } from '../Gallery/usePaintMaterial';
+import RoomBackdrop from '../RoomBackdrop';
 
 // ============================================
 // ⚙️ PAINT CONFIGURATION - TWEAK HERE (Skąd-Dokąd)
@@ -549,6 +550,8 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     return (
         <group ref={groupRef} position={[0, -1.2, 0]}>
+            <RoomBackdrop roomId="studio" visible={showRoom} />
+
             {!isWarmup && showRoom && (
                 <PositionalAudio
                     ref={audioRef}

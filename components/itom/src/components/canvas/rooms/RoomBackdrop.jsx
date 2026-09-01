@@ -61,6 +61,15 @@ const RoomBackdrop = ({ roomId, visible }) => {
             
             {/* Ambient light for the room based on theme */}
             <ambientLight intensity={1.5} color={theme.palette.ambient} />
+            
+            {/* Directional light (Sun/Moon) if defined in theme */}
+            {theme.palette.directional && (
+                <directionalLight 
+                    position={theme.palette.directional.position}
+                    color={theme.palette.directional.color}
+                    intensity={theme.palette.directional.intensity}
+                />
+            )}
         </group>
     );
 };
