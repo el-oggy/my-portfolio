@@ -129,6 +129,11 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             return;
         }
 
+        // Do not modify camera or physics if room is hidden (and not currently exiting)
+        if (!showRoom && !isExiting) {
+            return;
+        }
+
         // Apply velocity to position (momentum)
         scrollPosition.current += scrollVelocity.current * delta * 60;
         // No clamp - allow flying backward too!

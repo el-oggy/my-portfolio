@@ -1,4 +1,4 @@
-﻿import { useRef, useState, useMemo, useEffect, forwardRef, useImperativeHandle, memo } from 'react';
+import { useRef, useState, useMemo, useEffect, forwardRef, useImperativeHandle, memo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text, useTexture, Float, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
@@ -306,23 +306,26 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             onWheel: (e) => {
                 if (!showRoom || selectedCard !== null || globalIsAnimating || isTransitioning) return;
                 const orig = e.event;
-                orig.preventDefault();
-                targetScroll.current += orig.deltaY * 0.005;
+                if (orig && typeof orig.preventDefault === 'function') {
+                    orig.preventDefault();
+                }
+                const dy = (orig && orig.deltaY !== undefined) ? orig.deltaY : (e.deltaY * 100 || 0);
+                targetScroll.current += dy * 0.005;
             },
             onPress: (e) => {
                 if (!showRoom || selectedCard !== null || globalIsAnimating || isTransitioning) return;
                 const orig = e.event;
-                if (orig.touches && orig.touches.length === 1) {
+                if (orig && orig.touches && orig.touches.length === 1) {
                     lastTouchX.current = orig.touches[0].clientX;
                 }
             },
             onDrag: (e) => {
                 if (!showRoom || selectedCard !== null || globalIsAnimating || isTransitioning) return;
                 const orig = e.event;
-                if (orig.touches && orig.touches.length === 1) {
+                if (orig && orig.touches && orig.touches.length === 1) {
                     const deltaX = lastTouchX.current - orig.touches[0].clientX;
                     lastTouchX.current = orig.touches[0].clientX;
-                    targetScroll.current += deltaX * 0.008;
+                    targetScroll.current += (deltaX || 0) * 0.008;
                 }
             }
         });
@@ -331,6 +334,12 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     }, [showRoom, selectedCard, globalIsAnimating]);
 
     useFrame((state, delta) => {
+        // Do not modify camera or run expensive physics if room is hidden (and not currently exiting)
+        if (!showRoom && !isExiting) {
+            return;
+        }
+
+        // Apply scroll damping for smooth scrolling
         currentScroll.current = THREE.MathUtils.lerp(currentScroll.current, targetScroll.current, delta * 5);
     });
 
@@ -1051,7 +1060,7 @@ const ProjectCard = memo(forwardRef(({ index, project, clothespinTexture, curren
         let displayX = ((rawX + halfWidth) % totalWidth + totalWidth) % totalWidth - halfWidth;
 
         const u = (displayX + 16) / 32;
-        const safeU = THREE.MathUtils.clamp(u, 0, 1);
+        const safeU = THREE.MathUtils.clamp(u || 0, 0, 1);
         const pointOnCurve = curve.getPointAt(safeU);
 
         cardRef.current.position.set(pointOnCurve.x, pointOnCurve.y, pointOnCurve.z);

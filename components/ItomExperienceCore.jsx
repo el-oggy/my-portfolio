@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { PerformanceMonitor, Preload } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -18,26 +18,29 @@ import { PerformanceProvider, usePerformance } from "./itom/src/context/Performa
 import { SceneProvider, useScene } from "./itom/src/context/SceneContext";
 import { initAudio } from "./itom/src/utils/audioManager";
 
-// Room-specific atmosphere: while inside a room, melt the global paper fog
-// into that room's ambience. Hallway (null) keeps the classic paper white.
-// Tints are pastel versions of each room's accent colour.
-const ROOM_ATMOSPHERE = {
-  about: "#bfe0ff",    // sky blue
-  gallery: "#ffe1ea",  // rose blush   (accent-projects)
-  studio: "#e6ddff",   // soft violet  (accent-firmware)
-  contact: "#d2eef3",  // seafoam aqua (accent-contact)
-};
+import { getRoomTheme } from "./itom/src/components/canvas/rooms/RoomThemeConfig";
 
 function RoomAtmosphere() {
   const { currentRoom } = useScene();
   const { scene } = useThree();
 
-  useEffect(() => {
+  useFrame((state, delta) => {
     if (!scene) return;
-    const target = ROOM_ATMOSPHERE[currentRoom] || "#fafafa";
-    scene.background = new THREE.Color(target);
-    if (scene.fog) scene.fog.color.set(target);
-  }, [currentRoom, scene]);
+    
+    const theme = getRoomTheme(currentRoom);
+    const targetColor = new THREE.Color(theme.palette.fog);
+    
+    // Smoothly lerp background and fog
+    if (scene.background) {
+      scene.background.lerp(targetColor, delta * 2);
+    } else {
+      scene.background = targetColor.clone();
+    }
+    
+    if (scene.fog) {
+      scene.fog.color.lerp(targetColor, delta * 2);
+    }
+  });
 
   return null;
 }

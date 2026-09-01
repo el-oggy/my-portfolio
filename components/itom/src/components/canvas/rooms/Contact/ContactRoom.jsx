@@ -1,4 +1,4 @@
-﻿import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
@@ -298,6 +298,11 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                 onReady?.();
                 if (!isWarmup) setTimeout(() => showTutorial('contact_choose'), 2000);
             }
+        }
+
+        // Do not run animations or modify camera if room is hidden (and not currently exiting)
+        if (!showRoom && !isExiting) {
+            return;
         }
 
         // 1. Camera Animation (Simple Lerp)

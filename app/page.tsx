@@ -1,6 +1,6 @@
 import ExperienceRoot from "@/components/experience/ExperienceRoot";
 import { SCENES } from "@/lib/sceneConfig";
-import { identity, links, experience, education, skills } from "@/lib/data";
+import { identity, links, experience, education } from "@/lib/data";
 import ProjectGallery from "@/components/ui/ProjectGallery";
 
 export default function Page() {
@@ -321,5 +321,3 @@ function SectionCopy({ scene }: { scene: string }) {
       return null;
   }
 }
-
-void skills;
