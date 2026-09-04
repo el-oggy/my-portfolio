@@ -12,6 +12,9 @@ export default function EmailForm() {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  // Honeypot: real visitors never see or fill this; bots that do are rejected
+  // by Web3Forms. Kept out of the tab order and the accessibility tree.
+  const [botcheck, setBotcheck] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -39,6 +42,7 @@ export default function EmailForm() {
           email,
           subject: subject || `Message from ${name || email}`,
           message,
+          botcheck,
         }),
       });
       const result = await response.json();
@@ -78,6 +82,18 @@ export default function EmailForm() {
   return (
     <form onSubmit={handleSubmit} className="sketch-card relative mx-auto max-w-xl p-8 sm:p-10">
       <div className="sketch-tape" />
+
+      {/* Honeypot field — invisible to humans, catnip for bots */}
+      <input
+        type="checkbox"
+        name="botcheck"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        checked={botcheck}
+        onChange={(e) => setBotcheck(e.target.checked)}
+        style={{ display: "none" }}
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="block">

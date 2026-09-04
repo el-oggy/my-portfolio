@@ -58,7 +58,7 @@ export function getInitialRoomFromUrl() {
 }
 
 export function useDocumentMeta() {
-    const { currentRoom, teleportTo, hasEntered, requestExit } = useScene();
+    const { currentRoom, teleportTo, hasEntered, requestExit, initialRoom, deeplinkHandled } = useScene();
     const isHandlingPopState = useRef(false);
     const lastPushedRoom = useRef(undefined); // Track what we last pushed to avoid duplicates
 
@@ -92,8 +92,17 @@ export function useDocumentMeta() {
             canonicalTag.setAttribute('href', `${SITE_URL}${meta.path}`);
         }
 
+        // Deep-link guard: if the visitor landed directly on /gallery etc., the
+        // URL already points at the room they're about to enter. Don't clobber
+        // it with '/' before the auto-teleport fires — once they enter, the
+        // replaceState below lands the history entry on the room path.
+        const deepLinkPending =
+            lastPushedRoom.current === undefined &&
+            initialRoom.current !== null &&
+            currentRoom === null;
+
         // Push to browser history (only if not handling a popstate event and room actually changed)
-        if (!isHandlingPopState.current && lastPushedRoom.current !== currentRoom) {
+        if (!isHandlingPopState.current && !deepLinkPending && lastPushedRoom.current !== currentRoom) {
             // Use replaceState for the very first load, pushState for subsequent navigations
             if (lastPushedRoom.current === undefined) {
                 window.history.replaceState({ room: currentRoom }, '', meta.path);
@@ -105,6 +114,18 @@ export function useDocumentMeta() {
 
         isHandlingPopState.current = false;
     }, [currentRoom]);
+
+    // Deep linking: once the visitor has passed the entrance doors, auto-teleport
+    // to the room the initial URL pointed at (e.g. /gallery -> Gallery room).
+    // Runs exactly once per page load. Until then the deepLinkPending guard in
+    // the effect above keeps the original URL in the address bar.
+    useEffect(() => {
+        if (!hasEntered || deeplinkHandled.current) return;
+        deeplinkHandled.current = true;
+        if (initialRoom.current) {
+            teleportTo(initialRoom.current);
+        }
+    }, [hasEntered, teleportTo, initialRoom, deeplinkHandled]);
 
     // Handle browser back/forward buttons
     useEffect(() => {

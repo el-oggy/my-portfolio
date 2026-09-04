@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useAudio } from './AudioManager';
 
 const AchievementsContext = createContext();
 
@@ -12,6 +13,9 @@ export const ACHIEVEMENTS = {
 };
 
 export const AchievementsProvider = ({ children }) => {
+    // Shared audio preferences — the unlock chime respects mute + volume.
+    const { isMuted, globalVolume } = useAudio();
+
     // Synchronous ref to prevent double-firing on rapid events (like wheel scroll)
     const completedRef = useRef([]);
 
@@ -37,6 +41,8 @@ export const AchievementsProvider = ({ children }) => {
 
     // Simple WebAudio chime for achievement unlock
     const playUnlockChime = useCallback(() => {
+        // Respect the user's audio preferences: fully silent when muted or at 0 volume.
+        if (isMuted || globalVolume <= 0) return;
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (!AudioCtx) return;
@@ -71,19 +77,19 @@ export const AchievementsProvider = ({ children }) => {
             osc.frequency.setValueAtTime(440, ctx.currentTime);
             osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15);
 
-            // Envelope for volume
+            // Envelope for volume — scaled by the user's global volume preference
+            const peak = 0.3 * globalVolume;
             gain.gain.setValueAtTime(0, ctx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
-            gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.15);
+            gain.gain.linearRampToValueAtTime(peak, ctx.currentTime + 0.05);
+            gain.gain.linearRampToValueAtTime(peak, ctx.currentTime + 0.15);
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
 
-            // Audio is muted by start/stop being commented out, but we still ensure context logic is clean
-            // osc.start(ctx.currentTime);
-            // osc.stop(ctx.currentTime + 0.5);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.5);
         } catch (err) {
             // console.warn('Failed to play unlock chime', err);
         }
-    }, []);
+    }, [isMuted, globalVolume]);
 
     // Currently displayed popup
     // Structure: { id: 'corridor_enter', status: 'pending' | 'completed' | 'hiding' }

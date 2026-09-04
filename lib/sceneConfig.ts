@@ -1,8 +1,14 @@
 /**
- * Scene + camera-path configuration for the Hallway Architecture.
+ * Scene configuration for the Hallway Architecture.
  *
- * The visitor travels straight down a literal 3D hallway along the negative Z-axis.
- * Camera stays centered at X=0, Y=0 and moves down Z based on scroll.
+ * The visitor travels straight down a literal 3D hallway along the negative
+ * Z-axis; the immersive camera path lives in useInfiniteCamera (z-axis
+ * corridor). SCENES drives the semantic fallback sections rendered in
+ * app/page.tsx (section ids, labels) and documents each room's z-depth.
+ *
+ * Historical note: the scroll-progress helpers (sceneAtProgress,
+ * FULL_CAMERA_PATH) belonged to the retired Lenis/ScrollTrigger pipeline and
+ * were removed with it.
  */
 
 import type { SceneKey } from "./data";
@@ -113,50 +119,3 @@ export const SCENES: SceneDef[] = [
     accent: "--accent-contact",
   },
 ];
-
-export function sceneAtProgress(progress: number): SceneDef {
-  const p = clamp01(progress);
-  for (const s of SCENES) {
-    if (p >= s.scroll[0] && p < s.scroll[1]) return s;
-  }
-  return p >= 1 ? SCENES[SCENES.length - 1] : SCENES[0];
-}
-
-export function sceneIndex(key: SceneKey): number {
-  return SCENES.findIndex((s) => s.key === key);
-}
-
-export interface CameraKeyframe {
-  progress: number;
-  pos: [number, number, number];
-  lookAt: [number, number, number];
-}
-
-export const FULL_CAMERA_PATH: CameraKeyframe[] = (() => {
-  const out: CameraKeyframe[] = [];
-  
-  SCENES.forEach((s, i) => {
-    // For the center of each scene's scroll slice, the camera should be exactly at the scene's Z-depth + a small offset so we can see the door
-    const [start, end] = s.scroll;
-    
-    // First node at 0, last at 1, others at center
-    let p: number;
-    if (i === 0) p = 0;
-    else if (i === SCENES.length - 1) p = 1;
-    else p = start + (end - start) * 0.5;
-
-    out.push({
-      progress: p,
-      // Camera stays strictly in the middle of the hallway (x=0, y=0)
-      // and backs up 10 units from the door so it's in view
-      pos: [0, 0, s.zDepth + 15], 
-      lookAt: [0, 0, s.zDepth - 50], // Always looking straight down the hallway
-    });
-  });
-
-  return out.sort((a, b) => a.progress - b.progress);
-})();
-
-export function clamp01(v: number): number {
-  return v < 0 ? 0 : v > 1 ? 1 : v;
-}

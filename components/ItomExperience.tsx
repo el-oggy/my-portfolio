@@ -23,10 +23,15 @@ export default function ItomExperience({ fallback }: { fallback?: ReactNode }) {
   useEffect(() => {
     try {
       const canvas = document.createElement("canvas");
+      // Probe with the SAME strictness as the R3F <Canvas>
+      // (failIfMajorPerformanceCaveat: true). Otherwise software-rendered GPUs
+      // pass this check but fail Canvas creation and crash into the error
+      // boundary instead of getting the 2D fallback content.
+      const glOptions = { failIfMajorPerformanceCaveat: true };
       const gl =
-        canvas.getContext("webgl2") ||
-        canvas.getContext("webgl") ||
-        canvas.getContext("experimental-webgl");
+        canvas.getContext("webgl2", glOptions) ||
+        canvas.getContext("webgl", glOptions) ||
+        canvas.getContext("experimental-webgl", glOptions);
       setWebglSupported(Boolean(gl));
     } catch {
       setWebglSupported(false);

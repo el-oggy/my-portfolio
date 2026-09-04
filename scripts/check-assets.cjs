@@ -24,8 +24,20 @@ const refRe = /['"]\/((?:textures|images|fonts|sounds)\/[^'")\s]+)['"]/g;
 const missing = [];
 let count = 0;
 
+/**
+ * Blank out comments so commented-out asset references (e.g. the disabled
+ * ROOM_ASSETS manifest) don't produce false "missing file" reports.
+ * Newlines are preserved to keep diffing/debugging sane.
+ */
+function stripComments(src) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
+    // Line comments — the lookbehind avoids matching `://` inside URL strings.
+    .replace(/(?<!:)\/\/[^\n]*/g, (m) => " ".repeat(m.length));
+}
+
 for (const f of walk(ROOT)) {
-  const src = fs.readFileSync(f, "utf8");
+  const src = stripComments(fs.readFileSync(f, "utf8"));
   let m;
   refRe.lastIndex = 0;
   while ((m = refRe.exec(src))) {
@@ -54,3 +66,6 @@ if (missing.length) {
 } else {
   console.log("all referenced assets exist ✓");
 }
+
+// Fail the build when real (non-commented) references point at missing files.
+if (missing.length) process.exit(1);

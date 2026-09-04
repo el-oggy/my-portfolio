@@ -53,7 +53,6 @@ export const usePerformance = () => {
 
 export const PerformanceProvider = ({ children }) => {
   const [tier, setTier] = useState(TIERS.MEDIUM); // Default to MEDIUM for safer baseline, upgrade on desktop
-  const [isDetecting, setIsDetecting] = useState(true);
 
   useEffect(() => {
     const detectTier = () => {
@@ -88,7 +87,6 @@ export const PerformanceProvider = ({ children }) => {
       //   `[Performance] Detected Tier: ${detectedTier} | Cores: ${navigator.hardwareConcurrency} | Mobile: ${isMobile}`
       // );
       setTier(detectedTier);
-      setIsDetecting(false);
     };
 
     detectTier();
@@ -106,7 +104,6 @@ export const PerformanceProvider = ({ children }) => {
   const value = {
     tier,
     settings: SETTINGS[tier],
-    isDetecting,
     downgradeTier,
   };
 

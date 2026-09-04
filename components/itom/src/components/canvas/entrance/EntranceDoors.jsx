@@ -8,8 +8,10 @@ import { playBackgroundMusic } from '../../../utils/audioManager';
 import { useAchievements } from '../../../context/AchievementsContext';
 import { isTouchDevice } from '../../../utils/deviceDetect';
 
-// Use same font as App.jsx preload (Inter) - works reliably
-const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
+// Self-hosted sketch font — matches the corridor plaques and avoids a runtime
+// dependency on the Google Fonts CDN (blocked in some environments; see the
+// font note in app/layout.tsx).
+const FONT_URL = '/fonts/CabinSketch-Regular.ttf';
 
 
 

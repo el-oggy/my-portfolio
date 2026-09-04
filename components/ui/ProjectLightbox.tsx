@@ -5,15 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import type { Project } from "@/lib/data";
 import { setScrollPaused } from "@/lib/scrollStore";
-import { getLenis } from "@/lib/gsap";
 
 /**
  * Project detail lightbox with FLIP shared-element transitions.
  *
  * Uses Framer Motion's `layoutId` to animate from the gallery card into the
  * fullscreen detail panel and back. While open:
- *   - scroll is frozen (Lenis stop + scrollStore.paused)
- *   - the 3D camera holds position (CameraController reads paused flag)
+ *   - scroll is frozen (overflow lock + scrollStore.paused)
+ *   - the 3D camera holds position (useInfiniteCamera reads the paused flag)
  *   - focus is trapped inside the overlay for accessibility (§31)
  *
  * Close via: × button, Escape key, or clicking the backdrop.
@@ -46,7 +45,6 @@ export default function ProjectLightbox({ project, onClose }: ProjectLightboxPro
 
     // Freeze scroll + camera.
     setScrollPaused(true);
-    getLenis()?.stop();
 
     // Focus the panel for keyboard nav.
     requestAnimationFrame(() => {
@@ -58,7 +56,6 @@ export default function ProjectLightbox({ project, onClose }: ProjectLightboxPro
       document.documentElement.style.overflow = previousOverflow.current.html;
       document.body.style.overflow = previousOverflow.current.body;
       setScrollPaused(false);
-      getLenis()?.start();
 
       // Restore focus to the card that opened the lightbox.
       previousFocus.current?.focus();

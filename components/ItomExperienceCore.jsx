@@ -17,8 +17,13 @@ import { AudioProvider, useAudio } from "./itom/src/context/AudioManager";
 import { PerformanceProvider, usePerformance } from "./itom/src/context/PerformanceContext";
 import { SceneProvider, useScene } from "./itom/src/context/SceneContext";
 import { initAudio } from "./itom/src/utils/audioManager";
+import { useDocumentMeta } from "./itom/src/hooks/useDocumentMeta";
 
 import { getRoomTheme } from "./itom/src/components/canvas/rooms/RoomThemeConfig";
+
+// Hoisted scratch color — avoids allocating a new THREE.Color every frame
+// (GC churn at 60fps). Mutated in place via .set() below.
+const TARGET_COLOR = new THREE.Color();
 
 function RoomAtmosphere() {
   const { currentRoom } = useScene();
@@ -28,17 +33,17 @@ function RoomAtmosphere() {
     if (!scene) return;
     
     const theme = getRoomTheme(currentRoom);
-    const targetColor = new THREE.Color(theme.palette.fog);
+    TARGET_COLOR.set(theme.palette.fog);
     
     // Smoothly lerp background and fog
     if (scene.background) {
-      scene.background.lerp(targetColor, delta * 2);
+      scene.background.lerp(TARGET_COLOR, delta * 2);
     } else {
-      scene.background = targetColor.clone();
+      scene.background = TARGET_COLOR.clone();
     }
     
     if (scene.fog) {
-      scene.fog.color.lerp(targetColor, delta * 2);
+      scene.fog.color.lerp(TARGET_COLOR, delta * 2);
     }
   });
 
@@ -64,6 +69,18 @@ function GlobalAudioEnabler() {
   return null;
 }
 
+/**
+ * VirtualRouter — mounts the URL / title / history bridge for the 3D rooms.
+ * Entering/leaving rooms pushState's /gallery, /studio, /about, /contact,
+ * browser back/forward teleports between rooms, and a deep link (e.g. someone
+ * opening /gallery straight from the sitemap) auto-teleports the visitor into
+ * that room once they pass the entrance doors.
+ */
+function VirtualRouter() {
+  useDocumentMeta();
+  return null;
+}
+
 function ItomCanvas({ fallback }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
@@ -79,6 +96,9 @@ function ItomCanvas({ fallback }) {
 
   return (
     <AudioProvider>
+      {/* Achievements sits inside AudioProvider so the unlock chime can
+          respect the user's mute / volume preferences */}
+      <AchievementsProvider>
       <SceneProvider>
         <div className="app">
           <div className="canvas-wrapper">
@@ -123,11 +143,21 @@ function ItomCanvas({ fallback }) {
             </>
           )}
 
-          <div className="sr-only">{fallback}</div>
+          {/* Semantic fallback for SEO / no-WebGL visitors. While the WebGL
+              experience is live this is visually hidden AND inert: focusable
+              children would otherwise be tab-reachable while invisible.
+              Assistive tech is served by ScreenReaderOverlay instead. */}
+          <div className="sr-only" aria-hidden="true" {...{ inert: "" }}>
+            {fallback}
+          </div>
 
           <Preloader ready={sceneReady} onComplete={() => setIsLoaded(true)} />
+
+          {/* Virtual room routes: URL, title and history sync (needs SceneContext) */}
+          <VirtualRouter />
         </div>
       </SceneProvider>
+      </AchievementsProvider>
       <GlobalAudioEnabler />
     </AudioProvider>
   );
@@ -146,9 +176,7 @@ export default function ItomExperienceCore({ fallback }) {
 
     return (
         <PerformanceProvider>
-            <AchievementsProvider>
-                <ItomCanvas fallback={fallback} />
-            </AchievementsProvider>
+            <ItomCanvas fallback={fallback} />
         </PerformanceProvider>
     );
 }
