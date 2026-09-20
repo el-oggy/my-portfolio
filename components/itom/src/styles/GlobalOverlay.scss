@@ -155,7 +155,7 @@
     letter-spacing: 2px;
     font-size: 1.2rem;
     font-family: 'Cabin Sketch', cursive;
-    transition: all 0.2s;
+    transition: transform 0.2s, background-color 0.2s, color 0.2s, border-color 0.2s;
     cursor: pointer;
     margin-top: auto;
 

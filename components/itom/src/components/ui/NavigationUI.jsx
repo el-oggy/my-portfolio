@@ -38,6 +38,19 @@ const NavigationUI = () => {
     const mapPanelRef = useRef();
     const mapCloseRef = useRef();
 
+    // Painted map zone refs — must be stable hook calls, not created inside an
+    // object literal (rules-of-hooks: hooks in a plain object break on reorder).
+    const paintedMapAboutRef = useRef();
+    const paintedMapGalleryRef = useRef();
+    const paintedMapContactRef = useRef();
+    const paintedMapStudioRef = useRef();
+    const paintedMapsRefs = {
+        about: paintedMapAboutRef,
+        gallery: paintedMapGalleryRef,
+        contact: paintedMapContactRef,
+        studio: paintedMapStudioRef
+    };
+
     useEffect(() => {
         const handleInspectChange = (e) => {
             setIsUIHidden(e.detail);
@@ -50,13 +63,6 @@ const NavigationUI = () => {
         window.addEventListener('inspectChange', handleInspectChange);
         return () => window.removeEventListener('inspectChange', handleInspectChange);
     }, []);
-
-    const paintedMapsRefs = {
-        about: useRef(),
-        gallery: useRef(),
-        contact: useRef(),
-        studio: useRef()
-    };
 
     useEffect(() => {
         // About (zone: left 10%, top 20%, width 30%, height 35%)
@@ -288,7 +294,7 @@ const NavigationUI = () => {
 
             {/* Map Panel - Drops from top when open */}
             {hasEntered && (
-                <div className={`map-panel ${isMenuOpen ? 'open' : ''}`} inert={!isMenuOpen ? true : undefined} ref={mapPanelRef} onKeyDown={handleMapKeyDown} role="dialog" aria-label="Map">
+                <div className={`map-panel ${isMenuOpen ? 'open' : ''}`} inert={!isMenuOpen ? "" : undefined} ref={mapPanelRef} onKeyDown={handleMapKeyDown} role="dialog" aria-label="Map">
                     {/* SVG Border Overlay */}
                     <svg
                         className="map-border-overlay"
@@ -429,7 +435,7 @@ const NavigationUI = () => {
 
             {/* Audio Panel — drops down from the button */}
             {hasEntered && (
-                <div className={`audio-panel ${isAudioMenuOpen ? 'open' : ''}`} inert={!isAudioMenuOpen ? true : undefined}>
+                <div className={`audio-panel ${isAudioMenuOpen ? 'open' : ''}`} inert={!isAudioMenuOpen ? "" : undefined}>
                     <div className="audio-card">
                         <div className="audio-header">
                             <h3>AUDIO SETTINGS</h3>

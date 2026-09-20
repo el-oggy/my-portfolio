@@ -115,7 +115,6 @@ export default function ProjectLightbox({ project, onClose }: ProjectLightboxPro
             layoutId={`project-card-${project.id}`}
             ref={panelRef}
             tabIndex={-1}
-            style={{ outline: "none" }}
             transition={{ type: "spring", stiffness: 350, damping: 32 }}
           >
             {/* Close button */}

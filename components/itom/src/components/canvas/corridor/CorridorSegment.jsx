@@ -206,16 +206,6 @@ const CorridorSegment = ({
 
                 {/* Doodles around avatar */}
                 <Doodles />
-
-                {/* Segment number (debug - can remove later) */}
-                <Text
-                    position={[1.7, 1.4, 0.3]}
-                    fontSize={0.12}
-                    color="#ccc"
-                    anchorX="center"
-                >
-                    #{segmentIndex}
-                </Text>
             </group>
 
             {/* === DOOR SECTIONS (wall + door + label as one unit) === */}

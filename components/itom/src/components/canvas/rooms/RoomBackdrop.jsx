@@ -3,6 +3,11 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { getRoomTheme } from './RoomThemeConfig';
 
+// Hoisted scratch colors — avoids allocating two THREE.Color per frame
+// (GC churn at 60fps). Mutated in place inside useFrame.
+const TARGET_TOP = new THREE.Color();
+const TARGET_BOTTOM = new THREE.Color();
+
 const gradientVertexShader = `
     varying vec2 vUv;
     void main() {
@@ -36,11 +41,11 @@ const RoomBackdrop = ({ roomId, visible }) => {
         // Smoothly transition colors if theme changes
         const currentTop = materialRef.current.uniforms.colorTop.value;
         const currentBottom = materialRef.current.uniforms.colorBottom.value;
-        const targetTop = new THREE.Color(theme.palette.gradientTop);
-        const targetBottom = new THREE.Color(theme.palette.gradientBottom);
+        TARGET_TOP.set(theme.palette.gradientTop);
+        TARGET_BOTTOM.set(theme.palette.gradientBottom);
 
-        currentTop.lerp(targetTop, delta * 2);
-        currentBottom.lerp(targetBottom, delta * 2);
+        currentTop.lerp(TARGET_TOP, delta * 2);
+        currentBottom.lerp(TARGET_BOTTOM, delta * 2);
     });
 
     return (
