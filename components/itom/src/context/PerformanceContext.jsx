@@ -56,6 +56,16 @@ export const PerformanceProvider = ({ children }) => {
 
   useEffect(() => {
     const detectTier = () => {
+      // Users who prefer reduced motion get the lightest tier (fewer particles,
+      // lower DPR, no AA) - less visual motion and GPU work.
+      const prefersReducedMotion =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReducedMotion) {
+        setTier(TIERS.LOW);
+        return;
+      }
+
       let detectedTier = TIERS.MEDIUM;
 
       // Desktop with good specs gets HIGH

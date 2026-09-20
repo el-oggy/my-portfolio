@@ -158,8 +158,11 @@ export const SceneProvider = ({ children }) => {
         openEmail,      // Exposed
         closeEmail,     // Exposed
         isInRoom: currentRoom !== null,
-        // Deep linking
-        initialRoom: initialRoom.current,
+        // Deep linking — both exposed as refs so consumers can read/mutate
+        // .current without re-rendering the context. initialRoom.current holds
+        // the room the URL pointed at on first load (null when landing on /);
+        // deeplinkHandled.current gates the one-time auto-teleport.
+        initialRoom,
         deeplinkHandled,
         // Teleportation
         teleportTarget,

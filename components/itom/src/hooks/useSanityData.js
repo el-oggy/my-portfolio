@@ -1,11 +1,9 @@
-import { certifications, identity, links, projects } from "@/lib/data";
+import { certifications, links, projects } from "@/lib/data";
 
-export const isSanityConfigured = true;
-
-export function loadSanityData() {
-  return Promise.resolve({ loaded: true });
-}
-
+// Local content layer. Despite the "Sanity" naming left by an earlier integration
+// attempt, all content is sourced from the local data module above — no network
+// calls, no async loading gate. isSanityDataLoaded() keeps a stable import
+// surface for callers that gate on data readiness (e.g. RoomWarmup).
 export function isSanityDataLoaded() {
   return true;
 }
