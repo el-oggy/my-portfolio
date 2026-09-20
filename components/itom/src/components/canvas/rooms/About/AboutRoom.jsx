@@ -9,6 +9,9 @@ import { useScene } from '../../../../context/SceneContext';
 import { useAchievements } from '../../../../context/AchievementsContext';
 import { useAudio } from '../../../../context/AudioManager';
 import RoomBackdrop from '../RoomBackdrop';
+import RoomDecor from '../RoomDecor';
+import { getRoomTheme } from '../RoomThemeConfig';
+import { useQualityScale } from '../../../../hooks/useQualityScale';
 
 // Chunk length for looping flight effect (matches SkyChunk)
 const CHUNK_LENGTH = 40;
@@ -33,6 +36,7 @@ const STORY_MILESTONES = [
 ];
 
 const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
+    const quality = useQualityScale();
     const { camera } = useThree();
     const { isTeleporting, overlayContent } = useScene();
     const { showTutorial, unlockAchievement, hidePopup } = useAchievements();
@@ -275,6 +279,19 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
             {/* === INFINITE SKY WITH CLOUDS + STORY MILESTONES === */}
             <InfiniteSkyManager scrollProgressRef={scrollPosition} />
+
+            {/* === DRIFTING PETALS / SKY CONFETTI (daydream) === */}
+            <RoomDecor
+                count={Math.round(50 * quality)}
+                colors={getRoomTheme('about').palette.accents}
+                spread={[30, 14, 30]}
+                center={[0, 2, -10]}
+                size={0.12}
+                mode="fall"
+                opacity={0.85}
+                speed={0.5}
+                seed={21}
+            />
 
             {/* === ROOM BACKDROP (follows scroll so it always sits behind the islands) === */}
             <group position={[0, 0, scrollPosition.current * -1]}>

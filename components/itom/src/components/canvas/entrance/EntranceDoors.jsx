@@ -13,6 +13,40 @@ import { isTouchDevice } from '../../../utils/deviceDetect';
 // font note in app/layout.tsx).
 const FONT_URL = '/fonts/CabinSketch-Regular.ttf';
 
+/**
+ * SkillBadges — hand-drawn engineering skill labels for the entrance doors.
+ *
+ * Renders a vertical column of sketch-text badges (Verilog, C++, etc.) with a
+ * light pencil-style outline so they read on both the sketch (dark) and
+ * painted (colored) door textures. Purely decorative; the doors already carry
+ * their own interaction + aria wiring upstream.
+ */
+const SkillBadges = ({ x = 0, labels = [], fontUrl = FONT_URL }) => {
+    if (!labels.length) return null;
+    const startY = 0.62;   // top badge (door-local Y, above the handle line)
+    const step = 0.44;     // vertical spacing between badges
+    return (
+        <group position={[x, 0, 0.091]}>
+            {labels.map((label, i) => (
+                <Text
+                    key={label}
+                    position={[0, startY - i * step, 0]}
+                    fontSize={0.13}
+                    color="#1a1a1a"
+                    anchorX="center"
+                    anchorY="middle"
+                    font={fontUrl}
+                    outlineWidth={0.012}
+                    outlineColor="#f5f1e8"
+                    letterSpacing={0.02}
+                >
+                    {label}
+                </Text>
+            ))}
+        </group>
+    );
+};
+
 
 
 /**
@@ -949,6 +983,33 @@ const EntranceDoors = ({
 
 
 
+
+            {/* === SKILL BADGES (hand-drawn, on the front faces) === */}
+            {/* Vertical column of the owner's engineering stack. Mounted as a
+                child of each door group so it swings open with the door.
+                z = 0.091 sits 1mm in front of the sketch overlay (0.09) to
+                avoid z-fighting. CabinSketch keeps it on the paper aesthetic. */}
+
+            {/* LEFT door badges — group local origin is the hinge (-doorWidth),
+                so X = doorWidth/2 is the door's visual center, same as the
+                door meshes above. Front face only. */}
+            <group position={[-doorWidth, doorCenterY, 0]}>
+                <SkillBadges
+                    x={doorWidth / 2}
+                    labels={['Verilog', 'SystemVerilog', 'C']}
+                    fontUrl={FONT_URL}
+                />
+            </group>
+
+            {/* RIGHT door badges — group local origin is the hinge (+doorWidth),
+                door center is at -doorWidth/2. */}
+            <group position={[doorWidth, doorCenterY, 0]}>
+                <SkillBadges
+                    x={-doorWidth / 2}
+                    labels={['C++', 'Python', 'Tcl']}
+                    fontUrl={FONT_URL}
+                />
+            </group>
 
             {/* TREE & MOUSE (Left Side) */}
             <group position={[-2.9, floorY + 2.7, 1]}>
