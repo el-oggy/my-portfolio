@@ -282,13 +282,13 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
             {/* === DRIFTING PETALS / SKY CONFETTI (daydream) === */}
             <RoomDecor
-                count={Math.round(50 * quality)}
+                count={Math.round(60 * quality)}
                 colors={getRoomTheme('about').palette.accents}
                 spread={[30, 14, 30]}
                 center={[0, 2, -10]}
-                size={0.12}
+                size={0.26}
                 mode="fall"
-                opacity={0.85}
+                opacity={0.9}
                 speed={0.5}
                 seed={21}
             />

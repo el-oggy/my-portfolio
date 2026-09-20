@@ -388,13 +388,13 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
             {/* === DUSK FIREFLIES over the sea — one instanced draw call === */}
             <RoomDecor
-                count={Math.round(45 * quality)}
+                count={Math.round(70 * quality)}
                 colors={getRoomTheme('contact').palette.accents}
                 spread={[24, 8, 16]}
                 center={[0, 1.2, -8]}
-                size={0.09}
+                size={0.22}
                 mode="swirl"
-                opacity={0.9}
+                opacity={0.95}
                 speed={0.6}
                 seed={55}
             />

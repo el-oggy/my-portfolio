@@ -162,7 +162,19 @@ const Preloader = ({ onComplete, ready }) => {
   const trackerRef = useRef({ val: 0 });
   const readyRef = useRef(ready);
 
-  useEffect(() => { readyRef.current = ready; }, [ready]);
+  // BOOT WATCHDOG — every asset is in, but the scene never signalled ready?
+  // (e.g. a driver where gl.compileAsync() never settles). Rather than trapping
+  // the visitor at 99% forever, open the doors after a short grace period.
+  const [forcedReady, setForcedReady] = useState(false);
+  const effectiveReady = ready || forcedReady;
+
+  useEffect(() => {
+    if (effectiveReady || active || realProgress < 100) return;
+    const t = setTimeout(() => setForcedReady(true), 6000);
+    return () => clearTimeout(t);
+  }, [effectiveReady, active, realProgress]);
+
+  useEffect(() => { readyRef.current = effectiveReady; }, [effectiveReady]);
 
   // ----------------------------------------
   // GENERATE TEAR PATH
@@ -212,14 +224,14 @@ const Preloader = ({ onComplete, ready }) => {
     let newTarget = realProgress;
     
     // If we're fully loaded but waiting for ready, push to 99%
-    if (!active && !ready && realProgress === 100) {
+    if (!active && !effectiveReady && realProgress === 100) {
       newTarget = 99; 
-    } else if (!active && ready) {
+    } else if (!active && effectiveReady) {
       newTarget = 100;
     }
 
     setTargetProgress(prev => Math.max(prev, newTarget));
-  }, [realProgress, active, ready]);
+  }, [realProgress, active, effectiveReady]);
 
   // Handle Pencil Sound & Exit checking dynamically
   const checkProgressTriggers = (val) => {
@@ -295,11 +307,11 @@ const Preloader = ({ onComplete, ready }) => {
 
   // Fallback trigger if ready becomes true AFTER 99.5% reached
   useEffect(() => {
-    if (displayProgressRef.current >= 99.5 && ready && !exitStarted.current) {
+    if (displayProgressRef.current >= 99.5 && effectiveReady && !exitStarted.current) {
       exitStarted.current = true;
       startExit();
     }
-  }, [ready]);
+  }, [effectiveReady]);
 
   const startExit = () => {
     exitStarted.current = true;

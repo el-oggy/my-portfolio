@@ -41,7 +41,10 @@ const RoomWarmup = ({ onWarmupComplete, isLowTier }) => {
 
         completeFired.current = true;
 
+        let settled = false;
         const finish = () => {
+            if (settled) return;
+            settled = true;
             requestAnimationFrame(() => {
                 setIsDone(true);
                 onWarmupComplete?.();
@@ -55,9 +58,20 @@ const RoomWarmup = ({ onWarmupComplete, isLowTier }) => {
             return;
         }
 
+        // SAFETY NET: compileAsync() waits on KHR_parallel_shader_compile, and
+        // on some drivers (notably software/ANGLE fallbacks) it never settles.
+        // Without this timer the boot gate would never open and the visitor
+        // would be stuck on the preloader forever — so cap the wait and carry on.
+        const COMPILE_TIMEOUT_MS = 4000;
+        const timer = setTimeout(finish, COMPILE_TIMEOUT_MS);
+
         Promise.resolve(gl.compileAsync(scene, camera, scene))
-            .then(finish)
+            .then(() => {
+                clearTimeout(timer);
+                finish();
+            })
             .catch(() => {
+                clearTimeout(timer);
                 try { gl.compile(scene, camera); } catch { /* noop */ }
                 finish();
             });

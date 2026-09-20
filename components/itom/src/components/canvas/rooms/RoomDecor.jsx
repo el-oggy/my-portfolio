@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useLayoutEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -38,7 +38,7 @@ const RoomDecor = ({
     const reduced = REDUCED_MOTION;
 
     // Deterministic pseudo-random so layout is stable across renders/HMR.
-    const { particles, colorArray, baseColor } = useMemo(() => {
+    const { particles } = useMemo(() => {
         let s = seed;
         const rand = () => {
             s = Math.sin(s * 9999) * 10000;
@@ -58,18 +58,25 @@ const RoomDecor = ({
                 scale: 0.6 + rand() * 0.9,
             });
         }
-        // Per-instance colors
-        const cols = new Float32Array(count * 3);
-        const palette = colors.map((c) => new THREE.Color(c));
-        for (let i = 0; i < count; i++) {
-            const c = palette[i % palette.length];
-            cols[i * 3] = c.r; cols[i * 3 + 1] = c.g; cols[i * 3 + 2] = c.b;
-        }
-        return { particles: arr, colorArray: cols, baseColor: new THREE.Color('#ffffff') };
+        return { particles: arr };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [count, seed, mode]);
 
-    const geometry = useMemo(() => new THREE.PlaneGeometry(size, size), [size]);
+    // Per-instance colors. NOTE: these must go through InstancedMesh.setColorAt()
+    // (which allocates instanceColor). Attaching a raw <instancedBufferAttribute>
+    // to the mesh makes R3F's `attach` walk a path that doesn't exist
+    // (`mesh.attributes.color`) and throw, taking the whole room down with it.
+    useLayoutEffect(() => {
+        const mesh = meshRef.current;
+        if (!mesh || count === 0) return;
+        const palette = colors.map((c) => new THREE.Color(c));
+        for (let i = 0; i < count; i++) {
+            mesh.setColorAt(i, palette[i % palette.length]);
+        }
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+        // Matrices are written every frame; seed them so nothing sits at origin.
+        mesh.instanceMatrix.needsUpdate = true;
+    }, [count, colors]);
 
     const rangeY = spread[1];
 
@@ -105,17 +112,19 @@ const RoomDecor = ({
     return (
         <instancedMesh
             ref={meshRef}
-            args={[geometry, undefined, count]}
+            args={[undefined, undefined, count]}
             frustumCulled={false}
+            // Decorative only — never intercept clicks meant for interactive
+            // content (project cards, balloons, monitors).
+            raycast={() => null}
         >
+            <planeGeometry args={[size, size]} />
             <meshBasicMaterial
-                color={baseColor}
                 transparent
                 opacity={opacity}
                 depthWrite={false}
                 side={THREE.DoubleSide}
             />
-            <instancedBufferAttribute attach="attributes-color" args={[colorArray, 3]} />
         </instancedMesh>
     );
 };

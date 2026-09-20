@@ -455,13 +455,13 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
             {/* Candy confetti celebration — one instanced draw call, tier-scaled */}
             <RoomDecor
-                count={Math.round(70 * quality)}
+                count={Math.round(110 * quality)}
                 colors={getRoomTheme('gallery').palette.accents}
                 spread={[26, 12, 18]}
                 center={[0, 4, -8]}
-                size={0.14}
+                size={0.3}
                 mode="fall"
-                opacity={0.9}
+                opacity={0.95}
                 speed={0.7}
                 seed={123}
             />

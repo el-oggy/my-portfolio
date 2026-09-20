@@ -23,15 +23,18 @@ const FONT_URL = '/fonts/CabinSketch-Regular.ttf';
  */
 const SkillBadges = ({ x = 0, labels = [], fontUrl = FONT_URL }) => {
     if (!labels.length) return null;
-    const startY = 0.62;   // top badge (door-local Y, above the handle line)
-    const step = 0.44;     // vertical spacing between badges
+    const startY = 0.74;   // top badge (door-local Y, up in the panel, clear of handle)
+    const step = 0.5;      // vertical spacing between badges
     return (
         <group position={[x, 0, 0.091]}>
             {labels.map((label, i) => (
                 <Text
                     key={label}
+                    // Decorative only: troika text is raycastable by default and
+                    // would swallow clicks meant for the door mesh behind it.
+                    raycast={() => null}
                     position={[0, startY - i * step, 0]}
-                    fontSize={0.13}
+                    fontSize={0.105}
                     color="#1a1a1a"
                     anchorX="center"
                     anchorY="middle"
@@ -39,6 +42,8 @@ const SkillBadges = ({ x = 0, labels = [], fontUrl = FONT_URL }) => {
                     outlineWidth={0.012}
                     outlineColor="#f5f1e8"
                     letterSpacing={0.02}
+                    maxWidth={0.82}
+                    textAlign="center"
                 >
                     {label}
                 </Text>

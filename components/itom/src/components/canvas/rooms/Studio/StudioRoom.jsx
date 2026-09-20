@@ -604,13 +604,13 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
             {/* === NEON FIREFLIES (cyberpunk night) — one instanced draw call === */}
             <RoomDecor
-                count={Math.round(45 * quality)}
+                count={Math.round(75 * quality)}
                 colors={getRoomTheme('studio').palette.accents}
                 spread={[20, 16, 14]}
                 center={[0, 2, -8]}
-                size={0.1}
+                size={0.2}
                 mode="rise"
-                opacity={0.85}
+                opacity={0.9}
                 speed={0.5}
                 seed={77}
             />
