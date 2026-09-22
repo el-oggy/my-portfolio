@@ -64,10 +64,12 @@ const Experience = ({ onSceneReady, performanceTier }) => {
 
     return (
         <>
-            {/* === ROOM WARM-UP (pre-renders all rooms off-screen during preloader) === */}
-            {/* RoomWarmup mounts all 4 rooms 500 units below, compiles shaders via gl.compile(), 
-                then self-destructs and signals onSceneReady. This ensures both corridor segments
-                AND room shaders are pre-compiled before the user starts interacting. */}
+            {/* === BOOT GATE (lightweight shader warmup during preloader) === */}
+            {/* RoomWarmup waits for data, lets the corridor graph flush a few
+                frames, then gl.compileAsync's the visible scene and signals
+                onSceneReady. Rooms are keep-alive after first entry and lazy,
+                so boot intentionally does NOT pre-compile all four rooms —
+                the paper transition masks their first-entry compile. */}
             <RoomWarmup onWarmupComplete={onSceneReady} isLowTier={isLowTier} />
 
             {/* === GLOBAL LIGHTING === */}
