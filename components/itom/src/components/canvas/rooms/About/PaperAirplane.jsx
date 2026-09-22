@@ -8,7 +8,7 @@ import { Edges } from '@react-three/drei';
  * A low-poly origami-style paper airplane.
  * Built with BufferGeometry for full control over the shape.
  */
-const PaperAirplane = ({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, color = '#f5f5f5' }) => {
+const PaperAirplane = ({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, color = '#f5f5f5', paintOnBeforeCompile = null }) => {
     const meshRef = useRef();
 
     // Create paper airplane geometry
@@ -95,6 +95,12 @@ const PaperAirplane = ({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, 
                 <meshBasicMaterial
                     color={color}
                     side={THREE.DoubleSide}
+                    // Phase 3 brush-wipe entry: same pattern as the Gallery
+                    // railing mesh — a per-room cache key keeps the painted
+                    // program separate from other rooms' paint shaders.
+                    onBeforeCompile={paintOnBeforeCompile}
+                    customProgramCacheKey={paintOnBeforeCompile ? () => 'about-glider-paint' : undefined}
+                    transparent={!!paintOnBeforeCompile}
                 />
                 <Edges
                     linewidth={2}

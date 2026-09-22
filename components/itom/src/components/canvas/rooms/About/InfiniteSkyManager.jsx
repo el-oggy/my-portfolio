@@ -149,7 +149,7 @@ const STORY_CYCLE_LENGTH = 160;
 // -27 = 2 metry za drzwiami (w głąb pokoju) - musi matchować CORRIDOR_CLIP_Z w SkyChunk
 const MILESTONE_CORRIDOR_CLIP_Z = -8.0;
 
-const InfiniteSkyManager = ({ scrollProgressRef }) => {
+const InfiniteSkyManager = ({ scrollProgressRef, paintOnBeforeCompile = null }) => {
     // PRE-CALCULATED FOR scrolProgress = 0
     // currentChunk = floor(0/40) = 0 -> [-1, 0, 1, 2]
     const [activeChunks, setActiveChunks] = useState([-1, 0, 1, 2]);
@@ -217,6 +217,7 @@ const InfiniteSkyManager = ({ scrollProgressRef }) => {
                     chunkIndex={chunkIndex}
                     seed={42}
                     scrollProgressRef={scrollProgressRef}
+                    paintOnBeforeCompile={paintOnBeforeCompile}
                 />
             ))}
 

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
@@ -11,6 +11,22 @@ import RoomBackdrop from '../RoomBackdrop';
 import RoomDecor from '../RoomDecor';
 import { getRoomTheme } from '../RoomThemeConfig';
 import { useQualityScale } from '../../../../hooks/useQualityScale';
+import { usePaintMaterial } from '../Gallery/usePaintMaterial';
+
+// ============================================
+// ⚙️ PAINT CONFIGURATION — brush-wipe entry (Phase 3)
+// About sits on the LEFT side of the corridor, same as Gallery:
+// reveal sweeps from the door (-X) into the room depth.
+// Matches Gallery defaults so the entry wipe feels consistent.
+// ============================================
+const ABOUT_PAINT_CONFIG = {
+    dirX: -1.0,
+    dirY: 0.0,
+    dirZ: 0.1,
+    startDist: -5.0,
+    endDist: 55.0,
+    noiseAxes: 'yz'
+};
 
 // Chunk length for looping flight effect (matches SkyChunk)
 const CHUNK_LENGTH = 40;
@@ -78,6 +94,53 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     const roomRef = useRef();
     const airplaneGroupRef = useRef();
 
+    // ===== PHASE 3 — PAINT TRANSITION (brush-wipe entry) =====
+    // Gallery / Studio / Contact each animate usePaintMaterial's
+    // uPaintProgress 0 → 1 on room show (skipped on map teleport).
+    // About previously had NO entry wipe — its clouds/milestones just
+    // popped in while every sibling room painted in. Wire the same hook
+    // here. The glider + sky clouds opt in via paintOnBeforeCompile, so
+    // unrelated materials (milestones, balloons, decor) are untouched.
+    const {
+        onBeforeCompile: paintOnBeforeCompile,
+        animatePaint,
+        resetPaint,
+        uniformsData: paintUniforms,
+        updateRoomOrigin,
+    } = usePaintMaterial(ABOUT_PAINT_CONFIG);
+
+    const [, setIsTransitioning] = useState(false);
+
+    const wasTeleportedRef = useRef(false);
+    useEffect(() => {
+        if (isTeleporting) wasTeleportedRef.current = true;
+    }, [isTeleporting]);
+
+    useEffect(() => {
+        if (showRoom && !isWarmup) {
+            if (wasTeleportedRef.current || isTeleporting) {
+                // Map teleport: skip the wipe, reveal instantly.
+                paintUniforms.uPaintProgress.value = 1.0;
+                setIsTransitioning(false);
+            } else {
+                setIsTransitioning(true);
+                resetPaint();
+                // Slight delay so the wipe lands *during* the door fly-in.
+                animatePaint(0.2, 2.5);
+                const t = setTimeout(() => setIsTransitioning(false), 2700);
+                return () => clearTimeout(t);
+            }
+        } else {
+            // Warmup / hidden: keep fully revealed so pre-entry mounts
+            // (RoomWarmup keep-alive) never flash a half-painted state.
+            paintUniforms.uPaintProgress.value = 1.0;
+        }
+        // paintUniforms/animatePaint/resetPaint are stable hook returns
+        // (useMemo closures over one uniforms object) — intentionally
+        // excluded from deps so the entry wipe fires once per room show.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showRoom, isWarmup, isTeleporting]);
+
     // Reset camera rotation when teleporting starts
     useEffect(() => {
         if (isTeleporting) {
@@ -93,6 +156,10 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
     // Ready detection + flight animation
     useFrame((state, delta) => {
+        // Keep the paint-wipe shader's room origin in sync (one
+        // getWorldPosition per frame — same pattern as Gallery/Studio).
+        updateRoomOrigin(roomRef);
+
         if (!hasSignaledReady.current) {
             // Force rendering of all objects (even outside frustum) to compile shaders
             if (roomRef.current) {
@@ -264,11 +331,15 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                 <PaperAirplane
                     scale={0.8}
                     color="#a9744a"
+                    paintOnBeforeCompile={paintOnBeforeCompile}
                 />
             </group>
 
             {/* === INFINITE SKY WITH CLOUDS + STORY MILESTONES === */}
-            <InfiniteSkyManager scrollProgressRef={scrollPosition} />
+            <InfiniteSkyManager
+                scrollProgressRef={scrollPosition}
+                paintOnBeforeCompile={paintOnBeforeCompile}
+            />
 
             {/* === DRIFTING PETALS / SKY CONFETTI (daydream) === */}
             <RoomDecor

@@ -39,7 +39,7 @@ const CLOUD_TEXTURES = [
     '/textures/clouds/f6e358bc-d27c-41dd-95f4-6787a835c41e.webp',
 ];
 
-const SkyChunk = ({ chunkIndex = 0, seed = 0, scrollProgressRef }) => {
+const SkyChunk = ({ chunkIndex = 0, seed = 0, scrollProgressRef, paintOnBeforeCompile = null }) => {
     const zOffset = -(chunkIndex * CHUNK_LENGTH) - 15;
 
     const clouds = useMemo(() => {
@@ -83,6 +83,7 @@ const SkyChunk = ({ chunkIndex = 0, seed = 0, scrollProgressRef }) => {
                     bobAmount={cloud.bobAmount}
                     timeOffset={cloud.timeOffset}
                     scrollProgressRef={scrollProgressRef}
+                    paintOnBeforeCompile={paintOnBeforeCompile}
                 />
             ))}
         </group>
@@ -99,7 +100,8 @@ const Cloud = ({
     driftAmount = 0.8,
     bobAmount = 0.15,
     timeOffset = 0,
-    scrollProgressRef
+    scrollProgressRef,
+    paintOnBeforeCompile = null
 }) => {
     const meshRef = useRef();
     const materialRef = useRef();
@@ -187,6 +189,9 @@ const Cloud = ({
                 opacity={baseOpacity}
                 depthWrite={false}
                 side={THREE.DoubleSide}
+                // Phase 3 brush-wipe entry: clouds paint in with the room.
+                onBeforeCompile={paintOnBeforeCompile}
+                customProgramCacheKey={paintOnBeforeCompile ? () => 'about-cloud-paint' : undefined}
             />
         </mesh>
     );
