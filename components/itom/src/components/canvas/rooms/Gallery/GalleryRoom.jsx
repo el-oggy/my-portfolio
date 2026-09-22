@@ -1307,11 +1307,13 @@ const ProjectCard = memo(forwardRef(({ index, project, clothespinTexture, curren
                 <Text
                     ref={textRef}
                     position={[0, 0.7, 0]} // Tylko dwa pierwsze parametry [X, Y] mają tutaj znaczenie
-                    fontSize={0.20}
+                    fontSize={0.13}
                     color="#1c1c1c"
                     font="/fonts/CabinSketch-Bold.ttf"
                     anchorX="center"
                     anchorY="middle"
+                    maxWidth={1.15} // clamp long titles — previously they ran across neighbouring cards
+                    textAlign="center"
                     fillOpacity={0} // Start hidden
                 >
                     {project.title}

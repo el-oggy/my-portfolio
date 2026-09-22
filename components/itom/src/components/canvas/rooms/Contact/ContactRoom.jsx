@@ -34,6 +34,11 @@ export const AUDIO_SETTINGS = {
     rolloff: 1.2           // Szybkość cichnięcia (rolloffFactor)
 };
 
+// X / Twitter — friendly, informal contact. Swap for your profile URL
+// (https://x.com/yourhandle) once the account exists; until then this opens a
+// pre-filled "say hi" tweet.
+const TWITTER_URL = 'https://twitter.com/intent/tweet?text=Hey%20Adarsh%2C%20loved%20your%20portfolio!';
+
 // ============================================
 // ⚙️ LATARNIA SETTINGS - TWEAK HERE
 // Edytuj te wartości, aby zmienić pozycję, obrót i wielkość latarni
@@ -252,45 +257,6 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
         }
     }, [hasSignaledReady.current, showRoom, camera]);
 
-    const handleMailSelect = () => {
-        // Awaryjne przekierowanie mailto:
-        window.location.href = 'mailto:adarshswarupmaharana@gmail.com';
-
-        /* 
-        setShowSelection(false);
-
-        // Trigger the look down sequence
-        hasAnimatedDown.current = true;
-        hasExitTriggered.current = false;
-
-        // Capture landing rotation (usually 0,0,0)
-        targetRotX.current = camera.rotation.x;
-        targetRotY.current = camera.rotation.y;
-        targetRotZ.current = camera.rotation.z;
-
-        // Start sequence directly
-        setCurrentPhase(PHASE.LOOKING_DOWN);
-
-        // 1. SET X (Looking down)
-        targetRotX.current = CAMERA_SETTINGS.lookDownAngle;
-
-        // 2. SET Y (Turning)
-        if (CAMERA_SETTINGS.forceCenterY !== null) {
-            targetRotY.current = CAMERA_SETTINGS.forceCenterY;
-        }
-
-        // 3. SET Z (Tilt)
-        if (CAMERA_SETTINGS.forceStraightZ !== null) {
-            targetRotZ.current = CAMERA_SETTINGS.forceStraightZ;
-        }
-
-        // Phase transition
-        setTimeout(() => {
-            setCurrentPhase(PHASE.WRITING);
-        }, 1500);
-        */
-    };
-
     // Frame Loop
     useFrame((state, delta) => {
         // Update room origin for paint shader
@@ -463,13 +429,14 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                 paintOnBeforeCompile={onBeforeCompile}
                 paintUniforms={uniformsData}
             />
-            {/* MAIL (Triggers animation) */}
+            {/* TWITTER / X (center — friendly, informal contact. Swap in your
+                profile URL in TWITTER_URL below once the account exists.) */}
             <SocialBarrel
                 position={isMobile ? [0, -0.7, -6] : [0, -0.7, -7]}
                 rotation={[0, 0, 0]}
                 texturePath="/textures/contact/beczka.webp"
-                label="MESSAGE"
-                onClick={handleMailSelect}
+                label="TWITTER"
+                onClick={() => window.open(TWITTER_URL, '_blank')}
                 paintOnBeforeCompile={onBeforeCompile}
                 paintUniforms={uniformsData}
             />
