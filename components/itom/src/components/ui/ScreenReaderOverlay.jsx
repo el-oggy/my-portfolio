@@ -30,7 +30,7 @@ const ScreenReaderOverlay = () => {
                 <h2>Portfolio Navigation</h2>
 
                 {!hasEntered && (
-                    <p>Welcome to Adarsh's interactive embedded systems portfolio. Click or press Enter on the doors to enter.</p>
+                    <p>Welcome to Adarsh&apos;s interactive embedded systems portfolio. Click or press Enter on the doors to enter.</p>
                 )}
 
                 {hasEntered && !isInRoom && (

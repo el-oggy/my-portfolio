@@ -6,7 +6,6 @@ import gsap from 'gsap';
 import RoomInterior from './RoomInterior';
 import '../shaders/RevealMaterial'; // Registers alpha-discard reveal shader
 import { useScene } from '../../../context/SceneContext';
-import { useAchievements } from '../../../context/AchievementsContext';
 import { useAudio } from '../../../context/AudioManager';
 import { isTouchDevice } from '../../../utils/deviceDetect';
 import { useDispose } from '../../../utils/useDispose';
@@ -70,13 +69,10 @@ const DoorSection = ({
     side = 'left',
     label,
     roomId, // ID for context updates (gallery, studio, etc)
-    icon,
     onEnter,
-    autoCloseDelay = 3000,
     enterDistance = 8, // Default fly-through distance
     setCameraOverride, // Function to take control of camera from hook
-    segmentIndex,
-    color
+    segmentIndex
 }) => {
     const groupRef = useRef(); // Main group that tilts
     const doorRef = useRef();
@@ -93,7 +89,7 @@ const DoorSection = ({
     const [isInsideRoom, setIsInsideRoom] = useState(false);
     const [isTiltLocked, setIsTiltLocked] = useState(false); // Lock tilt when entering room
     const [shouldRenderRoom, setShouldRenderRoom] = useState(false); // Lazy loading state
-    const [roomReady, setRoomReady] = useState(false); // Room signaled it's ready
+    const [, setRoomReady] = useState(false); // Room signaled it's ready
     const { camera } = useThree();
     const closeTimerRef = useRef(null);
     const loadTimeoutRef = useRef(null); // Ref for the room loading fallback timeout
@@ -102,7 +98,6 @@ const DoorSection = ({
     const {
         currentRoom, // We need to know if the global room changed (teleportation)
         exitRequested,
-        clearExitRequest,
         exitRoom: contextExitRoom,
         enterRoom,
         pendingDoorClick,
@@ -112,7 +107,6 @@ const DoorSection = ({
         teleportPhase // We need this to delay reset until curtain is closed
     } = useScene();
 
-    const { unlockAchievement } = useAchievements();
     const { globalVolume, isMuted } = useAudio();
 
     // Audio Refs for 3D positional sound
@@ -161,6 +155,7 @@ const DoorSection = ({
             setIsTiltLocked(false);
             setRoomReady(false);
             roomReadyRef.current = false;
+            alignedRef.current = false;
 
             // 2. Reset Door/Handle Rotation (Visuals)
             // We can do this instantly or very quickly since screen is covered
@@ -182,6 +177,9 @@ const DoorSection = ({
     // Save camera state before entering room (for ESC exit)
     // Now saving FULL rotation (x, y, z) to prevent snap on exit
     const savedCameraState = useRef({ x: 0, y: 0, z: 0, rotationX: 0, rotationY: 0, rotationZ: 0 });
+    // True once the camera-align tween finished — the door may only open after
+    // this, otherwise the fly-through tween fights the alignment tween.
+    const alignedRef = useRef(false);
     // Save position ALIGNED with door (intermediate step for exit)
     const doorAlignedState = useRef({ x: 0, y: 0, z: 0, rotationY: 0 });
     // Save position after flying through corridor (before final rotation) 
@@ -423,6 +421,13 @@ const DoorSection = ({
         document.body.style.cursor = "auto";
 
         setIsAnimating(true);
+        alignedRef.current = false;
+
+        // Start mounting + warming the room NOW (during the ~1s camera
+        // alignment) instead of waiting for alignment to finish. Previously
+        // the room only began loading in the align tween's onComplete, so the
+        // door sat closed while textures uploaded — the visible "stutter".
+        setShouldRenderRoom(true);
 
         // Take control of camera from hook
         setCameraOverride?.(true);
@@ -524,12 +529,14 @@ const DoorSection = ({
                     rotationY: camera.rotation.y
                 };
 
-                // Lazy Load Room:
-                // 1. Camera is now aligned.
-                // 2. Start rendering the room.
-                // 3. Door will open when room signals ready via onReady callback
-                //    OR after fallback timeout for rooms without onReady support
-                setShouldRenderRoom(true);
+                // Camera is aligned — the door may open now. The room has been
+                // warming since click-start (see handleClick); if it already
+                // signaled ready, open immediately, otherwise handleRoomReady
+                // will fire openDoor as soon as loading finishes.
+                alignedRef.current = true;
+                if (roomReadyRef.current) {
+                    openDoor(useFastMode);
+                }
 
                 // During FAST teleport, we still want to WAIT for the room to be ready!
                 // So we do NOT open immediately anymore. We let the onReady callback handle it.
@@ -643,8 +650,13 @@ const DoorSection = ({
 
         roomReadyRef.current = true;
         setRoomReady(true);
-        // Use the current context state to decide if we should do a fast open
-        openDoor(isFastTeleport);
+        // Only open once the camera finished aligning with the door; if the
+        // room warmed faster than the align tween, the align onComplete calls
+        // openDoor instead (prevents tween conflicts on the camera).
+        if (alignedRef.current) {
+            // Use the current context state to decide if we should do a fast open
+            openDoor(isFastTeleport);
+        }
     }, [openDoor, isFastTeleport]);
 
     // Exit room function - TRUE REVERSE animation (like rewinding video)
@@ -866,7 +878,8 @@ const DoorSection = ({
             gsap.to(doorRef.current.rotation, {
                 y: side === 'left' ? 0.15 : -0.15,
                 duration: 0.3,
-                ease: 'power2.out'
+                ease: 'power2.out',
+                overwrite: 'auto'
             });
         }
 
@@ -875,7 +888,8 @@ const DoorSection = ({
             gsap.to(handleRef.current.rotation, {
                 z: side === 'left' ? 0.1 : -0.1,
                 duration: 0.2,
-                ease: 'power2.out'
+                ease: 'power2.out',
+                overwrite: 'auto'
             });
         }
 
@@ -916,7 +930,8 @@ const DoorSection = ({
             gsap.to(doorRef.current.rotation, {
                 y: 0,
                 duration: 0.3,
-                ease: 'power2.out'
+                ease: 'power2.out',
+                overwrite: 'auto'
             });
         }
 
@@ -925,7 +940,8 @@ const DoorSection = ({
             gsap.to(handleRef.current.rotation, {
                 z: 0,
                 duration: 0.2,
-                ease: 'power2.out'
+                ease: 'power2.out',
+                overwrite: 'auto'
             });
         }
 
@@ -958,14 +974,8 @@ const DoorSection = ({
     const doorPivotX = side === 'left' ? -doorWidth / 2 : doorWidth / 2;
     const doorMeshX = side === 'left' ? doorWidth / 2 : -doorWidth / 2;
 
-    // Handle position on door (based on texture - handle is on the right side for left doors)
-    const handlePivotX = side === 'left' ? doorWidth * 0.25 : -doorWidth * 0.25;
-
     // Sign texture mapping - now uses a single empty sign texture
     const signTextureUrl = '/textures/corridor/pustatabliczka.webp';
-    const signLegacyRatio = 1.792; // 2752x1536
-    const signHeight = 0.55;
-    const signWidth = signHeight * signLegacyRatio;
     const signTexture = useTexture(signTextureUrl);
 
     return (
@@ -998,7 +1008,6 @@ const DoorSection = ({
                         transparent={true}
                         alphaTest={0.1}
                         side={THREE.DoubleSide}
-                        roughness={0.8}
                     />
                 </mesh>
 
@@ -1021,7 +1030,6 @@ const DoorSection = ({
                         transparent={true}
                         alphaTest={0.1}
                         side={THREE.DoubleSide}
-                        roughness={0.8}
                     />
                 </mesh>
 
@@ -1030,7 +1038,6 @@ const DoorSection = ({
                     <planeGeometry args={[doorBoardWidth, 0.15]} />
                     <meshBasicMaterial color="#e0e0e0"
                         map={doorBbTexLeft}
-                        roughness={0.8}
                         side={THREE.DoubleSide}
                     />
                 </mesh>
@@ -1040,7 +1047,6 @@ const DoorSection = ({
                     <planeGeometry args={[doorBoardWidth, 0.15]} />
                     <meshBasicMaterial color="#e0e0e0"
                         map={doorBbTexRight}
-                        roughness={0.8}
                         side={THREE.DoubleSide}
                     />
                 </mesh>
@@ -1056,8 +1062,6 @@ const DoorSection = ({
                     <planeGeometry args={[1.1, 0.15]} />
                     <meshBasicMaterial color="#e0e0e0"
                         map={threshTex}
-                        roughness={0.9}
-                        metalness={0}
                         side={THREE.DoubleSide}
                     />
                 </mesh>
@@ -1078,7 +1082,6 @@ const DoorSection = ({
                                 map={signTexture}
                                 transparent={true}
                                 alphaTest={0.1}
-                                roughness={0.8}
                             />
                         </mesh>
 
@@ -1165,7 +1168,6 @@ const DoorSection = ({
                             map={frameTexture}
                             transparent={true}
                             alphaTest={0.1}
-                            roughness={0.9}
                         />
                     </mesh>
 
@@ -1203,7 +1205,6 @@ const DoorSection = ({
                                 map={doorPaintedTexture}
                                 transparent={true}
                                 alphaTest={0.5}
-                                roughness={0.8}
                             />
                         </mesh>
 
@@ -1218,7 +1219,6 @@ const DoorSection = ({
                                 map={doorTexture}
                                 transparent={true}
                                 alphaTest={0.1}
-                                roughness={0.8}
                                 uProgress={0.0}
                             />
                         </mesh>
@@ -1234,7 +1234,6 @@ const DoorSection = ({
                                 map={doorBackTexture}
                                 transparent={true}
                                 alphaTest={0.1}
-                                roughness={0.8}
                                 side={THREE.DoubleSide}
                             />
                         </mesh>

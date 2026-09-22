@@ -13,7 +13,7 @@ export default function NotFound() {
           Page Not Found
         </h2>
         <p className="mt-4 text-base text-[var(--ink-dim)]">
-          It looks like you've wandered out of bounds. Let's get you back to the hardware lab.
+          It looks like you&apos;ve wandered out of bounds. Let&apos;s get you back to the hardware lab.
         </p>
         <Link href="/">
           <button className="sketch-btn mt-8 bg-[var(--note-yellow)]">

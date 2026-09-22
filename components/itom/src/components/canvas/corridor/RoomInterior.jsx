@@ -1,13 +1,28 @@
-import { useMemo, memo, Suspense, useEffect, useState } from 'react';
+import { useMemo, memo, Suspense, useEffect, useState, lazy } from 'react';
 import { Text } from '@react-three/drei';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Eagerly import room components - textures are preloaded during the preloader phase
-import GalleryRoom from '../rooms/Gallery/GalleryRoom';
-import StudioRoom from '../rooms/Studio/StudioRoom';
-import AboutRoom from '../rooms/About/AboutRoom';
-import ContactRoom from '../rooms/Contact/ContactRoom';
+// Code-split the four rooms: each becomes its own webpack chunk so the boot
+// bundle stays light. Chunks are prefetched on idle (below) and DoorSection
+// starts mounting the room at door click-start (while the camera aligns), so
+// first entry still feels instant.
+const GalleryRoom = lazy(() => import('../rooms/Gallery/GalleryRoom'));
+const StudioRoom = lazy(() => import('../rooms/Studio/StudioRoom'));
+const AboutRoom = lazy(() => import('../rooms/About/AboutRoom'));
+const ContactRoom = lazy(() => import('../rooms/Contact/ContactRoom'));
+
+// Idle prefetch — warm the lazy chunks after the corridor settles so the
+// first door click never waits on chunk download/parse.
+let roomPrefetchStarted = false;
+const prefetchRooms = () => {
+    if (roomPrefetchStarted) return;
+    roomPrefetchStarted = true;
+    import('../rooms/Gallery/GalleryRoom');
+    import('../rooms/Studio/StudioRoom');
+    import('../rooms/About/AboutRoom');
+    import('../rooms/Contact/ContactRoom');
+};
 
 // Room configurations
 const ROOM_CONFIG = {
@@ -149,6 +164,17 @@ const RoomInterior = memo(({ label, showRoom, onReady, isExiting }) => {
     useEffect(() => {
         if (showRoom && !hasEverShown) setHasEverShown(true);
     }, [showRoom, hasEverShown]);
+
+    // Prefetch the lazy room chunks once the browser is idle.
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (typeof window.requestIdleCallback === 'function') {
+            const id = window.requestIdleCallback(prefetchRooms, { timeout: 4000 });
+            return () => window.cancelIdleCallback(id);
+        }
+        const t = setTimeout(prefetchRooms, 2000);
+        return () => clearTimeout(t);
+    }, []);
 
     // Trigger onReady for generic rooms (which don't have their own component to do it)
     useEffect(() => {

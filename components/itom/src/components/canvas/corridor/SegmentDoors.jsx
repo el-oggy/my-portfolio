@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useTexture, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
@@ -30,7 +30,6 @@ const TiledStripMesh = ({
     position,
     rotation,
     color = '#e0e0e0',
-    roughness = 0.8,
 }) => {
     const tex = useMemo(() => {
         const t = src.clone();
@@ -46,7 +45,7 @@ const TiledStripMesh = ({
     return (
         <mesh position={position} rotation={rotation}>
             <planeGeometry args={[width, height]} />
-            <meshBasicMaterial color={color} map={tex} roughness={roughness} metalness={0} side={THREE.DoubleSide} />
+            <meshBasicMaterial color={color} map={tex} side={THREE.DoubleSide} />
         </mesh>
     );
 };
@@ -195,7 +194,7 @@ const SegmentDoors = ({
             {/* === LEFT WALL PANEL (Brainstorming) === */}
             <mesh position={[-(doorOpeningWidth / 2 + sideWallWidth / 2), wallCenterY, 0]}>
                 <boxGeometry args={[sideWallWidth, corridorHeight, wallThickness]} />
-                <meshBasicMaterial color="#e0e0e0" map={wallTexture} roughness={0.95} />
+                <meshBasicMaterial color="#e0e0e0" map={wallTexture} />
             </mesh>
             {/* Decoration Left (Idea Process) */}
             {/* 
@@ -211,7 +210,6 @@ const SegmentDoors = ({
                 <meshBasicMaterial color="#e0e0e0"
                     map={ideaTexture}
                     transparent={true}
-                    roughness={0.9}
                     alphaTest={0.1}
                 />
             </mesh>
@@ -219,7 +217,7 @@ const SegmentDoors = ({
             {/* === RIGHT WALL PANEL (Coffee & Bug) === */}
             <mesh position={[(doorOpeningWidth / 2 + sideWallWidth / 2), wallCenterY, 0]}>
                 <boxGeometry args={[sideWallWidth, corridorHeight, wallThickness]} />
-                <meshBasicMaterial color="#e0e0e0" map={wallTexture} roughness={0.95} />
+                <meshBasicMaterial color="#e0e0e0" map={wallTexture} />
             </mesh>
             {/* Decoration Right (Coffee) */}
             {/* 
@@ -233,7 +231,6 @@ const SegmentDoors = ({
                 <meshBasicMaterial color="#e0e0e0"
                     map={coffeeTexture}
                     transparent={true}
-                    roughness={0.9}
                     alphaTest={0.1}
                 />
             </mesh>
@@ -241,7 +238,7 @@ const SegmentDoors = ({
             {/* === TOP WALL PANEL (While True) === */}
             <mesh position={[0, topWallCenterY, 0]}>
                 <boxGeometry args={[doorOpeningWidth, topWallHeight, wallThickness]} />
-                <meshBasicMaterial color="#e0e0e0" map={wallTexture} roughness={0.95} />
+                <meshBasicMaterial color="#e0e0e0" map={wallTexture} />
             </mesh>
             {/* Decoration Top (While True) */}
             <mesh position={[0, topWallCenterY, 0.07]}>
@@ -249,7 +246,6 @@ const SegmentDoors = ({
                 <meshBasicMaterial color="#e0e0e0"
                     map={whileTrueTexture}
                     transparent={true}
-                    roughness={0.9}
                     alphaTest={0.1}
                 />
             </mesh>
@@ -262,7 +258,6 @@ const SegmentDoors = ({
                     map={frameTexture}
                     transparent={true}
                     alphaTest={0.1}
-                    roughness={0.9}
                     depthWrite={false}
                 />
             </mesh>
@@ -272,7 +267,7 @@ const SegmentDoors = ({
                 {/* Solid 3D Door Body with edge texture */}
                 <mesh position={[doorWidth / 2, 0, 0.06]}>
                     <boxGeometry args={[doorWidth, doorHeight, 0.04]} />
-                    <meshBasicMaterial color="#e0e0e0" map={edgeTexture} roughness={0.9} />
+                    <meshBasicMaterial color="#e0e0e0" map={edgeTexture} />
                 </mesh>
 
                 {/* Front Texture Face */}
@@ -282,7 +277,6 @@ const SegmentDoors = ({
                         map={doorLeftTexture}
                         transparent={true}
                         alphaTest={0.5}
-                        roughness={0.8}
                     />
                 </mesh>
 
@@ -293,7 +287,6 @@ const SegmentDoors = ({
                         map={doorBackTexture}
                         transparent={true}
                         alphaTest={0.5}
-                        roughness={0.8}
                         side={2}
                     />
                 </mesh>
@@ -317,7 +310,7 @@ const SegmentDoors = ({
                 {/* Solid 3D Door Body with edge texture */}
                 <mesh position={[-doorWidth / 2, 0, 0.06]}>
                     <boxGeometry args={[doorWidth, doorHeight, 0.04]} />
-                    <meshBasicMaterial color="#e0e0e0" map={edgeTexture} roughness={0.9} />
+                    <meshBasicMaterial color="#e0e0e0" map={edgeTexture} />
                 </mesh>
 
                 {/* Front Texture Face */}
@@ -327,7 +320,6 @@ const SegmentDoors = ({
                         map={doorRightTexture}
                         transparent={true}
                         alphaTest={0.5}
-                        roughness={0.8}
                     />
                 </mesh>
 
@@ -338,7 +330,6 @@ const SegmentDoors = ({
                         map={doorBackTexture}
                         transparent={true}
                         alphaTest={0.5}
-                        roughness={0.8}
                     />
                 </mesh>
 
@@ -376,7 +367,6 @@ const SegmentDoors = ({
                 height={0.15}
                 position={[0, floorY + 0.005, 0]}
                 rotation={[-Math.PI / 2, 0, 0]}
-                roughness={0.9}
             />
             {/* === BASEBOARD (Listwa) LEFT SIDE === */}
             <TiledStripMesh

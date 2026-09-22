@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 

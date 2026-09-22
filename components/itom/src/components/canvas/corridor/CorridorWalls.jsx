@@ -1,5 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useMemo } from 'react';
 import * as THREE from 'three';
 import { useTexture } from '@react-three/drei';
 import { useDispose } from '../../../utils/useDispose';
@@ -10,65 +9,6 @@ import { useDispose } from '../../../utils/useDispose';
 const WALL_X_OUTER = 3.5;
 const WALL_X_INNER = 1.7;
 // Note: DOOR_Z_SPAN = 4 (from CorridorSegment)
-
-/**
- * DoorWallSegment - Dynamic wall segment that tilts towards camera
- * Used for the angled walls next to doors
- */
-const DoorWallSegment = ({ position, baseRotationY, width, corridorHeight, wallTexture, side }) => {
-    const meshRef = useRef();
-    const { camera } = useThree();
-
-    // Tilt state
-    const currentTilt = useRef(0);
-
-    // Tilt parameters - adjust these to change the effect
-    const BASE_TILT = 0.02;   // ~1 degree base tilt
-    const MAX_TILT = 0.20;    // ~12 degrees max tilt when camera is close
-    const TILT_START = 12;    // Start tilting when camera is 12 units away
-    const TILT_PEAK = 2;      // Max tilt at 2 units
-
-    useFrame(() => {
-        if (!meshRef.current) return;
-
-        const distance = Math.abs(camera.position.z - position[2]);
-        let targetTilt = BASE_TILT;
-
-        if (distance < TILT_START && distance > TILT_PEAK) {
-            // Approaching: ramp up tilt
-            const t = (TILT_START - distance) / (TILT_START - TILT_PEAK);
-            const easedT = t * (2 - t); // easeOutQuad
-            targetTilt = BASE_TILT + (MAX_TILT - BASE_TILT) * easedT;
-        } else if (distance <= TILT_PEAK) {
-            // Very close: max tilt
-            targetTilt = MAX_TILT;
-        }
-
-        // Smooth interpolation
-        currentTilt.current = THREE.MathUtils.lerp(currentTilt.current, targetTilt, 0.06);
-
-        // Apply tilt - direction based on side
-        const tiltDirection = side === 'left' ? -1 : 1;
-        meshRef.current.rotation.y = baseRotationY + (currentTilt.current * tiltDirection);
-    });
-
-    // Clone texture for independent repeat
-    const segTexture = useMemo(() => {
-        const tex = wallTexture.clone();
-        tex.needsUpdate = true;
-        tex.repeat.set(width / 2, corridorHeight / 2);
-        return tex;
-    }, [wallTexture, width, corridorHeight]);
-    // Free the cloned GPU texture when this segment unmounts
-    useDispose(segTexture);
-
-    return (
-        <mesh ref={meshRef} position={position}>
-            <planeGeometry args={[width, corridorHeight]} />
-            <meshBasicMaterial color="#e0e0e0" map={segTexture} roughness={1} metalness={0} />
-        </mesh>
-    );
-};
 
 // O ile (w unitach 3D) skrócić listwę z każdej strony przy ramce drzwi (module-level
 // so FillerWallSegment can share it).
@@ -210,7 +150,6 @@ const CorridorWalls = ({ zStart = 10, length = 80, doorPositions = [], zClip = 1
     // We only render from Math.min(zStart, zClip) down to (zStart - length)
     const effectiveStart = Math.min(zStart, zClip);
     const effectiveLength = effectiveStart - (zStart - length);
-    const zCenter = effectiveStart - effectiveLength / 2;
 
     // NOTE: no early return here — the useMemo calls below must run on every
     // render regardless of clip state (rules of hooks). The clip check lives
@@ -277,8 +216,6 @@ const CorridorWalls = ({ zStart = 10, length = 80, doorPositions = [], zClip = 1
             const dx = innerX - baseX;
             const dz = doorEndZ - doorStartZ; // Negative (-4)
             const dist = Math.sqrt(dx * dx + dz * dz);
-            const angle = Math.atan2(dx, dz); // Angle relative to Z axis?
-            // atan2(dx, dz). Left: dx = 1.8, dz = -4. Angle ~ 155 deg.
             // Standard wall normal is 90 deg.
             // We want rotation around Y.
             // Center of segment:

@@ -7,8 +7,6 @@ import * as THREE from 'three';
 // CONFIG
 // ============================================
 const PARTICLE_COUNT = 60;
-const MIN_RADIUS = 4;
-const MAX_RADIUS = 12;
 const VERTICAL_SPREAD = 25;
 const BASE_OPACITY = 0.18;
 

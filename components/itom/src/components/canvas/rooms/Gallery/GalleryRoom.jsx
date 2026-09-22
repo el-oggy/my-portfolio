@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useEffect, forwardRef, useImperativeHandle, memo } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
-import { Text, useTexture, Float, PositionalAudio } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+import { Text, useTexture, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { Observer } from 'gsap/all';
@@ -91,7 +91,7 @@ const RIGHT_CROP_AMOUNT = 0.2;
 
 const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     const quality = useQualityScale();
-    const { openOverlay, isTeleporting } = useScene();
+    const { isTeleporting } = useScene();
     const { showTutorial, unlockAchievement, hidePopup } = useAchievements();
     const { globalVolume, isMuted } = useAudio();
     const effectiveVolume = isMuted ? 0 : AUDIO_SETTINGS.volume * globalVolume;
@@ -104,7 +104,6 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     }, [effectiveVolume]);
 
     const groupRef = useRef();
-    const [scrollOffset, setScrollOffset] = useState(0);
     const targetScroll = useRef(0);
     const currentScroll = useRef(0);
     const [selectedCard, setSelectedCard] = useState(null);
@@ -204,8 +203,6 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     });
 
     // Config
-    const BALCONY_WIDTH = 5;
-    const BALCONY_DEPTH = 3;
     const RAILING_HEIGHT = 1.25; // Legacy ratio 20/(7 segments * 2.287)
 
     // --- TEXTURES AND RESPONSIVENESS ---
@@ -709,7 +706,7 @@ const FlyingBird = ({ texture }) => {
 };
 
 // Sub-component for individual project cards
-const ProjectCard = memo(forwardRef(({ index, project, clothespinTexture, currentScroll, materials, curve, isSelected, scrollToIndex, onClick, isMobile, isTransitioning, paintProgress, roomOrigin }, ref) => {
+const ProjectCard = memo(forwardRef(({ index, project, clothespinTexture, currentScroll, curve, isSelected, scrollToIndex, onClick, isMobile, isTransitioning, paintProgress, roomOrigin }, ref) => {
     const cardRef = useRef();
     const paperRef = useRef(); // Ref for the moving part (Paper)
     const materialRef = useRef();
@@ -724,7 +721,7 @@ const ProjectCard = memo(forwardRef(({ index, project, clothespinTexture, curren
     const [hovered, setHovered] = useState(false);
     const [btnHovered, setBtnHovered] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);  // True ONLY during flip animation
-    const [isScrolling, setIsScrolling] = useState(false);  // True during scroll phase
+    const [, setIsScrolling] = useState(false);  // True during scroll phase
 
     // Random sway properties
     const swaySpeed = useRef(Math.random() * 0.2 + 0.3); // Slower sway speed

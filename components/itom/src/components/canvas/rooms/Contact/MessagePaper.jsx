@@ -57,7 +57,9 @@ const InteractiveTextField = ({
             onPointerOut={() => setHovered(false)}
             onClick={(e) => {
                 e.stopPropagation();
-                onClick && onClick();
+                if (onClick) {
+                    onClick();
+                }
             }}
         >
             {/* Invisible Hitbox - colorWrite=false prevents grey artifacts while keeping raycast */}
@@ -115,7 +117,9 @@ const SmoothButton = ({ texture, onClick, position, size, text, fontPath }) => {
             position={position}
             onClick={(e) => {
                 e.stopPropagation();
-                onClick && onClick();
+                if (onClick) {
+                    onClick();
+                }
             }}
             onPointerOver={() => setHovered(true)}
             onPointerOut={() => setHovered(false)}
@@ -474,7 +478,7 @@ const MessagePaper = ({ position = [0, 0.05, 2], onSend }) => {
             } else {
                 throw new Error(result.message || 'Failed to send');
             }
-        } catch (error) {
+        } catch {
             // console.error('❌ Send failed:', error);
             setSubmitStatus('error');
         } finally {
@@ -546,7 +550,7 @@ const MessagePaper = ({ position = [0, 0.05, 2], onSend }) => {
 
     // Store original vertex positions for fold animation
     // Paper animation (flutter)
-    useFrame((state, delta) => {
+    useFrame((state) => {
         if (!paperRef.current) return;
 
         const time = state.clock.getElapsedTime();

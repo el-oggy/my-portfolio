@@ -1,10 +1,9 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Text, PositionalAudio } from '@react-three/drei';
+import { PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
 import PaperAirplane from './PaperAirplane';
 import InfiniteSkyManager from './InfiniteSkyManager';
-import StoryMilestone from './StoryMilestone';
 import { useScene } from '../../../../context/SceneContext';
 import { useAchievements } from '../../../../context/AchievementsContext';
 import { useAudio } from '../../../../context/AudioManager';
@@ -25,15 +24,6 @@ export const AUDIO_SETTINGS = {
     distance: 2,
     rolloff: 0.8
 };
-
-// Story sections - positions define where each milestone appears
-// Using CHUNK_LENGTH to create looping story (every ~40 units restarts)
-const STORY_MILESTONES = [
-    { id: 'intro', position: [0, 0, -15], type: 'intro', title: 'ADARSH', subtitle: '< hardware · firmware · IoT />' },
-    { id: 'awards', position: [0, 0, -55], type: 'awards', title: 'CREDENTIALS', subtitle: 'Embedded systems • VLSI • IoT training' },
-    { id: 'journey', position: [0, 0, -95], type: 'journey', title: 'JOURNEY', subtitle: 'B.Tech Electronics @ PMEC Berhampur' },
-    { id: 'skills', position: [0, 0, -135], type: 'skills', title: 'SKILLS', subtitle: 'STM32 • ESP32 • KiCad • C/C++' },
-];
 
 const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     const quality = useQualityScale();

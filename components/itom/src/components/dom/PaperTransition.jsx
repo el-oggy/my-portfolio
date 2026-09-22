@@ -36,8 +36,7 @@ const PaperTransition = () => {
     const {
         teleportPhase,
         startTeleportTransition,
-        finishPaperOpen,
-        teleportTarget
+        finishPaperOpen
     } = useScene();
     const { play } = useAudio();
 

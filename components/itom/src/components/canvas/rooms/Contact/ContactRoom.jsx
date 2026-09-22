@@ -1,8 +1,7 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Text, PositionalAudio } from '@react-three/drei';
+import { PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
-import gsap from 'gsap';
 import MessagePaper from './MessagePaper';
 import SocialBarrel from './SocialBarrel';
 import { useScene } from '../../../../context/SceneContext';
@@ -171,7 +170,7 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
         noiseAxes: 'yz'
     });
 
-    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [, setIsTransitioning] = useState(false);
 
     const wasTeleportedRef = useRef(false);
     useEffect(() => {
@@ -202,7 +201,7 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     const FRAMES_TO_WAIT = 5;
 
     // Phase state
-    const [currentPhase, setCurrentPhase] = useState(PHASE.ENTERING);
+    const [, setCurrentPhase] = useState(PHASE.ENTERING);
     const [showSelection, setShowSelection] = useState(true);
 
     const hasAnimatedDown = useRef(false);
@@ -496,7 +495,7 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             <group visible={!showSelection}>
                 <MessagePaper
                     position={[0, 0.07, 2]}
-                    onSend={(data) => {
+                    onSend={() => {
                         // console.log('📬 Contact form submitted:', data);
                         unlockAchievement('contact_choose');
                     }}

@@ -8,7 +8,7 @@ gsap.registerPlugin(TextPlugin);
 
 const GlobalOverlay = () => {
     const { overlayContent, closeOverlay } = useScene();
-    const [isVisible, setIsVisible] = useState(false);
+    const [, setIsVisible] = useState(false);
     const [animateOpen, setAnimateOpen] = useState(false);
 
     // Check if mobile based on window width

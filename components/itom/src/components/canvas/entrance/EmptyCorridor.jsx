@@ -57,7 +57,7 @@ const EmptyCorridor = ({ camera }) => {
 /**
  * Single empty corridor segment
  */
-const CorridorSegmentEmpty = ({ zStart, corridorWidth, corridorHeight, floorTexture }) => {
+const CorridorSegmentEmpty = ({ zStart, corridorWidth, floorTexture }) => {
     const length = 40;
     const zCenter = zStart - length / 2;
 

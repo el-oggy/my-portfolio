@@ -132,7 +132,7 @@ export const AudioProvider = ({ children }) => {
                 audio.currentTime = 0;
                 delete activeSounds.current[soundName];
             },
-            fade: (duration = 1000) => {
+            fade: () => {
                 // For now just stop
                 audio.pause();
                 delete activeSounds.current[soundName];

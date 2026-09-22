@@ -231,4 +231,6 @@ const PaperMaterial = forwardRef(({ color = '#e0e0e0', roughness = 0.6, map, sid
     );
 });
 
+PaperMaterial.displayName = 'PaperMaterial';
+
 export default PaperMaterial;

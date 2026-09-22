@@ -31,7 +31,7 @@ export const AchievementsProvider = ({ children }) => {
                 return filtered;
             }
             return [];
-        } catch (e) {
+        } catch {
             return [];
         }
     });
@@ -86,7 +86,7 @@ export const AchievementsProvider = ({ children }) => {
 
             osc.start(ctx.currentTime);
             osc.stop(ctx.currentTime + 0.5);
-        } catch (err) {
+        } catch {
             // console.warn('Failed to play unlock chime', err);
         }
     }, [isMuted, globalVolume]);

@@ -1,6 +1,5 @@
-import { useMemo, useEffect, useState, memo } from 'react';
+import { useMemo, memo } from 'react';
 import { Text } from '@react-three/drei';
-import * as THREE from 'three';
 
 import CorridorWalls from './CorridorWalls';
 import DoorSection from './DoorSection';

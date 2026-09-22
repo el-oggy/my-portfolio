@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect, useRef, Suspense } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useCallback, Suspense } from 'react';
+import { useThree } from '@react-three/fiber';
 
 import InfiniteCorridorManager from './corridor/InfiniteCorridorManager';
 import EntranceDoors from './entrance/EntranceDoors';
@@ -25,9 +25,9 @@ const ENTRANCE_DOORS_Z = 22;
  * 2. Click doors -> they open + camera flies through
  * 3. Behind doors: infinite corridor with ITOM
  */
-const Experience = ({ isLoaded, onSceneReady, performanceTier }) => {
+const Experience = ({ onSceneReady, performanceTier }) => {
     // Use SceneContext for room state
-    const { hasEntered, markEntered, enterRoom, isTeleporting, isInRoom, pendingDoorClick } = useScene();
+    const { hasEntered, markEntered, enterRoom, isTeleporting, isInRoom } = useScene();
 
     const { camera } = useThree();
 

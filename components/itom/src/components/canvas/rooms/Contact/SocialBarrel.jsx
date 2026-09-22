@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useTexture, Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -108,7 +108,9 @@ const SocialBarrel = ({ position, rotation = [0, 0, 0], texturePath, label, onCl
             rotation={rotation}
             onClick={(e) => {
                 e.stopPropagation();
-                onClick && onClick();
+                if (onClick) {
+                    onClick();
+                }
             }}
             onPointerOver={handlePointerOver}
             onPointerOut={handlePointerOut}

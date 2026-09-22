@@ -1,5 +1,5 @@
-import { useState, useRef, useMemo, useEffect } from 'react';
-import { useFrame, useLoader, useThree } from '@react-three/fiber';
+import { useState, useRef, useEffect } from 'react';
+import { useFrame, useLoader } from '@react-three/fiber';
 import { Text, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -260,8 +260,6 @@ const InfiniteSkyManager = ({ scrollProgressRef }) => {
 const IntroMilestone = ({ z, scrollProgressRef }) => {
     // Load avatar texture
     const avatarTexture = useLoader(THREE.TextureLoader, '/textures/about/awatarnachmurce.webp');
-    const { camera, viewport } = useThree();
-    const isTouch = isTouchDevice();
 
     // Refs for all animated elements
     const groupRef = useRef();
@@ -390,7 +388,7 @@ const IntroMilestone = ({ z, scrollProgressRef }) => {
                 font="/fonts/CabinSketch-Regular.ttf"
                 fontStyle="italic"
             >
-                "Designing the micro-world
+                &quot;Designing the micro-world
             </Text>
 
             {/* Motto - Line 2 (spreads left) */}
@@ -404,7 +402,7 @@ const IntroMilestone = ({ z, scrollProgressRef }) => {
                 font="/fonts/CabinSketch-Regular.ttf"
                 fontStyle="italic"
             >
-                that powers the macro-world"
+                that powers the macro-world&quot;
             </Text>
         </group>
     );
@@ -473,7 +471,6 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
     const sanityAwards = useAwards();
     const awardsData = sanityAwards || AWARDS_DATA;
 
-    const { camera, viewport } = useThree();
     const isTouch = isTouchDevice();
     const { openOverlay } = useScene();
     const groupRef = useRef();
@@ -551,7 +548,7 @@ const AwardsMilestone = ({ z, scrollProgressRef }) => {
         }
     };
 
-    useFrame((state) => {
+    useFrame(() => {
         if (!groupRef.current) return;
 
         const scrollProgress = scrollProgressRef?.current || 0;
@@ -771,8 +768,6 @@ const JOURNEY_ISLANDS = [
 ];
 
 const JourneyMilestone = ({ z, scrollProgressRef }) => {
-    const { camera, viewport } = useThree();
-    const isTouch = isTouchDevice();
     const groupRef = useRef();
     const islandRefs = useRef([]);
 
@@ -935,7 +930,6 @@ const SIZE_MULTIPLIERS = {
 
 // Individual balloon component
 const SkillBalloon = ({ config, revealFactorRef, spreadFactorRef, timeRef }) => {
-    const { viewport } = useThree();
     const isTouch = isTouchDevice();
     const texture = useLoader(THREE.TextureLoader, config.texture);
     const paintedTextureUrl = isTouch ? config.texture : config.paintedTexture;
@@ -949,7 +943,6 @@ const SkillBalloon = ({ config, revealFactorRef, spreadFactorRef, timeRef }) => 
     const popRef = useRef(0);
     const textFadeRef = useRef(1); // 1 = fully visible, 0 = hidden
     const respawnOffsetRef = useRef(0); // For floating back up after respawn
-    const balloonMatRef = useRef();
     const balloonRevealRef = useRef(); // RevealBasicMaterial ref for sketch
     const paintedMeshRef = useRef(); // Painted balloon mesh visibility
     const paintedMatRef = useRef(); // Painted balloon material opacity control
@@ -1279,8 +1272,6 @@ const SkillBalloon = ({ config, revealFactorRef, spreadFactorRef, timeRef }) => 
 };
 
 const SkillsMilestone = ({ z, scrollProgressRef }) => {
-    const { camera, viewport } = useThree();
-    const isTouch = isTouchDevice();
     const groupRef = useRef();
     // P2: Use refs instead of state to avoid 60 re-renders/sec inside useFrame
     const revealFactorRef = useRef(0);

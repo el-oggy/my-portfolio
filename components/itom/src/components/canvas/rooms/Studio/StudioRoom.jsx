@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useFrame, useThree, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { CONTENT_DATA, PLATFORM_CONFIG, getLatestContent } from './contentData';
+import { CONTENT_DATA, PLATFORM_CONFIG } from './contentData';
 import { useScene } from '../../../../context/SceneContext';
 import { useAchievements } from '../../../../context/AchievementsContext';
 import { TextureLoader } from 'three';
@@ -132,7 +132,7 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     // ===== PAINT TRANSITION (top-to-bottom) =====
     const { onBeforeCompile: paintOnBeforeCompile, animatePaint, resetPaint, uniformsData: paintUniforms, updateRoomOrigin } = usePaintMaterial(STUDIO_PAINT_CONFIG);
 
-    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [, setIsTransitioning] = useState(false);
 
     const wasTeleportedRef = useRef(false);
     useEffect(() => {
@@ -622,7 +622,7 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 // MONITOR BLOCK COMPONENT - with Paint Reveal on Hover
 // Uses proven two-box approach: painted box behind + sketch box with revealMaterial in front
 // ===========================================
-const MonitorBlock = memo(({ item, meshRef, isSelected, onMonitorClick, disabled, paintOnBeforeCompile, paintUniforms }) => {
+const MonitorBlock = memo(function MonitorBlock({ item, meshRef, isSelected, onMonitorClick, disabled, paintOnBeforeCompile, paintUniforms }) {
     // Position.y is updated directly by parent's useFrame via meshRef
     const paintedBoxRef = useRef();
     const hideDelayRef = useRef();
