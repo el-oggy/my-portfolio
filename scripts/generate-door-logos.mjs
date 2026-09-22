@@ -111,5 +111,34 @@ for (const logo of LOGOS) {
     .webp({ quality: 92 })
     .toFile(out);
   console.log("ok", out);
+
+  // Ink variant: pencil-duotone version of the mark for the sketch (rest)
+  // state. A plain silhouette would erase marks that rely on internal colour
+  // contrast (the white "C" in the C badge), so we remap luminance onto an
+  // ink→pencil-gray ramp that never reaches paper white — light brand colours
+  // (Python yellow) stay readable against the card.
+  const { data, info } = await sharp(logoPng)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const ink = Buffer.alloc(data.length);
+  for (let i = 0; i < data.length; i += 4) {
+    const lum = (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+    const v = Math.round(24 + lum * 120); // #181818 ink → #909090 pencil gray
+    ink[i] = ink[i + 1] = ink[i + 2] = v;
+    ink[i + 3] = data[i + 3];
+  }
+  const inkPng = await sharp(ink, {
+    raw: { width: info.width, height: info.height, channels: 4 },
+  })
+    .png()
+    .toBuffer();
+
+  const inkOut = path.join(OUT, `${logo.id}-ink.webp`);
+  await sharp(Buffer.from(CARD_SVG))
+    .composite([{ input: inkPng, top: MARGIN, left: MARGIN }])
+    .webp({ quality: 92 })
+    .toFile(inkOut);
+  console.log("ok", inkOut);
 }
 console.log("done");
