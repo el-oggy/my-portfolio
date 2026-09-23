@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { useAudio } from '../../context/AudioManager';
+import { easeProgress, progressCeiling } from '../../utils/progressEase';
 
 /**
  * Preloader — smooth boot gate
@@ -15,8 +16,9 @@ import { useAudio } from '../../context/AudioManager';
  * Flow:
  *   1. LoadingManager callbacks -> ref writes only.
  *   2. gsap.ticker eases the displayed % toward the real target
- *      (framerate-independent exponential smoothing, monotonic, held at 99
- *      while the scene compiles).
+ *      (M1 two-rate ease-out — see utils/progressEase: fast while far from
+ *      the target, damped inside 8pts of it; monotonic, and the readout is
+ *      pinned at 99 until the scene reports ready).
  *   3. displayed >= 99.5 && scene ready -> 1.8s power3.inOut paper tear that
  *      hands straight off into the entrance.
  */
@@ -304,15 +306,25 @@ const Preloader = ({ onComplete, ready }) => {
         waitStartRef.current = 0;
       }
 
-      // Framerate-independent exponential smoothing toward the target
-      const dt = Math.min(deltaMs / 1000, 0.1);
-      const current = displayProgressRef.current;
-      let next = current + (target - current) * Math.min(1, dt * 3.5);
-      if (Math.abs(target - next) < 0.05) next = target;
+      // M1 — the watchdog released the gate while the counter was still
+      // climbing (assets half in). Lift the monotonic target to 100 so the
+      // exit threshold stays reachable instead of stranding the visitor
+      // below 99.5 forever.
+      if (forcedReadyRef.current && targetRef.current < 100) {
+        targetRef.current = 100;
+        target = 100;
+      }
+
+      // M1 — two-rate ease-out, framerate independent (utils/progressEase).
+      const next = easeProgress(displayProgressRef.current, target, deltaMs);
       displayProgressRef.current = next;
 
+      // M1 — hold: pin the readout at 99 while the scene compiles so the
+      // visitor always sees a real 99% hold, never a premature 100% cut.
+      const ceiling = progressCeiling(sceneReady);
+
       // Direct DOM writes — bypass React render entirely
-      const safe = Math.min(100, Math.max(0, next));
+      const safe = Math.min(100, Math.max(0, Math.min(ceiling, next)));
       const offset = PATH_LENGTH - (PATH_LENGTH * safe) / 100;
       const text = `${Math.round(safe)}%`;
       if (textLeftRef.current) textLeftRef.current.innerText = text;
