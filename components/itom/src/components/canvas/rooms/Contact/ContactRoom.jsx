@@ -6,9 +6,6 @@ import MessagePaper from './MessagePaper';
 import SocialBarrel from './SocialBarrel';
 import { useScene } from '../../../../context/SceneContext';
 import RoomBackdrop from '../RoomBackdrop';
-import RoomDecor from '../RoomDecor';
-import { getRoomTheme } from '../RoomThemeConfig';
-import { useQualityScale } from '../../../../hooks/useQualityScale';
 import GalleryClouds from '../Gallery/GalleryClouds';
 import { useAchievements } from '../../../../context/AchievementsContext';
 import { useAudio } from '../../../../context/AudioManager';
@@ -100,7 +97,6 @@ const PHASE = {
 };
 
 const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
-    const quality = useQualityScale();
     const { camera } = useThree();
     const { isTeleporting, openEmail } = useScene();
     const { showTutorial, unlockAchievement, hidePopup } = useAchievements();
@@ -350,19 +346,6 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
             {/* ☁️ CLOUDS */}
             <GalleryClouds count={45} seed={88} rotationOffset={[0, 1, 0]} />
-
-            {/* === DUSK FIREFLIES over the sea — one instanced draw call === */}
-            <RoomDecor
-                count={Math.round(70 * quality)}
-                colors={getRoomTheme('contact').palette.accents}
-                spread={[24, 8, 16]}
-                center={[0, 1.2, -8]}
-                size={0.22}
-                mode="swirl"
-                opacity={0.95}
-                speed={0.6}
-                seed={55}
-            />
 
             {/* 🌊 OCEAN WAVE LAYERS */}
             <group position={[0, -1, -8]}>

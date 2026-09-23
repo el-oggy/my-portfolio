@@ -8,9 +8,6 @@ import { useScene } from '../../../../context/SceneContext';
 import { useAchievements } from '../../../../context/AchievementsContext';
 import { useAudio } from '../../../../context/AudioManager';
 import RoomBackdrop from '../RoomBackdrop';
-import RoomDecor from '../RoomDecor';
-import { getRoomTheme } from '../RoomThemeConfig';
-import { useQualityScale } from '../../../../hooks/useQualityScale';
 import { usePaintMaterial } from '../Gallery/usePaintMaterial';
 
 // ============================================
@@ -42,7 +39,6 @@ export const AUDIO_SETTINGS = {
 };
 
 const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
-    const quality = useQualityScale();
     const { camera } = useThree();
     const { isTeleporting, overlayContent } = useScene();
     const { showTutorial, unlockAchievement, hidePopup } = useAchievements();
@@ -339,19 +335,6 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             <InfiniteSkyManager
                 scrollProgressRef={scrollPosition}
                 paintOnBeforeCompile={paintOnBeforeCompile}
-            />
-
-            {/* === DRIFTING PETALS / SKY CONFETTI (daydream) === */}
-            <RoomDecor
-                count={Math.round(60 * quality)}
-                colors={getRoomTheme('about').palette.accents}
-                spread={[30, 14, 30]}
-                center={[0, 2, -10]}
-                size={0.26}
-                mode="fall"
-                opacity={0.9}
-                speed={0.5}
-                seed={21}
             />
 
             {/* === ROOM BACKDROP (follows scroll so it always sits behind the islands) === */}

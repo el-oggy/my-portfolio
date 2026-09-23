@@ -14,9 +14,6 @@ import '../../shaders/RevealMaterial';
 import { isTouchDevice } from '../../../../utils/deviceDetect';
 import { usePaintMaterial } from '../Gallery/usePaintMaterial';
 import RoomBackdrop from '../RoomBackdrop';
-import RoomDecor from '../RoomDecor';
-import { getRoomTheme } from '../RoomThemeConfig';
-import { useQualityScale } from '../../../../hooks/useQualityScale';
 
 // ============================================
 // ⚙️ PAINT CONFIGURATION - TWEAK HERE (Skąd-Dokąd)
@@ -56,7 +53,6 @@ const TOWER_Y_START = -5; // Starting Y offset for tower (negative = lower) -> C
 const TOWER_Z_START = -10; // Starting Z position (negative = further away) -> CONTROLS DISTANCE
 
 const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
-    const quality = useQualityScale();
     const groupRef = useRef();
     const towerRef = useRef();
     const { camera, size } = useThree();
@@ -600,19 +596,6 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             <FloatingCodeParticles
                 towerRotationRef={particleTowerRotation}
                 fallOffsetRef={particleFallOffset}
-            />
-
-            {/* === NEON FIREFLIES (cyberpunk night) — one instanced draw call === */}
-            <RoomDecor
-                count={Math.round(75 * quality)}
-                colors={getRoomTheme('studio').palette.accents}
-                spread={[20, 16, 14]}
-                center={[0, 2, -8]}
-                size={0.2}
-                mode="rise"
-                opacity={0.9}
-                speed={0.5}
-                seed={77}
             />
         </group>
     );

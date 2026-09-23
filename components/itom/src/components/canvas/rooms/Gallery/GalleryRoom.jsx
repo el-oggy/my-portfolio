@@ -14,9 +14,6 @@ import GalleryClouds from './GalleryClouds';
 import { useAudio } from '../../../../context/AudioManager';
 import { usePaintMaterial } from './usePaintMaterial';
 import { useGalleryProjects } from '../../../../hooks/useSanityData';
-import RoomDecor from '../RoomDecor';
-import { getRoomTheme } from '../RoomThemeConfig';
-import { useQualityScale } from '../../../../hooks/useQualityScale';
 
 // Reusable Vector3 to avoid allocations in useFrame
 const _tempScale = new THREE.Vector3();
@@ -90,7 +87,6 @@ const BIRD_HEIGHT = 0.35;
 const RIGHT_CROP_AMOUNT = 0.2;
 
 const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
-    const quality = useQualityScale();
     const { isTeleporting } = useScene();
     const { showTutorial, unlockAchievement, hidePopup } = useAchievements();
     const { globalVolume, isMuted } = useAudio();
@@ -450,19 +446,6 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
         <group ref={groupRef}>
             <RoomBackdrop roomId="gallery" visible={showRoom} />
 
-            {/* Candy confetti celebration — one instanced draw call, tier-scaled */}
-            <RoomDecor
-                count={Math.round(110 * quality)}
-                colors={getRoomTheme('gallery').palette.accents}
-                spread={[26, 12, 18]}
-                center={[0, 4, -8]}
-                size={0.3}
-                mode="fall"
-                opacity={0.95}
-                speed={0.7}
-                seed={123}
-            />
-            
             {!isWarmup && showRoom && (
                 <PositionalAudio
                     ref={audioRef}
