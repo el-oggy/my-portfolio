@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useEffect, forwardRef, useImperativeHandle, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, useTexture, PositionalAudio } from '@react-three/drei';
+import { Text, useTexture, PositionalAudio, Environment, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { Observer } from 'gsap/all';
@@ -14,6 +14,7 @@ import GalleryClouds from './GalleryClouds';
 import { useAudio } from '../../../../context/AudioManager';
 import { usePaintMaterial } from './usePaintMaterial';
 import { useGalleryProjects } from '../../../../hooks/useSanityData';
+import { isLowTier } from '../../../../utils/tier';
 
 // Reusable Vector3 to avoid allocations in useFrame
 const _tempScale = new THREE.Vector3();
@@ -87,6 +88,8 @@ const BIRD_HEIGHT = 0.35;
 const RIGHT_CROP_AMOUNT = 0.2;
 
 const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
+    const isStylized = process.env.NEXT_PUBLIC_REALISM_MODE !== 'legacy';
+    const isLowTierMode = useMemo(() => isLowTier(), []);
     const { isTeleporting } = useScene();
     const { showTutorial, unlockAchievement, hidePopup } = useAchievements();
     const { globalVolume, isMuted } = useAudio();
@@ -367,11 +370,19 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     }, [floorTexture, railingTexture]);
 
     const materials = useMemo(() => {
-        const floorMat = new THREE.MeshBasicMaterial({
-            map: floorTexture,
-            color: '#e0e0e0',
-            side: THREE.DoubleSide
-        });
+        const floorMat = isStylized 
+            ? new THREE.MeshStandardMaterial({
+                map: floorTexture,
+                color: '#e0e0e0',
+                side: THREE.DoubleSide,
+                roughness: 0.8,
+                metalness: 0.1
+              })
+            : new THREE.MeshBasicMaterial({
+                map: floorTexture,
+                color: '#e0e0e0',
+                side: THREE.DoubleSide
+              });
         floorMat.onBeforeCompile = onBeforeCompile;
         floorMat.transparent = true;
         floorMat.needsUpdate = true;
@@ -404,7 +415,7 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             rope: ropeMat,
             threshold: thresholdMat
         };
-    }, [floorTexture, bbTexSrc, onBeforeCompile]);
+    }, [floorTexture, bbTexSrc, onBeforeCompile, isStylized]);
 
     // Dispose imperative materials on unmount. NOTE: floorMat.map is the
     // SHARED cached gallery floor texture — only threshold's map is a local
@@ -445,6 +456,22 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
     return (
         <group ref={groupRef}>
             <RoomBackdrop roomId="gallery" visible={showRoom} />
+
+            {isStylized && !isLowTierMode && (
+                <>
+                    <Environment preset="sunset" />
+                    <ambientLight intensity={0.4} color="#ff8fb0" />
+                    <spotLight position={[5, 10, 5]} intensity={1.5} color="#fff0d9" angle={0.5} penumbra={0.8} />
+                    <ContactShadows position={[0, -0.69, -2]} opacity={0.6} scale={20} blur={2} far={4} />
+                </>
+            )}
+            
+            {isStylized && isLowTierMode && (
+                <>
+                    <ambientLight intensity={0.7} color="#ff8fb0" />
+                    <directionalLight position={[0, 10, 5]} intensity={1} color="#fff0d9" />
+                </>
+            )}
 
             {!isWarmup && showRoom && (
                 <PositionalAudio

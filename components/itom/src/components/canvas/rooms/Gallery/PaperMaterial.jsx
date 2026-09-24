@@ -217,12 +217,27 @@ const PaperMaterial = forwardRef(({ color = '#e0e0e0', roughness = 0.6, map, sid
     // Helper to check if a uniform exists
     const shaderHasUniform = (shader, name) => shader.uniforms && shader.uniforms[name];
 
+    const isStylized = process.env.NEXT_PUBLIC_REALISM_MODE !== 'legacy';
+    
+    if (isStylized) {
+        return (
+            <meshStandardMaterial
+                ref={materialRef}
+                map={map}
+                color={color}
+                roughness={roughness}
+                side={side}
+                onBeforeCompile={onBeforeCompile}
+                needsUpdate={true}
+                {...props}
+            />
+        );
+    }
     return (
         <meshBasicMaterial
             ref={materialRef}
             map={map}
             color={color}
-            roughness={roughness}
             side={side}
             onBeforeCompile={onBeforeCompile}
             needsUpdate={true}
