@@ -150,7 +150,7 @@ const SmoothButton = ({ texture, onClick, position, size, text, fontPath }) => {
     );
 };
 
-const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || '';
+const WEB3FORMS_KEY = '';
 
 // Only these domains are allowed to submit the form.
 // Anyone cloning the repo and running on localhost will be silently blocked.
@@ -448,14 +448,14 @@ const MessagePaper = ({ position = [0, 0.05, 2], onSend }) => {
                 }
             }
 
-            const response = await fetch('https://api.web3forms.com/submit', {
+            const response = await fetch('/api/contact', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    access_key: WEB3FORMS_KEY,
+
                     from_name: 'Portfolio Contact',
                     email: email,
                     subject: subject,

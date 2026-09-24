@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "";
 const EMAIL = "adarshswarupmaharana@gmail.com";
 
 type Status = "idle" | "sending" | "success" | "error";
@@ -20,23 +19,18 @@ export default function EmailForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!WEB3FORMS_KEY) {
-      // No key configured — fall back to the visitor's mail client
-      window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(
-        subject || "Hello from your portfolio"
-      )}&body=${encodeURIComponent(message)}`;
+    if (!name || !email || !message) {
+      setErrorMsg("Please fill in all required fields.");
       return;
     }
-
     setStatus("sending");
     setErrorMsg("");
 
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          access_key: WEB3FORMS_KEY,
           from_name: "Portfolio Email Page",
           name,
           email,
@@ -53,6 +47,10 @@ export default function EmailForm() {
       setSubject("");
       setMessage("");
     } catch (err) {
+      // Fallback to mailto if API fails
+      window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(
+        subject || "Hello from your portfolio"
+      )}&body=${encodeURIComponent(message)}`;
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
     }
