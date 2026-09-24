@@ -1,0 +1,23 @@
+clicked: 640,400
+shot: docs/room-realism/evidence/before-gallery-early.png
+fps: {"frames":53,"avgMs":114.25,"p50Ms":115,"p95Ms":125.4,"worstMs":128.5}
+
+--- console errors (0) ---
+--- warnings (2) ---
+  WARN: THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.
+  WARN: THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.
+--- exceptions (0) ---
+--- browser logs (12) ---
+  LOG: info: Images loaded lazily and replaced with placeholders. Load events are deferred. See https://go.microsoft.com/fwlink/?linkid=2048113
+  LOG: warning: [.WebGL-0x4a04004c9a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+  LOG: verbose: unsupported GPOS table LookupType 5 format 1
+  LOG: verbose: unsupported GSUB table LookupType 6 format 2
+  LOG: verbose: unsupported GSUB table LookupType 6 format 1
+  LOG: verbose: unsupported GSUB table LookupType 6 format 1
+  LOG: info: Images loaded lazily and replaced with placeholders. Load events are deferred. See https://go.microsoft.com/fwlink/?linkid=2048113
+  LOG: warning: [.WebGL-0x4a04010be200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+  LOG: verbose: unsupported GPOS table LookupType 5 format 1
+  LOG: verbose: unsupported GSUB table LookupType 6 format 2
+  LOG: verbose: unsupported GSUB table LookupType 6 format 1
+  LOG: verbose: unsupported GSUB table LookupType 6 format 1
+--- failed requests (0) ---
