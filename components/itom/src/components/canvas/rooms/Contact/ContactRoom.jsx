@@ -1,6 +1,6 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { PositionalAudio } from '@react-three/drei';
+import { PositionalAudio, SpotLight, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import MessagePaper from './MessagePaper';
 import SocialBarrel from './SocialBarrel';
@@ -15,8 +15,8 @@ import { useAudio } from '../../../../context/AudioManager';
 // 🌊 CONTACT ROOM v2 - MESSAGE IN A BOTTLE
 // Immersive experience: write message, roll into bottle, throw
 // ============================================
-import { useTexture } from '@react-three/drei';
 import { usePaintMaterial } from '../Gallery/usePaintMaterial';
+import { isLowTier } from '../../../../utils/tier';
 
 const WAVE_LAYERS = 4;
 
@@ -97,6 +97,8 @@ const PHASE = {
 };
 
 const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
+    const isStylized = process.env.NEXT_PUBLIC_REALISM_MODE !== 'legacy';
+    const isLowTierMode = useMemo(() => isLowTier(), []);
     const { camera } = useThree();
     const { isTeleporting, openEmail } = useScene();
     const { showTutorial, unlockAchievement, hidePopup } = useAchievements();
@@ -441,6 +443,15 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             </mesh>
 
             {/* 🗼 LATARNIA (LIGHTHOUSE) */}
+            {isStylized && !isLowTierMode && (
+                <LighthouseBeam />
+            )}
+            {isStylized && (
+                <>
+                    <ambientLight intensity={0.6} color="#182740" />
+                    <directionalLight position={[5, 10, -5]} intensity={0.4} color="#182740" />
+                </>
+            )}
             <mesh
                 position={LATARNIA_SETTINGS.position}
                 rotation={LATARNIA_SETTINGS.rotation}
@@ -487,6 +498,34 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
 
         </group>
+    );
+};
+
+const LighthouseBeam = () => {
+    const [target] = useState(() => new THREE.Object3D());
+    
+    useFrame((state) => {
+        const time = state.clock.elapsedTime * 0.8;
+        target.position.set(
+            LATARNIA_SETTINGS.position[0] + Math.sin(time) * 20,
+            LATARNIA_SETTINGS.position[1] - 2,
+            LATARNIA_SETTINGS.position[2] + Math.cos(time) * 20
+        );
+        target.updateMatrixWorld();
+    });
+
+    return (
+        <SpotLight
+            position={[LATARNIA_SETTINGS.position[0], LATARNIA_SETTINGS.position[1] + 2.5, LATARNIA_SETTINGS.position[2]]}
+            color="#ffd27a"
+            distance={60}
+            angle={0.25}
+            attenuation={4}
+            anglePower={5}
+            intensity={4}
+            volumetric={true}
+            target={target}
+        />
     );
 };
 
