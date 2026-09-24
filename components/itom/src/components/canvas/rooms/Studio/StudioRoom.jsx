@@ -15,6 +15,7 @@ import { isTouchDevice } from '../../../../utils/deviceDetect';
 import { usePaintMaterial } from '../Gallery/usePaintMaterial';
 import RoomBackdrop from '../RoomBackdrop';
 import { isLowTier } from '../../../../utils/tier';
+import { ElectronicsBadges } from './ElectronicsBadges';
 
 // ============================================
 // ⚙️ PAINT CONFIGURATION - TWEAK HERE (Skąd-Dokąd)
@@ -581,6 +582,8 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                     <ambientLight intensity={0.8} color="#8b5cff" />
                 </>
             )}
+
+            <ElectronicsBadges isStylized={isStylized} />
 
             {/* THE INFINITE TOWER */}
             <group
