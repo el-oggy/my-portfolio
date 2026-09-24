@@ -1,6 +1,7 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { PositionalAudio } from '@react-three/drei';
+import { PositionalAudio, Clouds, Cloud } from '@react-three/drei';
+import { isLowTier } from '../../../../utils/tier';
 import * as THREE from 'three';
 import PaperAirplane from './PaperAirplane';
 import InfiniteSkyManager from './InfiniteSkyManager';
@@ -39,6 +40,8 @@ export const AUDIO_SETTINGS = {
 };
 
 const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
+    const isStylized = process.env.NEXT_PUBLIC_REALISM_MODE !== 'legacy';
+    const isLowTierMode = useMemo(() => isLowTier(), []);
     const { camera } = useThree();
     const { isTeleporting, overlayContent } = useScene();
     const { showTutorial, unlockAchievement, hidePopup } = useAchievements();
@@ -336,6 +339,18 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                 scrollProgressRef={scrollPosition}
                 paintOnBeforeCompile={paintOnBeforeCompile}
             />
+
+            {isStylized && !isLowTierMode && showRoom && (
+                <group position={[0, 0, scrollPosition.current * -1]}>
+                    <ambientLight intensity={1} color="#ffd5a3" />
+                    <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffd5a3" />
+                    <directionalLight position={[-10, -20, -10]} intensity={0.8} color="#7ebcff" />
+                    <Clouds material={THREE.MeshLambertMaterial} limit={400}>
+                        <Cloud seed={1} bounds={[30, 10, 50]} volume={20} color="#ffd5a3" position={[0, -10, -20]} opacity={0.6} fade={20} />
+                        <Cloud seed={2} bounds={[30, 10, 50]} volume={20} color="#7ebcff" position={[0, 10, -30]} opacity={0.6} fade={20} />
+                    </Clouds>
+                </group>
+            )}
 
             {/* === ROOM BACKDROP (follows scroll so it always sits behind the islands) === */}
             <group position={[0, 0, scrollPosition.current * -1]}>
