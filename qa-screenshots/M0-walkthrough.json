@@ -1,0 +1,30 @@
+{
+  "tag": "M0-walkthrough",
+  "base": "http://localhost:3133/",
+  "profile": "desktop",
+  "fps": {
+    "corridor": {
+      "fps": 60,
+      "p95ms": 16.9
+    },
+    "gallery": {
+      "fps": 60,
+      "p95ms": 17
+    },
+    "studio": {
+      "fps": 59,
+      "p95ms": 17
+    },
+    "about": {
+      "fps": 57,
+      "p95ms": 17.1
+    },
+    "contact": {
+      "fps": 60,
+      "p95ms": 16.9
+    }
+  },
+  "errors": [],
+  "failedReqs": [],
+  "pass": true
+}
