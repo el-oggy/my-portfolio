@@ -14,6 +14,7 @@ import '../../shaders/RevealMaterial';
 import { isTouchDevice } from '../../../../utils/deviceDetect';
 import { usePaintMaterial } from '../Gallery/usePaintMaterial';
 import RoomBackdrop from '../RoomBackdrop';
+import { isLowTier } from '../../../../utils/tier';
 
 // ============================================
 // ⚙️ PAINT CONFIGURATION - TWEAK HERE (Skąd-Dokąd)
@@ -53,6 +54,8 @@ const TOWER_Y_START = -5; // Starting Y offset for tower (negative = lower) -> C
 const TOWER_Z_START = -10; // Starting Z position (negative = further away) -> CONTROLS DISTANCE
 
 const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
+    const isStylized = process.env.NEXT_PUBLIC_REALISM_MODE !== 'legacy';
+    const isLowTierMode = useMemo(() => isLowTier(), []);
     const groupRef = useRef();
     const towerRef = useRef();
     const { camera, size } = useThree();
@@ -563,6 +566,20 @@ const StudioRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
                     autoplay
                     volume={effectiveVolume}
                 />
+            )}
+
+            {isStylized && !isLowTierMode && (
+                <>
+                    <pointLight position={[2, 2, -6]} intensity={2} color="#8b5cff" distance={15} decay={2} />
+                    <pointLight position={[-2, 0, -5]} intensity={2} color="#ff5d8f" distance={15} decay={2} />
+                    <pointLight position={[0, -2, -8]} intensity={2} color="#4dd8ff" distance={15} decay={2} />
+                    <ambientLight intensity={0.2} color="#180d33" />
+                </>
+            )}
+            {isStylized && isLowTierMode && (
+                <>
+                    <ambientLight intensity={0.8} color="#8b5cff" />
+                </>
             )}
 
             {/* THE INFINITE TOWER */}

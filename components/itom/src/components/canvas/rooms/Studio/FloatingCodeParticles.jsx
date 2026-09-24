@@ -63,6 +63,8 @@ const getRandomSymbol = () => {
     return SYMBOLS[0];
 };
 
+const COLORS = ['#8b5cff', '#ff5d8f', '#4dd8ff'];
+
 // Generate particle data once
 // Generate particle data once
 const generateParticles = () => {
@@ -94,6 +96,7 @@ const generateParticles = () => {
             parallaxFactor: 0.3 + Math.random() * 0.7,
             phaseOffset: Math.random() * Math.PI * 2,
             opacity: BASE_OPACITY * (0.5 + Math.random() * 0.5),
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
         });
     }
 
@@ -103,6 +106,7 @@ const generateParticles = () => {
 // Main component - receives REFS from parent for smooth animation
 // fallOffsetRef is now VELOCITY (fallSpeed), not cumulative offset!
 const FloatingCodeParticles = ({ towerRotationRef, fallOffsetRef }) => {
+    const isStylized = process.env.NEXT_PUBLIC_REALISM_MODE !== 'legacy';
     const particles = useMemo(() => generateParticles(), []);
     const meshRefs = useRef([]);
 
@@ -200,7 +204,7 @@ const FloatingCodeParticles = ({ towerRotationRef, fallOffsetRef }) => {
                     ref={(el) => { meshRefs.current[index] = el; }}
                     position={particle.position}
                     fontSize={particle.symbol.size}
-                    color="#1a1a1a"
+                    color={isStylized ? particle.color : "#1a1a1a"}
                     anchorX="center"
                     anchorY="middle"
                     fillOpacity={particle.opacity}
