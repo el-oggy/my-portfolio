@@ -1,7 +1,8 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { isLowTier } from '../../../../utils/tier';
 
 // ============================================
 // CONFIG
@@ -114,16 +115,35 @@ const generateParticles = (rand = seededRandom) => {
 
 // Main component - receives REFS from parent for smooth animation
 // fallOffsetRef is now VELOCITY (fallSpeed), not cumulative offset!
+// M3 room-realism: low-tier + prefers-reduced-motion degrade to a calmer field.
+// No bloom/postprocessing dep: glow stays faked via accent point lights + COLORS.
 const FloatingCodeParticles = ({ towerRotationRef, fallOffsetRef }) => {
     const isStylized = process.env.NEXT_PUBLIC_REALISM_MODE !== 'legacy';
-    const particles = useMemo(() => generateParticles(), []);
+    // Defer low-tier shrink to post-mount so SSR and first client render agree (no hydration mismatch).
+    const [lowTier, setLowTier] = useState(false);
+    const [reducedMotion, setReducedMotion] = useState(false);
+    useEffect(() => {
+        setLowTier(isLowTier());
+        if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+        const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+        setReducedMotion(!!mq.matches);
+        const onChange = (e) => setReducedMotion(!!e.matches);
+        mq.addEventListener?.('change', onChange);
+        return () => mq.removeEventListener?.('change', onChange);
+    }, []);
+    // Low-tier devices render a smaller, static-leaning field.
+    const visibleCount = lowTier ? 24 : PARTICLE_COUNT;
+    // Reduced-motion visitors get a calm static field (no drift/rotation).
+    const motionScale = reducedMotion ? 0 : 1;
+    const baseParticles = useMemo(() => generateParticles(), []);
+    const particles = useMemo(() => baseParticles.slice(0, visibleCount), [baseParticles, visibleCount]);
     const meshRefs = useRef([]);
 
     // Track interpolated values for smoothing
     const smoothRotation = useRef(0);
 
     // Track cumulative Y offset for each particle (never resets!)
-    const particleYOffsets = useRef(particles.map(() => 0));
+    const particleYOffsets = useRef(baseParticles.map(() => 0));
 
     // Single useFrame for ALL particles
     useFrame((state, delta) => {
@@ -145,11 +165,11 @@ const FloatingCodeParticles = ({ towerRotationRef, fallOffsetRef }) => {
             if (!mesh) return;
 
             // --- VERTICAL MOVEMENT (Unchanged) ---
-            // Accumulate Y offset based on velocity
-            particleYOffsets.current[index] -= fallVelocity * delta * particle.parallaxFactor * 1.5;
+            // Accumulate Y offset based on velocity (frozen when reduced-motion).
+            particleYOffsets.current[index] -= fallVelocity * delta * particle.parallaxFactor * 1.5 * motionScale;
 
-            // Gentle floating motion
-            const floatY = Math.sin(time * particle.driftSpeed + particle.phaseOffset) * 0.3;
+            // Gentle floating motion (disabled when reduced-motion).
+            const floatY = Math.sin(time * particle.driftSpeed + particle.phaseOffset) * 0.3 * motionScale;
 
             // Calculate final Y position
             let finalY = particle.initialY + particleYOffsets.current[index] + floatY;
@@ -177,7 +197,7 @@ const FloatingCodeParticles = ({ towerRotationRef, fallOffsetRef }) => {
             // Or "fly to the left" means -X velocity.
             // Let's use a standard parallax coefficient.
 
-            const rotationOffset = smoothRotation.current * 5.0; // 5.0 is the "gear ratio" of rotation to pixels
+            const rotationOffset = smoothRotation.current * 5.0 * motionScale; // 5.0 is the "gear ratio" of rotation to pixels
 
             // Calculate raw X based on initial position + rotation offset
             // We subtract rotationOffset to make them move opposite to creating depth?
