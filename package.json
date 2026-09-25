@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run check:assets",
     "build": "next build",
+    "check:assets": "node scripts/check-assets.cjs",
     "start": "next start",
     "lint": "next lint"
   },

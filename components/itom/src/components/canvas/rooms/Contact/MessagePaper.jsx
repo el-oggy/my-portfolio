@@ -150,8 +150,6 @@ const SmoothButton = ({ texture, onClick, position, size, text, fontPath }) => {
     );
 };
 
-const WEB3FORMS_KEY = '';
-
 // Only these domains are allowed to submit the form.
 // Anyone cloning the repo and running on localhost will be silently blocked.
 const ALLOWED_ORIGINS = [
