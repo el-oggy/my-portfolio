@@ -8,7 +8,7 @@ import { Edges } from '@react-three/drei';
  * A low-poly origami-style paper airplane.
  * Built with BufferGeometry for full control over the shape.
  */
-const PaperAirplane = ({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, color = '#f5f5f5', paintOnBeforeCompile = null }) => {
+const PaperAirplane = ({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, color = '#f5f5f5', paintOnBeforeCompile = null, isStylized = true }) => {
     const meshRef = useRef();
 
     // Create paper airplane geometry
@@ -92,16 +92,31 @@ const PaperAirplane = ({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, 
     return (
         <group position={position} rotation={rotation} scale={scale}>
             <mesh ref={meshRef} geometry={geometry}>
-                <meshBasicMaterial
-                    color={color}
-                    side={THREE.DoubleSide}
-                    // Phase 3 brush-wipe entry: same pattern as the Gallery
-                    // railing mesh — a per-room cache key keeps the painted
-                    // program separate from other rooms' paint shaders.
-                    onBeforeCompile={paintOnBeforeCompile}
-                    customProgramCacheKey={paintOnBeforeCompile ? () => 'about-glider-paint' : undefined}
-                    transparent={!!paintOnBeforeCompile}
-                />
+                {isStylized ? (
+                    <meshStandardMaterial
+                        color={color}
+                        roughness={0.55}
+                        metalness={0.0}
+                        side={THREE.DoubleSide}
+                        // Phase 3 brush-wipe entry: same pattern as the Gallery
+                        // railing mesh — a per-room cache key keeps the painted
+                        // program separate from other rooms' paint shaders.
+                        onBeforeCompile={paintOnBeforeCompile}
+                        customProgramCacheKey={paintOnBeforeCompile ? () => 'about-glider-paint' : undefined}
+                        transparent={!!paintOnBeforeCompile}
+                    />
+                ) : (
+                    <meshBasicMaterial
+                        color={color}
+                        side={THREE.DoubleSide}
+                        // Phase 3 brush-wipe entry: same pattern as the Gallery
+                        // railing mesh — a per-room cache key keeps the painted
+                        // program separate from other rooms' paint shaders.
+                        onBeforeCompile={paintOnBeforeCompile}
+                        customProgramCacheKey={paintOnBeforeCompile ? () => 'about-glider-paint' : undefined}
+                        transparent={!!paintOnBeforeCompile}
+                    />
+                )}
                 <Edges
                     linewidth={2}
                     threshold={15}

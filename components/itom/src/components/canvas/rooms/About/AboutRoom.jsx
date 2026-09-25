@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { PositionalAudio, Clouds, Cloud } from '@react-three/drei';
+import { PositionalAudio, Clouds, Cloud, Environment } from '@react-three/drei';
 import { isLowTier } from '../../../../utils/tier';
 import * as THREE from 'three';
 import PaperAirplane from './PaperAirplane';
@@ -329,8 +329,9 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             <group ref={airplaneGroupRef} position={[0, -0.3, 1]}>
                 <PaperAirplane
                     scale={0.8}
-                    color="#a9744a"
+                    color={isStylized ? '#c98a4b' : '#a9744a'}
                     paintOnBeforeCompile={paintOnBeforeCompile}
+                    isStylized={isStylized}
                 />
             </group>
 
@@ -341,15 +342,33 @@ const AboutRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
             />
 
             {isStylized && !isLowTierMode && showRoom && (
-                <group position={[0, 0, scrollPosition.current * -1]}>
-                    <ambientLight intensity={1} color="#ffd5a3" />
-                    <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffd5a3" />
-                    <directionalLight position={[-10, -20, -10]} intensity={0.8} color="#7ebcff" />
-                    <Clouds material={THREE.MeshLambertMaterial} limit={400}>
-                        <Cloud seed={1} bounds={[30, 10, 50]} volume={20} color="#ffd5a3" position={[0, -10, -20]} opacity={0.6} fade={20} />
-                        <Cloud seed={2} bounds={[30, 10, 50]} volume={20} color="#7ebcff" position={[0, 10, -30]} opacity={0.6} fade={20} />
-                    </Clouds>
-                </group>
+                <>
+                    {/* M4 sunset sky: Environment sunset IBL + warm sun key (#ffd5a3) + cool sky fill (#7ebcff).
+                        Geometry untouched (InfiniteSkyManager/SkyChunk, islands, milestones).
+                        No god-rays: no @react-three/postprocessing dep in package.json — volumetric pass
+                        would add a fullscreen EffectComposer cost with no perf budget on this scene. */}
+                    <Environment preset="sunset" />
+                    <group position={[0, 0, scrollPosition.current * -1]}>
+                        <ambientLight intensity={0.55} color="#ffd5a3" />
+                        <directionalLight position={[10, 18, -8]} intensity={2.0} color="#ffd5a3" />
+                        <directionalLight position={[-12, 6, 8]} intensity={0.7} color="#7ebcff" />
+                        <Clouds material={THREE.MeshLambertMaterial} limit={400}>
+                            <Cloud seed={1} bounds={[30, 10, 50]} volume={20} color="#ffd5a3" position={[0, -10, -20]} opacity={0.6} fade={20} />
+                            <Cloud seed={2} bounds={[30, 10, 50]} volume={20} color="#7ebcff" position={[0, 10, -30]} opacity={0.6} fade={20} />
+                        </Clouds>
+                    </group>
+                </>
+            )}
+
+            {isStylized && isLowTierMode && showRoom && (
+                <>
+                    {/* M4 low-tier fallback: baked warm/cool wash only, no Environment IBL, no volumetric clouds. */}
+                    <group position={[0, 0, scrollPosition.current * -1]}>
+                        <ambientLight intensity={0.85} color="#ffd5a3" />
+                        <directionalLight position={[10, 18, -8]} intensity={1.2} color="#ffd5a3" />
+                        <directionalLight position={[-12, 6, 8]} intensity={0.5} color="#7ebcff" />
+                    </group>
+                </>
             )}
 
             {/* === ROOM BACKDROP (follows scroll so it always sits behind the islands) === */}
