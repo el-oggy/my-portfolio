@@ -9,6 +9,7 @@ import RoomBackdrop from '../RoomBackdrop';
 import GalleryClouds from '../Gallery/GalleryClouds';
 import { useAchievements } from '../../../../context/AchievementsContext';
 import { useAudio } from '../../../../context/AudioManager';
+import { getRoomTheme } from '../RoomThemeConfig';
 
 // ============================================
 // ============================================
@@ -503,6 +504,9 @@ const ContactRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
 const LighthouseBeam = () => {
     const [target] = useState(() => new THREE.Object3D());
+    // Single source of truth: this is the only consumer of `palette.beam`
+    // (#ffd27a), so lighthouse flicker stays in sync with RoomThemeConfig.
+    const beamColor = getRoomTheme('contact').palette.beam;
     
     useFrame((state) => {
         const time = state.clock.elapsedTime * 0.8;
@@ -517,7 +521,7 @@ const LighthouseBeam = () => {
     return (
         <SpotLight
             position={[LATARNIA_SETTINGS.position[0], LATARNIA_SETTINGS.position[1] + 2.5, LATARNIA_SETTINGS.position[2]]}
-            color="#ffd27a"
+            color={beamColor}
             distance={60}
             angle={0.25}
             attenuation={4}
