@@ -4,6 +4,7 @@ import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 
 export const ElectronicsBadges = ({ isStylized }) => {
+    // M6 flag (locked): NEXT_PUBLIC_ELECTRONICS_BADGES. Off by default.
     if (process.env.NEXT_PUBLIC_ELECTRONICS_BADGES !== 'true') return null;
     
     // Fallback if badges should not be displayed without stylized mode

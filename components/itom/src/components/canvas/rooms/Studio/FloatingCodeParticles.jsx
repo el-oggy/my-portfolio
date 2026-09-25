@@ -51,10 +51,19 @@ const SYMBOLS = [
     { text: '▪▪▪', size: 0.2, weight: 2 },
 ];
 
+// Seeded PRNG (mulberry32) — M0: deterministic baseline, no per-load Math.random churn.
+const mulberry32 = (seed) => () => {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+const seededRandom = mulberry32(1337);
+
 // Weighted random selection
-const getRandomSymbol = () => {
+const getRandomSymbol = (rand = seededRandom) => {
     const totalWeight = SYMBOLS.reduce((sum, s) => sum + s.weight, 0);
-    let random = Math.random() * totalWeight;
+    let random = rand() * totalWeight;
 
     for (const symbol of SYMBOLS) {
         random -= symbol.weight;
@@ -67,7 +76,7 @@ const COLORS = ['#8b5cff', '#ff5d8f', '#4dd8ff'];
 
 // Generate particle data once
 // Generate particle data once
-const generateParticles = () => {
+const generateParticles = (rand = seededRandom) => {
     const particles = [];
 
     // Bounds for 2D plane
@@ -76,12 +85,12 @@ const generateParticles = () => {
     const Z_MAX = -8; // Further back
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const symbol = getRandomSymbol();
+        const symbol = getRandomSymbol(rand);
 
         // Random 3D position in a flat plane interaction volume
-        const x = (Math.random() - 0.5) * X_SPREAD;
-        const y = (Math.random() - 0.5) * VERTICAL_SPREAD;
-        const z = Z_MIN + Math.random() * (Z_MAX - Z_MIN);
+        const x = (rand() - 0.5) * X_SPREAD;
+        const y = (rand() - 0.5) * VERTICAL_SPREAD;
+        const z = Z_MIN + rand() * (Z_MAX - Z_MIN);
 
         particles.push({
             id: i,
@@ -90,13 +99,13 @@ const generateParticles = () => {
             initialX: x, // Store for logic
             z: z,        // Store for logic
             initialY: y,
-            rotation: Math.random() * Math.PI * 2,
-            driftSpeed: 0.1 + Math.random() * 0.2,
-            rotationSpeed: (Math.random() - 0.5) * 0.3,
-            parallaxFactor: 0.3 + Math.random() * 0.7,
-            phaseOffset: Math.random() * Math.PI * 2,
-            opacity: BASE_OPACITY * (0.5 + Math.random() * 0.5),
-            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+            rotation: rand() * Math.PI * 2,
+            driftSpeed: 0.1 + rand() * 0.2,
+            rotationSpeed: (rand() - 0.5) * 0.3,
+            parallaxFactor: 0.3 + rand() * 0.7,
+            phaseOffset: rand() * Math.PI * 2,
+            opacity: BASE_OPACITY * (0.5 + rand() * 0.5),
+            color: COLORS[Math.floor(rand() * COLORS.length)],
         });
     }
 
