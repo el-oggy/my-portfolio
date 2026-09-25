@@ -387,12 +387,31 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
         floorMat.transparent = true;
         floorMat.needsUpdate = true;
         
-        const ropeMat = new THREE.MeshBasicMaterial({ color: '#666666' });
+        const ropeMat = isStylized
+            ? new THREE.MeshStandardMaterial({ color: '#8a8a8a', roughness: 0.9, metalness: 0.0 })
+            : new THREE.MeshBasicMaterial({ color: '#666666' });
         ropeMat.onBeforeCompile = onBeforeCompile;
         ropeMat.transparent = true;
         ropeMat.needsUpdate = true;
 
-        const thresholdMat = new THREE.MeshBasicMaterial({
+        const thresholdMat = isStylized
+            ? new THREE.MeshStandardMaterial({
+                color: '#e0e0e0',
+                // Clone from the shared drei cache instead of a raw
+                // `new TextureLoader().load()` (which bypassed the cache and
+                // re-downloaded/re-uploaded the texture on every room mount).
+                map: (() => {
+                    const t = bbTexSrc.clone();
+                    t.colorSpace = THREE.SRGBColorSpace;
+                    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+                    t.repeat.set(15 / 2.524, 1);
+                    return t;
+                })(),
+                side: THREE.DoubleSide,
+                roughness: 0.85,
+                metalness: 0.0
+            })
+            : new THREE.MeshBasicMaterial({
             color: '#e0e0e0',
             // Clone from the shared drei cache instead of a raw
             // `new TextureLoader().load()` (which bypassed the cache and
@@ -459,9 +478,11 @@ const GalleryRoom = ({ showRoom, onReady, isExiting, isWarmup }) => {
 
             {isStylized && !isLowTierMode && (
                 <>
+                    {/* M2 sun-lit print lab: Environment sunset IBL + warm key/fill spots (#ff8fb0 -> #fff0d9) */}
                     <Environment preset="sunset" />
                     <ambientLight intensity={0.4} color="#ff8fb0" />
                     <spotLight position={[5, 10, 5]} intensity={1.5} color="#fff0d9" angle={0.5} penumbra={0.8} />
+                    <spotLight position={[-6, 8, 4]} intensity={0.6} color="#ff8fb0" angle={0.6} penumbra={1} />
                     <ContactShadows position={[0, -0.69, -2]} opacity={0.6} scale={20} blur={2} far={4} />
                 </>
             )}

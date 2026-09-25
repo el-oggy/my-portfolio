@@ -21,7 +21,6 @@ const PaperMaterial = forwardRef(({ color = '#e0e0e0', roughness = 0.6, map, sid
         shader.uniforms.uWindStrength = { value: 0 }; // Extra flutter intensity
         shader.uniforms.mapBack = { value: null }; // Back texture
         shader.uniforms.mapPainted = { value: null }; // Painted texture
-        shader.uniforms.mapPainted = { value: null }; // Painted texture
         shader.uniforms.uProgress = { value: 0.0 }; // Reveal progress
         shader.uniforms.uPaintProgress = paintProgress || { value: 1.0 };
         shader.uniforms.uRoomOrigin = roomOrigin || { value: new THREE.Vector3(0, 0, 0) };
