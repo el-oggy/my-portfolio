@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { PerformanceMonitor, Preload } from "@react-three/drei";
 import * as THREE from "three";
@@ -24,6 +24,38 @@ import { getRoomTheme } from "./itom/src/components/canvas/rooms/RoomThemeConfig
 // Hoisted scratch color — avoids allocating a new THREE.Color every frame
 // (GC churn at 60fps). Mutated in place via .set() below.
 const TARGET_COLOR = new THREE.Color();
+
+/**
+ * ResponsiveFov — keeps wide-enough framing on portrait phones.
+ *
+ * The scene is authored at fov 60 for desktop landscape. On a portrait phone
+ * (aspect ~0.46) the horizontal FOV collapses to ~30°, so the entrance doors,
+ * signs and room layouts are cropped left/right — the site feels zoomed-in
+ * and "doesn't fit". We widen the vertical FOV as aspect shrinks (desktop
+ * untouched: max(60, 85) => 60), capped at 85° to avoid strong distortion.
+ * Runs in useFrame so orientation changes / address-bar expansion are picked
+ * up the frame they happen; camera pose tweens (EntranceDoors, DoorSection)
+ * are untouched — only the projection changes.
+ */
+const MIN_ASPECT = 0.4; // floor so extreme foldables don't explode the fov
+function ResponsiveFov() {
+  const { camera, size } = useThree();
+  const lastFov = useRef(0);
+
+  useFrame(() => {
+    if (!camera.isPerspectiveCamera || size.height <= 0) return;
+    const aspect = size.width / size.height;
+    const clamped = Math.max(aspect, MIN_ASPECT);
+    const targetFov =
+      aspect >= 1 ? 60 : Math.min(85, 60 + (1 - clamped) * 40);
+    if (Math.abs(targetFov - lastFov.current) < 0.05) return;
+    lastFov.current = targetFov;
+    camera.fov = targetFov;
+    camera.updateProjectionMatrix();
+  });
+
+  return null;
+}
 
 function RoomAtmosphere() {
   const { currentRoom } = useScene();
@@ -117,6 +149,7 @@ function ItomCanvas({ fallback }) {
               <color attach="background" args={["#fafafa"]} />
               <fog attach="fog" args={["#fafafa", 15, 50]} />
               <RoomAtmosphere />
+              <ResponsiveFov />
               <PerformanceMonitor
                 onDecline={() => downgradeTier()}
                 flipflops={3}
