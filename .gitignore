@@ -18,7 +18,7 @@
 
 # misc
 .DS_Store
-/docs/
+docs/scratch/
 *.pem
 *.log
 
@@ -30,6 +30,12 @@ yarn-error.log*
 # local env files
 .env
 .env*.local
+
+# QA harness scratch: run logs and Lighthouse temp profiles.
+# qa-evidence/ is intentionally NOT ignored — it is the reproducible evidence.
+qa-*.log
+qa-lh-tmp*/
+qa-lh-tmp *
 
 # vercel
 .vercel

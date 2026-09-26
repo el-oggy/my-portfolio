@@ -7,6 +7,10 @@
     "prebuild": "npm run check:assets",
     "build": "next build",
     "check:assets": "node scripts/check-assets.cjs",
+    "check:m2-gallery": "node scripts/check-m2-gallery.cjs",
+    "qa:walkthrough": "node scripts/qa-walkthrough.cjs",
+    "qa:lighthouse": "node scripts/qa-lighthouse.cjs",
+    "qa:reduced-motion": "node scripts/qa-reduced-motion.cjs",
     "start": "next start",
     "lint": "next lint"
   },
