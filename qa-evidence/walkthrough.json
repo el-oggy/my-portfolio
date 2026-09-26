@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-26T11:30:50.437Z",
+  "generatedAt": "2026-09-26T12:31:28.678Z",
   "base": "http://localhost:3000",
   "browser": "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
   "webglRenderer": "Google Inc. (AMD) / ANGLE (AMD, AMD Radeon(TM) Graphics (0x0000164C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -10,19 +10,19 @@
   "note": "Headless-GPU FPS on this machine is indicative only, not a real-device measurement.",
   "rooms": {
     "corridor": {
-      "fps": 60.3
+      "fps": 60.6
     },
     "gallery": {
-      "fps": 57.2
+      "fps": 58.3
     },
     "studio": {
-      "fps": 58.2
+      "fps": 60
     },
     "about": {
-      "fps": 59.6
+      "fps": 55.6
     },
     "contact": {
-      "fps": 60.6
+      "fps": 60.2
     }
   },
   "consoleErrors": [],
@@ -40,37 +40,37 @@
       "name": "01-corridor",
       "width": 1600,
       "height": 900,
-      "bytes": 832432
+      "bytes": 807388
     },
     {
       "name": "02-gallery",
       "width": 1600,
       "height": 900,
-      "bytes": 608874
+      "bytes": 612925
     },
     {
       "name": "03-studio",
       "width": 1600,
       "height": 900,
-      "bytes": 168512
+      "bytes": 150688
     },
     {
       "name": "04-about",
       "width": 1600,
       "height": 900,
-      "bytes": 371349
+      "bytes": 374881
     },
     {
       "name": "05-contact",
       "width": 1600,
       "height": 900,
-      "bytes": 839119
+      "bytes": 844480
     },
     {
       "name": "06-final-corridor",
       "width": 1600,
       "height": 900,
-      "bytes": 783397
+      "bytes": 783332
     }
   ]
 }

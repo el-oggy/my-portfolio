@@ -7,6 +7,7 @@ import '../shaders/RevealMaterial'; // Registers alpha-discard reveal shader
 import { playBackgroundMusic } from '../../../utils/audioManager';
 import { useAchievements } from '../../../context/AchievementsContext';
 import { isTouchDevice } from '../../../utils/deviceDetect';
+import { useScene } from '../../../context/SceneContext';
 
 // Self-hosted sketch font — matches the corridor plaques and avoids a runtime
 // dependency on the Google Fonts CDN (blocked in some environments; see the
@@ -130,6 +131,8 @@ const EntranceDoors = ({
     const [, setIsWindowHovered] = useState(false);
     const windowAvatarRef = useRef();
     const { camera } = useThree();
+    // Fires the deferred corridor mount the instant the doors are clicked.
+    const { startEntrance } = useScene();
     const { unlockAchievement } = useAchievements();
 
     const [isMobile, setIsMobile] = useState(false);
@@ -349,6 +352,11 @@ const EntranceDoors = ({
 
         setIsOpen(true);
         setIsAnimating(true);
+        // Start building the corridor NOW, not at the end of this timeline.
+        // The ~2.5s door-open + camera dolly below gives the geometry build and
+        // shader compile time to finish while the doors still hide the corridor,
+        // so the visitor never sees the unmounted scene. See Experience.jsx.
+        startEntrance?.();
         playBackgroundMusic();
         unlockAchievement('corridor_enter');
 

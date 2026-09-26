@@ -32,6 +32,10 @@ const FPS_WINDOW = Number(process.env.QA_FPS_WINDOW || 3000);
 
 const MIN_SHOT_BYTES = 10 * 1024; // < 10KB means a blank/near-blank render
 const MIN_SHOT_DIM = 400;
+// How long to wait for a just-mounted 3D scene to actually draw before calling
+// the frame blank. Generous on purpose: this proves the scene renders, it does
+// not assert it renders instantly.
+const CANVAS_READY_TIMEOUT = Number(process.env.QA_CANVAS_TIMEOUT || 15000);
 
 const BROWSER_CANDIDATES = [
   process.env.CHROME_PATH,
@@ -170,6 +174,68 @@ async function waitFor(page, label, fn, timeout = READY_TIMEOUT, arg = undefined
   throw new Error(`TIMEOUT waiting for "${label}" after ${timeout}ms${lastErr ? ` (last error: ${lastErr.message})` : ''}`);
 }
 
+/**
+ * Sample the WebGL canvas itself, independently of the DOM.
+ *
+ * Why this exists: a full-page screenshot of a 3D app includes DOM chrome (nav
+ * buttons, the WANDERER card). That chrome alone produced lumaRange=209 on a
+ * frame where the canvas was entirely empty white — the blank-frame check
+ * passed while the corridor had not mounted. So the canvas is read separately
+ * and must itself carry the tonal spread.
+ *
+ * readPixels needs preserveDrawingBuffer, which this app does not enable, so we
+ * instead re-render into a 2D canvas via drawImage *inside a rAF callback*
+ * immediately after the draw — that is what makes the buffer still readable.
+ * If the app ever sets preserveDrawingBuffer, this keeps working regardless.
+ */
+async function analyseCanvas(page) {
+  return page.evaluate(() => new Promise((resolve) => {
+    const gl = document.querySelector('canvas');
+    if (!gl) return resolve(null);
+    requestAnimationFrame(() => {
+      try {
+        const w = 160;
+        const h = 90;
+        const c = document.createElement('canvas');
+        c.width = w;
+        c.height = h;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(gl, 0, 0, w, h);
+        const { data } = ctx.getImageData(0, 0, w, h);
+
+        let min = 255;
+        let max = 0;
+        let sum = 0;
+        const buckets = new Set();
+        let opaque = 0;
+        const total = w * h;
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] < 8) continue; // transparent pixel: no information
+          opaque++;
+          const luma = (data[i] * 299 + data[i + 1] * 587 + data[i + 2] * 114) / 1000;
+          sum += luma;
+          if (luma < min) min = luma;
+          if (luma > max) max = luma;
+          buckets.add(Math.round(luma / 8));
+        }
+        const mean = opaque ? sum / opaque : 0;
+        // A canvas that is entirely transparent has not drawn anything at all.
+        if (opaque < total * 0.5) {
+          return resolve({ range: 0, distinct: 0, mean: 0, opaqueRatio: opaque / total });
+        }
+        resolve({
+          range: Math.round(max - min),
+          distinct: buckets.size,
+          mean: Math.round(mean),
+          opaqueRatio: opaque / total,
+        });
+      } catch (err) {
+        resolve(null);
+      }
+    });
+  }));
+}
+
 /** Capture a screenshot and PROVE it is real content before accepting it. */
 async function shoot(page, name) {
   const file = path.join(OUT, `${name}.png`);
@@ -204,9 +270,51 @@ async function shoot(page, name) {
       + '— the view is probably obscured by a transition overlay; refusing to save');
   }
 
+  // The PNG check above is not sufficient on its own: DOM chrome (nav buttons,
+  // the WANDERER card) supplies tonal spread even when the 3D scene has not
+  // rendered at all. The canvas must independently look like a scene.
+  //
+  // Polling is not enough either: the paper transition is drawn *inside* the
+  // WebGL canvas as a rose flood, so it is non-blank (luma range ~176) and
+  // passes any threshold while completely hiding the room behind it. Because
+  // it is not a DOM node, the occlusion check cannot see it either. So we
+  // require the canvas to become STABLE: two consecutive samples that agree.
+  // The transition is still animating, so it will not settle until it is done.
+  const deadline = Date.now() + CANVAS_READY_TIMEOUT;
+  let cv = await analyseCanvas(page);
+  let stable = false;
+  let prev = null;
+  while (Date.now() < deadline) {
+    if (cv && cv.range >= 30 && cv.distinct >= 6) {
+      if (prev && Math.abs(prev.range - cv.range) <= 3
+        && Math.abs(prev.mean - cv.mean) <= 2) {
+        stable = true;
+        break;
+      }
+      prev = cv;
+    } else {
+      prev = null;
+    }
+    await sleep(300);
+    cv = await analyseCanvas(page);
+  }
+  if (cv === null) {
+    throw new Error(`ASSERT "${name}": could not read the WebGL canvas — refusing to save`);
+  }
+  if (cv.range < 30 || cv.distinct < 6) {
+    throw new Error(`ASSERT "${name}": the 3D canvas itself is blank `
+      + `(luma range ${cv.range}, ${cv.distinct} distinct buckets, ${(cv.opaqueRatio * 100).toFixed(0)}% opaque) `
+      + `even after ${CANVAS_READY_TIMEOUT}ms — the scene never drew. The surrounding DOM passed the PNG check, which is why the canvas is measured directly. Refusing to save`);
+  }
+  if (!stable) {
+    throw new Error(`ASSERT "${name}": the canvas never settled within ${CANVAS_READY_TIMEOUT}ms `
+      + `(last luma range ${cv.range}, ${cv.distinct} buckets) — most likely a transition overlay `
+      + 'is still animating over the view. Refusing to save');
+  }
+
   fs.writeFileSync(file, buf);
-  log(`  shot ${name}.png  ${width}x${height}  ${(bytes / 1024).toFixed(1)}KB  lumaRange=${variety.range} buckets=${variety.distinct}`);
-  return { name, file, width, height, bytes };
+  log(`  shot ${name}.png  ${width}x${height}  ${(bytes / 1024).toFixed(1)}KB  lumaRange=${variety.range} buckets=${variety.distinct} canvasRange=${cv.range} canvasBuckets=${cv.distinct}`);
+  return { name, file, width, height, bytes, canvasRange: cv.range, canvasBuckets: cv.distinct };
 }
 
 /** Sample real FPS over a window. Headless GPU is indicative only. */

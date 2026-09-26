@@ -11,6 +11,7 @@
     "qa:walkthrough": "node scripts/qa-walkthrough.cjs",
     "qa:lighthouse": "node scripts/qa-lighthouse.cjs",
     "qa:reduced-motion": "node scripts/qa-reduced-motion.cjs",
+    "qa:perf-diagnose": "node scripts/qa-perf-diagnose.cjs",
     "start": "next start",
     "lint": "next lint"
   },

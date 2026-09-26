@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
-import { PerformanceMonitor, Preload } from "@react-three/drei";
+import { PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
 
 import Experience from "./itom/src/components/canvas/Experience";
@@ -161,7 +161,13 @@ function ItomCanvas({ fallback }) {
                   onSceneReady={handleSceneReady}
                   performanceTier={tier}
                 />
-                <Preload all />
+                {/* NOTE: drei's <Preload all /> was removed. It force-loaded
+                    EVERY texture in the scene graph before first paint
+                    (~130 requests, 3.3MB of images) and, because it walks the
+                    whole graph, it also pulled the corridor back in — undoing
+                    the deferred mount in Experience.jsx. Texture loading is
+                    already driven by the LoadingManager in Preloader.jsx,
+                    which is what the progress readout reflects. */}
               </Suspense>
             </Canvas>
         </div>

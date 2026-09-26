@@ -52,13 +52,25 @@ const InfiniteCorridorManager = ({
     onDoorEnter,
     hideDoorsForSegments = [], // Segments that should hide their SegmentDoors
     clipSegmentNeg1 = false, // Whether to clip segment -1 at EntranceDoors
-    setCameraOverride // Function to take over camera control
+    setCameraOverride, // Function to take over camera control
+    enabled = true // Mount nothing until the entrance has been walked through
 }) => {
     const { camera } = useThree();
-    // Pre-mount segments 0 and 1 so shaders compile during preloader.
-    // Segment -1 is NOT pre-mounted to avoid visual collision with entrance doors.
-    // It mounts dynamically when camera reaches entrance (behind camera = invisible stutter).
-    const [activeSegments, setActiveSegments] = useState([0, 1]);
+    // Segments are only reachable AFTER the visitor walks through the entrance
+    // doors (Z=22, camera starts at Z=28). Segments 0 and 1 occupy Z=10..-150,
+    // so during the entire boot/preloader phase they sit behind the closed
+    // doors and contribute nothing visible.
+    //
+    // They were previously pre-mounted ([0, 1]) purely to warm shaders during
+    // the preloader. That cost ~4.6s of main-thread blocking time (Lighthouse
+    // TBT 7766ms, 97% attributed to the three.js chunk) for geometry the
+    // visitor cannot see, and it also forced every corridor texture to
+    // download before first paint.
+    //
+    // They now mount when the entrance completes. The paper transition
+    // (PaperTransition) already covers the first-frame compile of the corridor,
+    // so the hitch it used to pre-empt is masked rather than eliminated.
+    const [activeSegments, setActiveSegments] = useState([]);
 
     // Calculate which segment the camera is in
     const getSegmentFromZ = useCallback((z) => {
@@ -67,6 +79,11 @@ const InfiniteCorridorManager = ({
 
     // Update active segments based on camera position
     useFrame(() => {
+        // Gated: stay empty until the entrance is done. Without this the
+        // camera's boot position (Z=28) maps to segment -1, which would
+        // immediately mount the very geometry we are deferring.
+        if (!enabled) return;
+
         const currentSegment = getSegmentFromZ(camera.position.z);
 
         // Render previous, current, and next segment

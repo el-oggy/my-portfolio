@@ -27,7 +27,7 @@ const ENTRANCE_DOORS_Z = 22;
  */
 const Experience = ({ onSceneReady, performanceTier }) => {
     // Use SceneContext for room state
-    const { hasEntered, markEntered, enterRoom, isTeleporting, isInRoom } = useScene();
+    const { hasEntered, hasStartedEntrance, markEntered, enterRoom, isTeleporting, isInRoom } = useScene();
 
     const { camera } = useThree();
 
@@ -102,8 +102,18 @@ const Experience = ({ onSceneReady, performanceTier }) => {
             )}
 
             {/* === INFINITE CORRIDOR (Deferred loading for performance) === */}
+            {/* `enabled={hasStartedEntrance}` keeps the corridor unmounted during
+                boot and preloads it the moment the doors are CLICKED. Segments
+                0/1 sit behind the closed entrance doors (Z=22) for the whole
+                preloader phase, so building them blocked the main thread for
+                ~4.6s (97% of Lighthouse TBT) for geometry the visitor could
+                not see. Gating on hasEntered instead was worse: that fires at
+                the END of the door animation, so the visitor saw a blank void
+                before the corridor appeared. hasStartedEntrance buys the ~2.5s
+                door timeline to build and compile behind the closing doors. */}
             <Suspense fallback={null}>
                 <InfiniteCorridorManager
+                    enabled={hasStartedEntrance}
                     onDoorEnter={handleDoorEnter}
                     hideDoorsForSegments={hasEntered ? [] : [-1]} // Hide segment -1's doors until entered
                     clipSegmentNeg1={!hasEntered} // Clip segment -1 visualization until entered

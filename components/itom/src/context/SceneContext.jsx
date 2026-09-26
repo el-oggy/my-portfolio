@@ -18,6 +18,12 @@ export const SceneProvider = ({ children }) => {
 
     const [currentRoom, setCurrentRoom] = useState(null); // null = corridor, 'about', 'portfolio', etc.
     const [hasEntered, setHasEntered] = useState(false);  // Has user clicked entrance doors?
+    // Set the instant the entrance doors are CLICKED, which is ~2.5s before
+    // markEntered() fires at the end of the open+camera-dolly timeline. The
+    // corridor mounts off this flag so its geometry build and shader compile
+    // overlap the door animation instead of landing as a blank void the
+    // moment the camera clears the threshold.
+    const [hasStartedEntrance, setHasStartedEntrance] = useState(false);
     const [exitRequested, setExitRequested] = useState(false); // Signal to request exit from room
     const [overlayContent, setOverlayContent] = useState(null); // Content for overlay (Studio monitor etc)
 
@@ -62,6 +68,12 @@ export const SceneProvider = ({ children }) => {
 
     const markEntered = useCallback(() => {
         setHasEntered(true);
+    }, []);
+
+    // Called from EntranceDoors.handleClick, at the very start of the open
+    // animation. Kicks off the deferred corridor mount (see Experience.jsx).
+    const startEntrance = useCallback(() => {
+        setHasStartedEntrance(true);
     }, []);
 
     const openOverlay = useCallback((content) => {
@@ -145,6 +157,8 @@ export const SceneProvider = ({ children }) => {
     const value = useMemo(() => ({
         currentRoom,
         hasEntered,
+        hasStartedEntrance,
+        startEntrance,
         exitRequested,
         overlayContent, // Exposed
         enterRoom,
@@ -180,6 +194,7 @@ export const SceneProvider = ({ children }) => {
     }), [
         currentRoom,
         hasEntered,
+        hasStartedEntrance,
         exitRequested,
         overlayContent,
         enterRoom,
@@ -187,6 +202,7 @@ export const SceneProvider = ({ children }) => {
         requestExit,
         clearExitRequest,
         markEntered,
+        startEntrance,
         openOverlay,
         closeOverlay,
         emailOpen,

@@ -98,6 +98,35 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        {/*
+          The preloader is the LCP candidate on `/` and it renders in
+          CabinSketch. Both faces were being discovered only after the CSS
+          parsed and the browser started layout, so the first paint waited on
+          a 154KB/269KB TTF fetch. Preloading starts those two requests during
+          head parsing instead, in parallel with the JS chunks.
+          Measured effect: the font moved from a 289KB `XHR` resource to a
+          `Font` resource, and total XHR transfer went 289KB -> 0KB.
+         
+          Deliberately NOT preloaded: RubikScribble-Regular.ttf (583KB), which
+          is only used by GlobalOverlay and mounts after the preloader has
+          already finished, and FrederickatheGreat (484KB), used further in.
+        */}
+        <link
+          rel="preload"
+          href="/fonts/CabinSketch-Regular.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/CabinSketch-Bold.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         {/* Keyboard/screen-reader escape hatch out of the immersive canvas */}
         <a
